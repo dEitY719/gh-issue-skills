@@ -118,19 +118,16 @@ read the one file for the harness you are on.
 | `discussion-convert` | full | full | full | full | full | full |
 
 *fallback path* — `implement` picks between two complete routes. The TDD path
-needs both `superpowers:test-driven-development` to resolve **and** a test runner
-to be detected; otherwise it runs the built-in path: pre-edit baseline, edits,
-test run, a bounded 3-attempt failure loop, full report. Harnesses without a
-`Skill()` equivalent always take that route. It is a different road to the same
-finish line, not a reduced feature set — the skill is written to never require
-the plugin.
+needs `superpowers:test-driven-development` to resolve **and** a test runner to be
+detected; otherwise it runs the built-in path (pre-edit baseline, edits, test run,
+bounded 3-attempt failure loop, full report), as harnesses without a `Skill()`
+equivalent always do. Same finish line — the skill never requires the plugin.
 
 *confirm in chat* — two steps need a real answer: `create`'s clarification guard
-(when the conversation has not converged on a requirement) and
-`discussion-create`'s category selection. Kimi (`AskUserQuestion`) and Gemini CLI
-(`ask_user`) have a structured question tool; Codex, Hermes, Antigravity, and
-OpenCode do not, so ask in the conversation and wait for a real reply. An
-auto-approve session setting is not the user's answer.
+(conversation has not converged) and `discussion-create`'s category selection.
+Kimi (`AskUserQuestion`) and Gemini CLI (`ask_user`) have a structured question
+tool; Codex, Hermes, Antigravity, and OpenCode do not, so ask and wait for a real
+reply. An auto-approve session setting is not the user's answer.
 
 ## Shared assets
 
@@ -169,18 +166,12 @@ Manifests live at the repo root and all point at one flat `skills/` directory:
 └── LICENSE
 ```
 
-Only Claude Code understands a nested `plugins/<name>/skills/` layout. The other
-five harnesses resolve manifests at the repo root and a skills tree at
-`./skills/`, so this repo keeps everything flat. See [`CLAUDE.md`](CLAUDE.md) for
-the full rationale and contribution rules.
-
-Skill directory names dropped their old `gh-issue-` / `gh-` prefixes in the
-migration: `/gh-issue:gh-issue-implement` stutters, and the plugin namespace
-already carries the meaning the prefix used to (#1410 F-4).
-
-The `.kimi-plugin/` manifest is pre-provisioned: Kimi CLI is not installed on the
-maintainer's machines yet, and shipping the manifest now costs nothing and saves
-a migration later.
+Only Claude Code understands a nested `plugins/<name>/skills/` layout; the other
+five resolve manifests at the repo root and a skills tree at `./skills/`, so this
+repo keeps everything flat. Skill directory names dropped their old `gh-issue-` /
+`gh-` prefixes in the migration — `/gh-issue:gh-issue-implement` stutters and the
+namespace already carries that meaning (#1410 F-4). `.kimi-plugin/` is
+pre-provisioned for a CLI not yet installed. Rationale: [`CLAUDE.md`](CLAUDE.md).
 
 ## Cross-repo names
 
@@ -200,10 +191,9 @@ the sibling does not exist yet (#1676 §2):
 | `devx:trd-to-issues` | `spec-flow:trd-to-issues` | `spec-flow-skills` |
 
 One thing deliberately did **not** move: the `[step:gh-issue-implement/<id>] OK`
-and `[step:gh-issue-proceed/<id>] OK` marker lines. Those are a wire format
-matched verbatim by dotfiles' `claude/hooks/skill_completion_guard.py` against
-its `skill_step_catalog.yml` keys, and `gh-issue` + `implement` happens to spell
-the old key exactly. Renaming them would break the guard (#1676 NF-4).
+and `[step:gh-issue-proceed/<id>] OK` marker lines — a wire format matched
+verbatim by dotfiles' `claude/hooks/skill_completion_guard.py` against its
+`skill_step_catalog.yml` keys. Renaming them would break the guard (#1676 NF-4).
 
 ## CI
 
@@ -228,24 +218,19 @@ rule. There is no local copy to keep in sync; a check added upstream applies her
 on the next run.
 
 The `allow-emoji-paths` entries cover text the skills **quote** rather than
-decorate with: the ai-metrics footer, whose chart / person / robot glyphs are the
-wire format itself (dotfiles #317 F-2, PR #320), and the `Postpone` block label,
-a real GitHub label name that `implement` and `proceed` refuse to start on.
-Nothing else in the repo may carry an emoji.
+decorate with: the ai-metrics footer, whose glyphs are the wire format itself
+(dotfiles #317 F-2, PR #320), and the `Postpone` block label that `implement` and
+`proceed` refuse to start on. Nothing else in the repo may carry an emoji.
 
 ## Provenance
 
-These skills were extracted from
-[`dEitY719/dotfiles`](https://github.com/dEitY719/dotfiles)
+Extracted from [`dEitY719/dotfiles`](https://github.com/dEitY719/dotfiles)
 (`claude/skills/{gh-issue-read,gh-issue-create,gh-issue-implement,gh-issue-proceed,gh-discussion-create,gh-discussion-convert}`)
-as a content snapshot — no history rewriting. The dotfiles copies remain in
-place; they are removed in Phase 4 of that repo's migration (#1410 NF-1 / NF-3).
-Behaviour is unchanged from the snapshot; only the namespace moved, from `gh:` to
-`gh-issue:`, and the directory names lost their now-redundant prefixes.
-
-This is Phase 3 of the dotfiles #1410 migration, shared with `gh-pr-skills` and
-`gh-flow-skills`. `packaging-skills` was Phase 0, and `harness-skills` was
-Phase 1 and is the sibling that owns the shared assets this repo links to.
+as a content snapshot — no history rewriting, behaviour unchanged. Only the
+namespace moved, from `gh:` to `gh-issue:`, and the directory names lost their
+now-redundant prefixes; the dotfiles copies go in Phase 4 (#1410 NF-1 / NF-3).
+This is Phase 3, shared with `gh-pr-skills` and `gh-flow-skills`;
+`packaging-skills` was Phase 0 and `harness-skills` (Phase 1) owns the shared assets.
 
 ## License
 
