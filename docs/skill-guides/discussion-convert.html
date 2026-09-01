@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>discussion-convert — Discussion 승격 스킬 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{interpolate-size:allow-keywords}
+html.theme-dark{--bg:#0A0A0A;--surface:#141414;--surface-hover:#1C1C1C;--border:rgba(255,255,255,0.07);--text:#EDEDED;--text-secondary:#8a8a8a;--accent:#3b82f6;--accent-secondary:#8b5cf6;--positive:#10b981;--negative:#f43f5e;--warning:#f59e0b}
+html.theme-light{--bg:#FAFAF9;--surface:#FFFFFF;--surface-hover:#F5F5F4;--border:rgba(0,0,0,0.09);--text:#0f172a;--text-secondary:#64748b;--accent:#2563eb;--accent-secondary:#7c3aed;--positive:#059669;--negative:#e11d48;--warning:#d97706}
+body{font-family:'Inter','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;transition:background .3s,color .3s;scrollbar-gutter:stable}
+h1,h2,h3,h4{color:var(--text);letter-spacing:-0.03em;line-height:1.12;text-wrap:balance}
+h1{font-weight:800;font-size:clamp(2.2rem,5.4vw,3.6rem)}
+h2{font-weight:700;font-size:clamp(1.8rem,3.4vw,2.3rem)}
+h3{font-weight:650;font-size:1.5rem}
+p,li,td,th,span,label{color:var(--text);font-weight:400}
+.text-secondary{color:var(--text-secondary)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.92em}
+code{background:var(--surface-hover);border:1px solid var(--border);border-radius:5px;padding:.12em .42em}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;transition:box-shadow .2s ease}
+.card:hover{box-shadow:0 0 0 1px var(--border),0 8px 20px rgba(0,0,0,.10)}
+section{padding:56px 0}
+.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+/* hero */
+header.hero{padding:88px 0 56px;border-bottom:1px solid var(--border)}
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.badge{font-size:.8rem;font-weight:600;padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary)}
+.badge.ok{color:var(--positive);border-color:color-mix(in srgb,var(--positive) 35%,transparent)}
+.badge.warn{color:var(--warning);border-color:color-mix(in srgb,var(--warning) 35%,transparent)}
+.lede{font-size:1.24rem;color:var(--text-secondary);max-width:70ch;margin-top:18px}
+.readonly-stamp{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:12px 18px;border-radius:10px;border:1px solid color-mix(in srgb,var(--positive) 38%,transparent);background:color-mix(in srgb,var(--positive) 9%,transparent);font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--positive);flex:none}
+/* grid */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* table */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px}
+th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--border);font-size:.96rem;vertical-align:top}
+th{font-weight:650;color:var(--text-secondary);font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+tbody tr:last-child td{border-bottom:none}
+/* steps */
+.step{display:grid;grid-template-columns:56px 1fr;gap:20px;align-items:start;padding:22px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-n{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:1.1rem;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 32%,transparent)}
+.step-n.guard{background:color-mix(in srgb,var(--warning) 14%,transparent);color:var(--warning);border-color:color-mix(in srgb,var(--warning) 34%,transparent)}
+.step-n.best{font-size:.9rem;background:color-mix(in srgb,var(--accent-secondary) 14%,transparent);color:var(--accent-secondary);border-color:color-mix(in srgb,var(--accent-secondary) 34%,transparent)}
+.step h3{font-size:1.12rem;margin-bottom:6px}
+.step p{color:var(--text-secondary);font-size:.97rem}
+.step p + p{margin-top:8px}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:999px;margin-left:8px;vertical-align:middle;border:1px solid var(--border);color:var(--text-secondary)}
+.pill.abort{color:var(--negative);border-color:color-mix(in srgb,var(--negative) 34%,transparent)}
+.pill.be{color:var(--accent-secondary);border-color:color-mix(in srgb,var(--accent-secondary) 34%,transparent)}
+/* flow */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:22px;border-radius:12px;background:var(--surface);border:1px solid var(--border)}
+.flow-node{padding:11px 17px;border-radius:9px;border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:.94rem}
+.flow-node.hi{border-color:var(--accent);color:var(--accent)}
+.flow-node.mut{border-color:color-mix(in srgb,var(--accent-secondary) 45%,transparent);color:var(--accent-secondary);font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.88rem}
+.flow-arrow{color:var(--text-secondary);font-weight:700}
+/* backlink invariant */
+.link-pair{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:18px}
+.link-lane{border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:22px;border-top:3px solid var(--border)}
+.link-lane.hard{border-top-color:var(--positive)}
+.link-lane.soft{border-top-color:var(--warning)}
+.link-tag{font-size:.74rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary)}
+.link-lane.hard .link-tag{color:var(--positive)}
+.link-lane.soft .link-tag{color:var(--warning)}
+.link-lane h3{font-size:1.1rem;margin:6px 0 10px}
+.link-lane p{color:var(--text-secondary);font-size:.95rem}
+.link-out{margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);font-weight:650;font-size:.94rem}
+/* caveat */
+.caveat{border-left:3px solid var(--warning);padding-left:18px;margin:14px 0}
+.caveat.crit{border-left-color:var(--negative)}
+.caveat + .caveat{margin-top:22px}
+.caveat h4{font-size:1.03rem;margin-bottom:5px}
+.caveat p{color:var(--text-secondary);font-size:.95rem}
+.caveat p + p{margin-top:9px}
+/* boundary */
+.bnd{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--border)}
+.bnd:last-child{border-bottom:none}
+.bnd-x{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:color-mix(in srgb,var(--negative) 13%,transparent);color:var(--negative)}
+.bnd-c{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:color-mix(in srgb,var(--positive) 13%,transparent);color:var(--positive)}
+/* animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeInUp .6s ease-out both}
+.animate.delay-1{animation-delay:.1s}.animate.delay-2{animation-delay:.2s}.animate.delay-3{animation-delay:.3s}.animate.delay-4{animation-delay:.4s}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+/* menu */
+.viz-menu{position:fixed;top:16px;right:16px;z-index:9999}
+.viz-menu-toggle{width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);transition:all .2s}
+.viz-menu-toggle:hover{background:var(--surface-hover)}
+.viz-menu-dropdown{position:absolute;top:52px;right:0;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s;backdrop-filter:blur(16px)}
+.viz-menu-dropdown.open{opacity:1;visibility:visible;transform:none}
+.viz-menu-dropdown button{width:100%;padding:10px 14px;border:none;border-radius:8px;background:transparent;color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;transition:background .15s}
+.viz-menu-dropdown button:hover{background:var(--surface-hover)}
+.viz-menu-dropdown .mi{display:inline-flex;align-items:center;flex:none}
+.skip-to-content{position:absolute;top:-40px;left:6px;background:var(--accent);color:#fff;padding:8px 12px;text-decoration:none;border-radius:4px;opacity:0;pointer-events:none;transition:all .2s;z-index:10000}
+.skip-to-content:focus{top:6px;opacity:1;pointer-events:auto}
+details{overflow:hidden;border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:10px}
+details summary{cursor:pointer;list-style:none;padding:16px 20px;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:'+';color:var(--accent);font-weight:800}
+details[open] summary::after{content:'\2212'}
+.det-body{padding:0 20px 18px;color:var(--text-secondary);font-size:.96rem}
+footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-secondary);font-size:.9rem}
+@media print{body{background:#fff!important;color:#000!important}.viz-menu{display:none}.reveal{opacity:1!important;transform:none!important}.card{break-inside:avoid;border:1px solid #ddd;box-shadow:none}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@page{margin:1in}
+@media(max-width:520px){.step{grid-template-columns:1fr;gap:10px}}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-to-content">본문으로 건너뛰기</a>
+
+<div class="viz-menu">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown">
+    <button onclick="cycleTheme()" aria-label="테마 전환"><span id="themeIcon" class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span><span id="themeLabel">Dark</span></button>
+    <button onclick="downloadImage()" aria-label="PNG 내려받기"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span>Download PNG</span></button>
+    <button onclick="window.print()" aria-label="인쇄"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span>Print / PDF</span></button>
+  </div>
+</div>
+
+<main id="main-content" role="main">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow animate">gh-issue 플러그인 · 스킬 가이드</div>
+    <h1 class="animate delay-1"><span class="mono">discussion-convert</span></h1>
+    <p class="lede animate delay-2">결정이 끝난 <code>Ideas</code> Discussion 1건을 <strong>백링크를 가진 Issue 1건 + 잠기고 닫힌 Discussion</strong> 으로 바꾼다. GitHub 에는 공개된 <code>convertDiscussion</code> 뮤테이션이 없으므로, UI 의 <code>Convert to issue</code> 경로를 4개의 원시 뮤테이션으로 흉내 낸다. 출력은 새 Issue URL 한 줄이다.</p>
+    <div class="badge-row animate delay-3">
+      <span class="badge">호출 <code>/gh-issue:discussion-convert &lt;N&gt; [remote] [--no-*] [--force-category]</code></span>
+      <span class="badge">Step 9단계</span>
+      <span class="badge warn">쓰기 — Issue 생성 + Discussion 변경</span>
+    </div>
+    <div class="readonly-stamp animate delay-4"><span class="dot"></span>멱등 — 두 번 호출해도 Issue 가 두 개 생기지 않는다</div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>산출물</div>
+    <h2 data-reveal style="margin:8px 0 22px">입력에서 출력까지</h2>
+    <div class="flow" data-reveal>
+      <span class="flow-node">결정된 Ideas Discussion #N + remote</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node hi">/gh-issue:discussion-convert</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node">백링크 달린 Issue #M + 잠기고 닫힌 Discussion #N</span>
+    </div>
+    <p class="text-secondary" style="margin-top:14px"><code>discussion-create</code> 와 <code>discussion-convert</code> 는 한 생애주기의 앞뒤다. 앞쪽이 결정 전 RFC 를 열고, 뒤쪽이 결정된 것을 트래커로 승격시킨다. 즉 <code>create</code> 와 <code>discussion-create</code> 를 가르는 "결정됨(decidedness)" 기준에서 <strong>질문이 결정된 뒤 되돌아오는 다리</strong>가 이 스킬이다.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>경계</div>
+    <h2 data-reveal style="margin:8px 0 22px">언제 쓰고 언제 안 쓰는가</h2>
+    <div class="grid g2">
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:14px">쓸 때</h3>
+        <div class="bnd"><span class="bnd-c">O</span><p><code>Ideas</code> Discussion 의 열린 질문이 결론에 도달했고, 이제 칸반 보드에서 추적해야 할 때.</p></div>
+        <div class="bnd"><span class="bnd-c">O</span><p>운영 원칙 #2 "결정되면 즉시 convert" 를 기계적으로 집행하고 싶을 때.</p></div>
+      </article>
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:14px">안 쓸 때 — 형제 스킬로</h3>
+        <div class="bnd"><span class="bnd-x">X</span><p>아직 결정 전인 대화를 RFC 로 남겨야 함 → <code>discussion-create</code></p></div>
+        <div class="bnd"><span class="bnd-x">X</span><p>대화가 이미 수렴된 to-do 이고 Discussion 단계를 거치지 않음 → <code>create</code></p></div>
+        <div class="bnd"><span class="bnd-x">X</span><p>Discussion 을 다시 쓰거나 재분류해야 함 → 사람이 GitHub UI 에서</p></div>
+      </article>
+    </div>
+
+    <h3 data-reveal style="margin:34px 0 0;font-size:1.28rem">양방향 백링크 불변식</h3>
+    <div class="link-pair" data-reveal>
+      <article class="link-lane hard">
+        <div class="link-tag">끌 수 없음</div>
+        <h3>Issue → Discussion</h3>
+        <p>Step 5 가 Issue 본문 앞에 붙이는 <code>Originated from discussion #&lt;N&gt;</code>. <strong>끌 수 있는 플래그가 없다.</strong> Step 5 만 성공하면 정책 불변식은 이미 충족된 것으로 본다.</p>
+        <div class="link-out">플래그 없음 · 항상 붙는다</div>
+      </article>
+      <article class="link-lane soft">
+        <div class="link-tag">끌 수 있음</div>
+        <h3>Discussion → Issue</h3>
+        <p>Step 7 이 Discussion 에 다는 <code>Linked to issue #&lt;M&gt; -- decision tracked there.</code> 코멘트. 이 방향만 끌 수 있으며, 그때 역방향 링크는 사람이 관리한다.</p>
+        <div class="link-out"><code>--no-comment</code> 로 생략 가능</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>인터페이스</div>
+    <h2 data-reveal style="margin:8px 0 22px">호출 형식과 인자</h2>
+    <div class="card" data-reveal style="margin-bottom:18px">
+      <p class="mono">/gh-issue:discussion-convert &lt;discussion-number&gt; [remote] [--no-*] [--force-category]</p>
+    </div>
+    <div class="tbl-scroll" data-reveal>
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">references/help.md 기준 인자</caption>
+        <thead><tr><th>#</th><th>이름</th><th>기본값</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>&lt;discussion-number&gt;</code> 또는 <code>-h</code> / <code>--help</code> / <code>help</code></td><td>(필수)</td><td>변환할 Ideas Discussion 번호 (양의 정수)</td></tr>
+          <tr><td>2</td><td><code>[remote]</code></td><td><code>origin</code></td><td>Discussion 과 새 Issue 를 소유할 repo 의 git remote</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl-scroll" data-reveal style="margin-top:18px">
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">플래그</caption>
+        <thead><tr><th>플래그</th><th>기본값</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>--no-comment</code></td><td>off</td><td>Step 7(<code>Linked to issue #&lt;M&gt;</code> 역방향 백링크 코멘트) 생략. 역방향 링크는 사람이 관리</td></tr>
+          <tr><td><code>--no-lock</code></td><td>off</td><td>Step 8.2(<code>Lock conversation</code>, reason Resolved) 생략</td></tr>
+          <tr><td><code>--no-close</code></td><td>off</td><td>Step 8.1(<code>closeDiscussion</code>) 생략. Discussion 을 계속 열어 둘 때</td></tr>
+          <tr><td><code>--no-board-sync</code></td><td>off</td><td>Step 6(프로젝트 보드 <code>In progress</code> 전이) 생략</td></tr>
+          <tr><td><code>--force-category</code></td><td>off</td><td>Step 3 의 <code>Ideas</code> 전용 가드 우회. Q&amp;A / Announcements / Lessons 변환에 필요하며 정책상 원래 금지</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl-scroll" data-reveal style="margin-top:18px">
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">환경 변수</caption>
+        <thead><tr><th>변수</th><th>기본값</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>GH_DISABLE_AI_METRICS=1</code></td><td>off</td><td>ai-metrics 처리 억제 (<code>discussion-create</code> 와 parity)</td></tr>
+          <tr><td><code>GH_PROJECT_STATUS_SYNC=0</code></td><td>on</td><td>보드 동기화 전역 생략 (<code>_gh_project_status_sync</code> 헬퍼가 처리)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl-scroll" data-reveal style="margin-top:18px">
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">사용 예</caption>
+        <thead><tr><th>명령</th><th>동작</th></tr></thead>
+        <tbody>
+          <tr><td><code>/gh-issue:discussion-convert 42</code></td><td><code>origin</code> repo 의 Discussion #42 를 변환</td></tr>
+          <tr><td><code>/gh-issue:discussion-convert 42 upstream</code></td><td><code>upstream</code> repo 에 대해 변환</td></tr>
+          <tr><td><code>/gh-issue:discussion-convert 42 --no-comment --no-lock</code></td><td>백링크가 붙은 Issue 만 만들고 Discussion 은 열린 채 조용히 둔다</td></tr>
+          <tr><td><code>/gh-issue:discussion-convert -h</code></td><td>help 를 verbatim 출력하고 종료. API 호출 0건</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>동작</div>
+    <h2 data-reveal style="margin:8px 0 22px">Step 9단계</h2>
+    <div class="card" data-reveal style="padding:8px 24px">
+      <div class="step"><div class="step-n">1</div><div><h3>repo 컨텍스트 감지</h3><p><code>START_TS</code> 기록, git repo 확인, 선택한 remote 의 URL 하나에서 <code>TARGET_REPO</code> 와 <code>TARGET_HOST</code> 를 함께 뽑고 <code>GH_HOST</code> 를 export 한다. remote 가 없으면 즉시 실패 — 조용한 <code>origin</code> fallback 없음.</p></div></div>
+      <div class="step"><div class="step-n">2</div><div><h3>Discussion fetch</h3><p><code>gh_discussion.sh</code> 를 source 하고 <code>_gh_discussion_fetch</code> 로 GraphQL 한 번 호출해 <code>.id</code> / <code>.number</code> / <code>.title</code> / <code>.body</code> / <code>.url</code> / <code>.category</code> / <code>.closed</code> / <code>.locked</code> 를 읽는다. fetch 실패 시 stderr 를 그대로 내보내고 abort 한다.</p></div></div>
+      <div class="step"><div class="step-n guard">3</div><div><h3>카테고리 가드<span class="pill abort">exit 1</span></h3><p><code>.category != "Ideas"</code> 이고 <code>--force-category</code> 가 없으면 <code>references/error-cases.md</code> 의 거부 메시지를 verbatim 출력하고 exit 1, Step 4~9 를 건너뛴다.</p></div></div>
+      <div class="step"><div class="step-n guard">4</div><div><h3>멱등성 검사 — 모든 뮤테이션보다 앞<span class="pill">exit 0</span></h3><p>본문에 백링크 마커 <code>Originated from discussion #&lt;N&gt;</code> 이 이미 있는 Issue 를 검색한다. 있으면 <code>[OK] Discussion #&lt;N&gt; already converted to &lt;url&gt;</code> 을 찍고 exit 0.</p><p>검색 자체가 실패하면(rate limit / auth) 경고만 하고 계속 진행한다 — 중복은 사람이 정리할 수 있지만 조용한 abort 는 Issue 를 아예 남기지 않기 때문이다.</p></div></div>
+      <div class="step"><div class="step-n">5</div><div><h3>Issue 생성</h3><p>백링크를 앞에 붙인 원본 Discussion 본문으로 <code>gh issue create</code> 를 실행하고 새 번호 <code>&lt;M&gt;</code> 을 잡는다. 실패하면 stderr 첫 줄과 <code>[FAIL] Step 5</code> 를 찍고 abort — Step 6~8 은 돌지 않는다.</p></div></div>
+      <div class="step"><div class="step-n best">6~8</div><div><h3>사후 뮤테이션<span class="pill be">best-effort</span></h3><p>Step 6 보드 동기화(<code>In progress</code>, <code>--only-from "Backlog,Ready"</code>), Step 7 Discussion 에 <code>Linked to issue #&lt;M&gt; -- decision tracked there.</code> 코멘트, Step 8 닫기(<code>closeDiscussion</code> reason RESOLVED) + 잠그기(<code>lockLockable</code> reason RESOLVED).</p><p>이미 닫혔거나 잠긴 Discussion 은 해당 뮤테이션을 건너뛰고 리포트에 <code>close=skip</code> / <code>lock=skip</code> 으로 보고한다.</p></div></div>
+      <div class="step"><div class="step-n">9</div><div><h3>리포트</h3><p><code>[OK]</code> 라인 + <code>steps:</code> 요약 + <code>Next:</code> 힌트. 실패 시 실패한 step 이름과 헬퍼 stderr 첫 줄을 인용한다.</p></div></div>
+    </div>
+
+    <h3 data-reveal style="margin:34px 0 0;font-size:1.28rem">공개 <code>convertDiscussion</code> 이 없어서 — 4개 원시 뮤테이션</h3>
+    <p class="text-secondary" data-reveal style="margin:10px 0 16px">2026-05 기준 REST / GraphQL 어디에도 <code>convertDiscussion</code> 이 없다. UI 의 <code>Convert to issue</code> 흐름을 아래 4개로 흉내 낸다.</p>
+    <div class="flow" data-reveal>
+      <span class="flow-node mut">gh issue create <span class="text-secondary">— Step 5</span></span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node mut">addDiscussionComment <span class="text-secondary">— Step 7</span></span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node mut">closeDiscussion <span class="text-secondary">— Step 8.1</span></span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node mut">lockLockable <span class="text-secondary">— Step 8.2</span></span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>제약</div>
+    <h2 data-reveal style="margin:8px 0 22px">주의사항</h2>
+
+    <article class="card" data-reveal style="border-color:color-mix(in srgb,var(--negative) 35%,transparent)">
+      <div class="caveat crit">
+        <h4>멱등이다 — 두 번 호출해도 Issue 가 두 개 생기지 않는다</h4>
+        <p>Step 4 의 백링크 마커 검색이 모든 뮤테이션보다 먼저 돌기 때문이다. 다만 백링크 마커가 검색 인덱스에 반영되기 전에 재호출하면 중복이 가능하고, 그때는 사람 검토가 마지막 방어선이다.</p>
+      </div>
+      <div class="caveat crit">
+        <h4>양방향 백링크 불변식을 지킨다</h4>
+        <p>Issue → Discussion 방향(Step 5 가 본문 앞에 붙이는 <code>Originated from discussion #&lt;N&gt;</code>)은 <strong>끌 수 있는 플래그가 없다</strong>. Discussion → Issue 방향(Step 7 코멘트)만 <code>--no-comment</code> 로 끌 수 있다. Step 5 만 성공하면 정책 불변식은 이미 충족된 것으로 본다.</p>
+      </div>
+      <div class="caveat crit">
+        <h4><code>Ideas</code> 외 카테고리는 <code>--force-category</code> 없이 거부한다</h4>
+        <p>운영 원칙 #2 "결정되면 즉시 convert" 는 Ideas 버킷만을 가리킨다. Announcements 는 일회성, Lessons 는 Discussion-first, Q&amp;A 는 답변되고 변환되지 않는 것 — 생애주기가 달라서 트래커로 조용히 끌어오면 안 된다.</p>
+        <p>거부 메시지가 <code>docs/.ssot/discussions-policy.md</code> 운영 원칙 #2 를 인용하는 것은 감사 기록에 기계적 거절이 아니라 정책 근거를 남기기 위해서다. <code>--force-category</code> 는 1회용 우회이지 가드 제거가 아니다.</p>
+      </div>
+    </article>
+
+    <div style="margin-top:16px">
+      <details open>
+        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (#1403 / #1407)</summary>
+        <div class="det-body">둘 다 Step 1 이 같은 remote URL 에서 뽑은 쌍이고, <code>gh_discussion.sh</code> 의 GraphQL 헬퍼들도 export 된 <code>GH_HOST</code> 를 상속한다. <code>--repo</code> 없는 <code>gh</code> 는 git 의 <code>origin</code> 이 아니라 gh CLI 자신의 <code>gh repo set-default</code> 를 따라가므로, github.com 과 GHES 에 동시 로그인한 상태면 에러 없이 남의 repo 에 Issue 를 만든다. 예상 밖의 <code>gh</code> 결과를 <code>--repo</code> 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다. Step 6 의 보드 동기화 헬퍼에도 <code>--repo "$TARGET_REPO"</code> 를 명시한다(#1405).</div>
+      </details>
+      <details>
+        <summary>Step 5 이후 단계가 실패해도 새 Issue 를 롤백하지 않는다</summary>
+        <div class="det-body">백링크를 가진 Issue 가 존재하는 순간 SSOT 사슬은 온전하므로, close / lock / comment 실패는 abort 가 아니라 경고다. 반대로 Step 5 가 실패하면 Discussion 쪽 뮤테이션은 하나도 돌지 않는다.</div>
+      </details>
+      <details>
+        <summary>존재하지 않는 <code>convertDiscussion</code> 엔드포인트를 쓰려 하지 않는다</summary>
+        <div class="det-body">2026-05 기준 REST / GraphQL 어디에도 없어서 4개 원시 뮤테이션으로 UI 흐름을 흉내 낸다.</div>
+      </details>
+      <details>
+        <summary>없는 remote 를 받았을 때 <code>origin</code> 으로 fallback 하지 않는다</summary>
+        <div class="det-body">Step 1 에서 즉시 실패한다.</div>
+      </details>
+      <details>
+        <summary>Discussion 을 재분류하거나 다른 repo 로 옮기지 않는다</summary>
+        <div class="det-body">그 작업은 사람이 GitHub UI 에서 한다.</div>
+      </details>
+      <details>
+        <summary>"변환할까요?" 같은 확인 질문을 하지 않는다</summary>
+        <div class="det-body">스킬 실행 자체가 컨펌이다.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><span class="mono">gh-issue-skills</span> · 스킬 가이드 · 원문 <code>docs/skill-guides/discussion-convert.md</code></p>
+  </div>
+</footer>
+
+</main>
+
+<script>
+function toggleMenu(){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.toggle('open');}
+document.addEventListener('click',function(e){if(!e.target.closest('.viz-menu')){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+var savedTheme=localStorage.getItem('viz-theme');
+var currentTheme=savedTheme||(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+var ICON_MOON="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/></svg>";
+var ICON_SUN="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41\"/></svg>";
+function applyTheme(t){document.documentElement.className='theme-'+t;document.getElementById('themeIcon').innerHTML=t==='dark'?ICON_MOON:ICON_SUN;document.getElementById('themeLabel').textContent=t==='dark'?'Dark':'Light';localStorage.setItem('viz-theme',t);currentTheme=t;}
+function cycleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
+applyTheme(currentTheme);
+document.querySelectorAll('[data-reveal]').forEach(function(el){el.classList.add('reveal');});
+var revealObserver=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');revealObserver.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(function(el){revealObserver.observe(el);});
+async function downloadImage(){var m=document.querySelector('.viz-menu');m.style.display='none';try{var url=await htmlToImage.toPng(document.body,{quality:1,pixelRatio:2,filter:function(n){return !n.classList||!n.classList.contains('viz-menu');}});var a=document.createElement('a');a.href=url;a.download=document.title.replace(/\s+/g,'-').toLowerCase()+'.png';a.click();}catch(e){console.error('Download failed:',e);}m.style.display='';}
+</script>
+</body>
+</html>

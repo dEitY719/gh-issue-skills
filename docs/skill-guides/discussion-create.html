@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>discussion-create — RFC Discussion 생성 스킬 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{interpolate-size:allow-keywords}
+html.theme-dark{--bg:#0A0A0A;--surface:#141414;--surface-hover:#1C1C1C;--border:rgba(255,255,255,0.07);--text:#EDEDED;--text-secondary:#8a8a8a;--accent:#3b82f6;--accent-secondary:#8b5cf6;--positive:#10b981;--negative:#f43f5e;--warning:#f59e0b}
+html.theme-light{--bg:#FAFAF9;--surface:#FFFFFF;--surface-hover:#F5F5F4;--border:rgba(0,0,0,0.09);--text:#0f172a;--text-secondary:#64748b;--accent:#2563eb;--accent-secondary:#7c3aed;--positive:#059669;--negative:#e11d48;--warning:#d97706}
+body{font-family:'Inter','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;transition:background .3s,color .3s;scrollbar-gutter:stable}
+h1,h2,h3,h4{color:var(--text);letter-spacing:-0.03em;line-height:1.12;text-wrap:balance}
+h1{font-weight:800;font-size:clamp(2.2rem,5.4vw,3.6rem)}
+h2{font-weight:700;font-size:clamp(1.8rem,3.4vw,2.3rem)}
+h3{font-weight:650;font-size:1.5rem}
+p,li,td,th,span,label{color:var(--text);font-weight:400}
+.text-secondary{color:var(--text-secondary)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.92em}
+code{background:var(--surface-hover);border:1px solid var(--border);border-radius:5px;padding:.12em .42em}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;transition:box-shadow .2s ease}
+.card:hover{box-shadow:0 0 0 1px var(--border),0 8px 20px rgba(0,0,0,.10)}
+section{padding:56px 0}
+.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+/* hero */
+header.hero{padding:88px 0 56px;border-bottom:1px solid var(--border)}
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.badge{font-size:.8rem;font-weight:600;padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary)}
+.badge.ok{color:var(--positive);border-color:color-mix(in srgb,var(--positive) 35%,transparent)}
+.badge.warn{color:var(--warning);border-color:color-mix(in srgb,var(--warning) 35%,transparent)}
+.lede{font-size:1.24rem;color:var(--text-secondary);max-width:70ch;margin-top:18px}
+.readonly-stamp{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:12px 18px;border-radius:10px;border:1px solid color-mix(in srgb,var(--accent-secondary) 38%,transparent);background:color-mix(in srgb,var(--accent-secondary) 9%,transparent);font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--accent-secondary);flex:none}
+/* grid */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* table */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px}
+th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--border);font-size:.96rem;vertical-align:top}
+th{font-weight:650;color:var(--text-secondary);font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+tbody tr:last-child td{border-bottom:none}
+/* steps */
+.step{display:grid;grid-template-columns:56px 1fr;gap:20px;align-items:start;padding:22px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-n{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:1.1rem;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 32%,transparent)}
+.step-n.sub{font-size:.86rem;background:color-mix(in srgb,var(--warning) 14%,transparent);color:var(--warning);border-color:color-mix(in srgb,var(--warning) 34%,transparent)}
+.step-n.half{font-size:.86rem}
+.step h3{font-size:1.12rem;margin-bottom:6px}
+.step p{color:var(--text-secondary);font-size:.97rem}
+/* flow */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:22px;border-radius:12px;background:var(--surface);border:1px solid var(--border)}
+.flow-node{padding:11px 17px;border-radius:9px;border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:.94rem}
+.flow-node.hi{border-color:var(--accent);color:var(--accent)}
+.flow-arrow{color:var(--text-secondary);font-weight:700}
+/* decidedness fork */
+.fork{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:18px}
+.fork-lane{border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:22px;border-top:3px solid var(--border)}
+.fork-lane.issue{border-top-color:var(--positive)}
+.fork-lane.disc{border-top-color:var(--accent-secondary)}
+.fork-tag{font-size:.74rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary)}
+.fork-lane.issue .fork-tag{color:var(--positive)}
+.fork-lane.disc .fork-tag{color:var(--accent-secondary)}
+.fork-lane h3{font-size:1.16rem;margin:6px 0 10px}
+.fork-lane p{color:var(--text-secondary);font-size:.95rem}
+.fork-out{margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);font-weight:650;font-size:.95rem}
+.meter{display:flex;align-items:center;gap:10px;margin:26px 0 0;padding:16px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--border);flex-wrap:wrap}
+.meter-bar{flex:1 1 200px;height:8px;border-radius:999px;background:linear-gradient(90deg,var(--accent-secondary),var(--positive));min-width:140px}
+.meter-lab{font-size:.86rem;font-weight:650;color:var(--text-secondary);white-space:nowrap}
+/* caveat */
+.caveat{border-left:3px solid var(--warning);padding-left:18px;margin:14px 0}
+.caveat.crit{border-left-color:var(--negative)}
+.caveat h4{font-size:1.03rem;margin-bottom:5px}
+.caveat p{color:var(--text-secondary);font-size:.95rem}
+.caveat p + p{margin-top:9px}
+/* boundary */
+.bnd{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--border)}
+.bnd:last-child{border-bottom:none}
+.bnd-x{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:color-mix(in srgb,var(--negative) 13%,transparent);color:var(--negative)}
+.bnd-c{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:color-mix(in srgb,var(--positive) 13%,transparent);color:var(--positive)}
+/* animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeInUp .6s ease-out both}
+.animate.delay-1{animation-delay:.1s}.animate.delay-2{animation-delay:.2s}.animate.delay-3{animation-delay:.3s}.animate.delay-4{animation-delay:.4s}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+/* menu */
+.viz-menu{position:fixed;top:16px;right:16px;z-index:9999}
+.viz-menu-toggle{width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);transition:all .2s}
+.viz-menu-toggle:hover{background:var(--surface-hover)}
+.viz-menu-dropdown{position:absolute;top:52px;right:0;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s;backdrop-filter:blur(16px)}
+.viz-menu-dropdown.open{opacity:1;visibility:visible;transform:none}
+.viz-menu-dropdown button{width:100%;padding:10px 14px;border:none;border-radius:8px;background:transparent;color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;transition:background .15s}
+.viz-menu-dropdown button:hover{background:var(--surface-hover)}
+.viz-menu-dropdown .mi{display:inline-flex;align-items:center;flex:none}
+.skip-to-content{position:absolute;top:-40px;left:6px;background:var(--accent);color:#fff;padding:8px 12px;text-decoration:none;border-radius:4px;opacity:0;pointer-events:none;transition:all .2s;z-index:10000}
+.skip-to-content:focus{top:6px;opacity:1;pointer-events:auto}
+details{overflow:hidden;border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:10px}
+details summary{cursor:pointer;list-style:none;padding:16px 20px;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:'+';color:var(--accent);font-weight:800}
+details[open] summary::after{content:'\2212'}
+.det-body{padding:0 20px 18px;color:var(--text-secondary);font-size:.96rem}
+footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-secondary);font-size:.9rem}
+@media print{body{background:#fff!important;color:#000!important}.viz-menu{display:none}.reveal{opacity:1!important;transform:none!important}.card{break-inside:avoid;border:1px solid #ddd;box-shadow:none}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@page{margin:1in}
+@media(max-width:520px){.step{grid-template-columns:1fr;gap:10px}}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-to-content">본문으로 건너뛰기</a>
+
+<div class="viz-menu">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown">
+    <button onclick="cycleTheme()" aria-label="테마 전환"><span id="themeIcon" class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span><span id="themeLabel">Dark</span></button>
+    <button onclick="downloadImage()" aria-label="PNG 내려받기"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span>Download PNG</span></button>
+    <button onclick="window.print()" aria-label="인쇄"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span>Print / PDF</span></button>
+  </div>
+</div>
+
+<main id="main-content" role="main">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow animate">gh-issue 플러그인 · 스킬 가이드</div>
+    <h1 class="animate delay-1"><span class="mono">discussion-create</span></h1>
+    <p class="lede animate delay-2">현재 대화를 <strong>GitHub Discussion 1건</strong>(기본 카테고리 <code>Ideas</code>, RFC 형태)으로 만든다. <code>createDiscussion</code> GraphQL 뮤테이션으로 Open-Questions 중심 본문을 올리고, 화면에는 생성된 Discussion URL 만 출력한다.</p>
+    <div class="badge-row animate delay-3">
+      <span class="badge">호출 <code>/gh-issue:discussion-create [remote] [category] [--force-discussion]</code></span>
+      <span class="badge">Step 5단계 (+ 2.1 · 3.5)</span>
+      <span class="badge warn">쓰기 — Discussion 1건 생성</span>
+    </div>
+    <div class="readonly-stamp animate delay-4"><span class="dot"></span>갈림의 기준은 주제도 규모도 아니고 <span class="mono" style="margin:0 .3em">decidedness</span> 하나다</div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>산출물</div>
+    <h2 data-reveal style="margin:8px 0 22px">입력에서 출력까지</h2>
+    <div class="flow" data-reveal>
+      <span class="flow-node">아직 결론 안 난 대화 + remote/category</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node hi">/gh-issue:discussion-create</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node">GitHub Discussion 1건 (URL 출력)</span>
+    </div>
+    <p class="text-secondary" style="margin-top:14px">Discussion 은 Issue 로 추적하기에 <strong>너무 이르거나(RFC) 너무 늦은(공지·학습)</strong> 항목을 담는 자리다. 반대 방향의 다리는 <code>discussion-convert</code> — 열린 질문이 나중에 결정되면 그 Discussion 을 Issue 로 승격시켜 트래커로 되돌린다.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>경계</div>
+    <h2 data-reveal style="margin:8px 0 22px">언제 쓰고 언제 안 쓰는가</h2>
+    <div class="grid g2">
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:14px">쓸 때</h3>
+        <div class="bnd"><span class="bnd-c">O</span><p>아직 결론이 나지 않은 설계 탐색 — "할까 말까", 대안 비교, 열린 질문이 남은 대화.</p></div>
+        <div class="bnd"><span class="bnd-c">O</span><p>스스로에게 남기는 "왜 X 를 Y 방식으로 했지?" 같은 질문 기록(<code>Q&amp;A</code>).</p></div>
+        <div class="bnd"><span class="bnd-c">O</span><p>SSOT/정책 변경 공지(<code>Announcements</code>), 재사용 가능한 학습 기록(<code>Lessons</code>).</p></div>
+      </article>
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:14px">안 쓸 때 — 형제 스킬로</h3>
+        <div class="bnd"><span class="bnd-x">X</span><p>수렴된 to-do — 무엇을 어떻게 할지 정해짐 → <code>create</code> (Issue). 운영 원칙 #1 "Issue is default"</p></div>
+        <div class="bnd"><span class="bnd-x">X</span><p>열린 질문이 나중에 결정됨 → <code>discussion-convert</code> 로 Issue 승격</p></div>
+        <div class="bnd"><span class="bnd-x">X</span><p>Step 2.1 가드가 "결정된 to-do" 를 감지하면 뮤테이션을 호출하지 않고 <code>/gh-issue:create</code> 로 되돌려 보낸다.</p></div>
+      </article>
+    </div>
+
+    <h3 data-reveal style="margin:34px 0 0;font-size:1.28rem">decidedness — 하나뿐인 갈림 기준</h3>
+    <div class="fork" data-reveal>
+      <article class="fork-lane issue">
+        <div class="fork-tag">수렴됨</div>
+        <h3>결정된 to-do</h3>
+        <p>무엇을 어떻게 할지 정해진 대화. 구체적·시한 있는 acceptance criteria, 확정된 구현 계획, 담당자 지정, PR·브랜치 예정 신호가 붙는다.</p>
+        <div class="fork-out">→ <code>create</code> · Issue · 운영 원칙 #1 "Issue is default"</div>
+      </article>
+      <article class="fork-lane disc">
+        <div class="fork-tag">열려 있음</div>
+        <h3>열린 질문이 남은 RFC</h3>
+        <p>아직 결정 전 — 추적 대상이 되기엔 <strong>너무 이르다</strong>. 결정 자체가 끝난 뒤의 공지·회고는 반대로 추적 대상이 되기엔 <strong>너무 늦다</strong>.</p>
+        <div class="fork-out">→ <code>discussion-create</code> · Discussion</div>
+      </article>
+    </div>
+    <div class="meter" data-reveal>
+      <span class="meter-lab">열린 질문 (Discussion)</span>
+      <span class="meter-bar" role="presentation"></span>
+      <span class="meter-lab">수렴된 to-do (Issue)</span>
+    </div>
+
+    <div class="tbl-scroll" data-reveal style="margin-top:18px">
+      <table>
+        <thead><tr><th>대화의 상태</th><th>맞는 스킬</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>수렴된 to-do — 무엇을 어떻게 할지 정해짐</td><td><code>create</code> (Issue)</td><td>운영 원칙 #1 "Issue is default"</td></tr>
+          <tr><td>열린 질문이 남은 RFC — 아직 결정 전</td><td><code>discussion-create</code> (Discussion)</td><td>추적 대상이 되기엔 너무 이르다</td></tr>
+          <tr><td>결정 자체가 끝난 뒤의 공지/회고</td><td><code>discussion-create</code></td><td>추적 대상이 되기엔 너무 늦음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>인터페이스</div>
+    <h2 data-reveal style="margin:8px 0 22px">호출 형식과 인자</h2>
+    <div class="card" data-reveal style="margin-bottom:18px">
+      <p class="mono">/gh-issue:discussion-create [remote] [category] [--force-discussion]</p>
+    </div>
+    <div class="tbl-scroll" data-reveal>
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">references/help.md 기준 인자</caption>
+        <thead><tr><th>#</th><th>이름</th><th>기본값</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>remote-name <strong>또는</strong> category, 또는 <code>-h</code> / <code>--help</code> / <code>help</code></td><td><code>origin</code> / <code>Ideas</code></td><td>첫 번째 non-flag positional. <code>Ideas</code>, <code>Q&amp;A</code>, <code>Announcements</code>, <code>Lessons</code> 중 하나면 카테고리로, 아니면 remote 이름으로 해석</td></tr>
+          <tr><td>2</td><td>남은 하나 (remote 또는 category)</td><td>위 참조</td><td>두 번째 positional 이 비어 있는 슬롯을 채운다</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl-scroll" data-reveal style="margin-top:18px">
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">플래그와 환경 변수</caption>
+        <thead><tr><th>이름</th><th>기본값</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>--force-discussion</code></td><td>off</td><td>Step 2.1 라우팅 가드 우회. 결정된 to-do 처럼 보이지만 실제로는 RFC 인 대화용. 가드의 판단 근거는 감사용으로 한 번 출력된다</td></tr>
+          <tr><td><code>GH_DISABLE_AI_METRICS=1</code> (env)</td><td>off</td><td>Discussion 본문의 ai-metrics footer 생략 (#399 parity)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl-scroll" data-reveal style="margin-top:18px">
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">사용 예</caption>
+        <thead><tr><th>명령</th><th>동작</th></tr></thead>
+        <tbody>
+          <tr><td><code>/gh-issue:discussion-create</code></td><td><code>origin</code> repo 에 <code>Ideas</code> Discussion 생성</td></tr>
+          <tr><td><code>/gh-issue:discussion-create upstream</code></td><td><code>upstream</code> repo 에 <code>Ideas</code> Discussion 생성</td></tr>
+          <tr><td><code>/gh-issue:discussion-create Q&amp;A</code></td><td><code>origin</code> repo 에 <code>Q&amp;A</code> Discussion 생성</td></tr>
+          <tr><td><code>/gh-issue:discussion-create upstream Lessons</code></td><td><code>upstream</code> repo 에 <code>Lessons</code> Discussion 생성</td></tr>
+          <tr><td><code>/gh-issue:discussion-create -h</code></td><td>help 를 verbatim 출력하고 종료. API 호출 0건</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 data-reveal style="margin:34px 0 14px;font-size:1.28rem">카테고리 4종</h3>
+    <p class="text-secondary" data-reveal style="margin-bottom:14px">카테고리 4종과 본문 골격은 <code>references/category-table.md</code> 가 SSOT 다. 어느 쪽에도 깔끔히 맞지 않으면 <code>Ideas</code> 로 떨어진다 — NLP 식 자동 분류는 목표가 아니다.</p>
+    <div class="tbl-scroll" data-reveal>
+      <table>
+        <thead><tr><th>카테고리</th><th>고를 때</th><th>기본 본문 골격</th></tr></thead>
+        <tbody>
+          <tr><td><code>Ideas</code> (기본)</td><td>RFC, 설계 탐색, "할까 말까"</td><td>TL;DR + Why + Goals/Non-Goals + Requirements + Design + Alternatives + Open Questions</td></tr>
+          <tr><td><code>Q&amp;A</code></td><td>자문 또는 외부 질문</td><td>Q(1줄) + Context + Best answer so far + Follow-up</td></tr>
+          <tr><td><code>Announcements</code></td><td>SSOT/정책 변경 공지</td><td>Announcement(1~2줄) + Background + Effective date + Links</td></tr>
+          <tr><td><code>Lessons</code></td><td>재사용 가능한 학습</td><td>Source link + Summary + Key takeaways + When to revisit</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>동작</div>
+    <h2 data-reveal style="margin:8px 0 22px">Step 5단계 (+ 2.1 · 3.5)</h2>
+    <div class="card" data-reveal style="padding:8px 24px">
+      <div class="step"><div class="step-n">1</div><div><h3>repo 컨텍스트 감지</h3><p><code>START_TS</code> 기록, 인자 파싱, git repo 확인, remote URL 에서 <code>TARGET_REPO=&lt;owner&gt;/&lt;repo&gt;</code> 해석. remote 가 없으면 즉시 실패하고 <code>origin</code> 으로 조용히 되돌아가지 않는다.</p></div></div>
+      <div class="step"><div class="step-n">2</div><div><h3>대화 분류</h3><p>카테고리를 정확히 하나 고른다(기본 <code>Ideas</code>). 명시적 <code>[category]</code> 를 줘도 Step 2.1 가드는 그대로 돈다 — 바뀌는 것은 본문 골격뿐이다.</p></div></div>
+      <div class="step"><div class="step-n sub">2.1</div><div><h3>라우팅 가드</h3><p><code>references/scope-guard.md</code> 의 신호를 적용한다. <strong>결정된 to-do</strong> 신호(구체적·시한 있는 acceptance criteria / 확정된 구현 계획 / 담당자 지정 / PR·브랜치 예정)가 하나라도 매치되면 "Refusal format" 을 출력하고 멈춘다. <strong>모호함</strong> 신호(동사 없는 명사 나열, 컴포넌트 3개 이상 혼재, Open Questions 부재)면 거부 대신 1~2줄 확인 질문을 던지고 답을 기다린다.</p></div></div>
+      <div class="step"><div class="step-n">3</div><div><h3>본문 작성</h3><p><code>references/rfc-template.md</code> 골격에 맞춰 대화 언어로 쓴다. 과압축 금지 — 파일 경로, 출력, 결정과 트레이드오프, 논의 로그를 보존한다. 200줄짜리 RFC 도 괜찮다.</p></div></div>
+      <div class="step"><div class="step-n half">3.5</div><div><h3>ai-metrics 계산</h3><p><code>create</code> 의 <code>references/metrics-baseline.md</code> 를 읽어 <code>TOKENS</code>, <code>HUMAN_H</code>, <code>ELAPSED</code> 를 바인딩한다.</p></div></div>
+      <div class="step"><div class="step-n">4</div><div><h3>생성</h3><p><code>gh_discussion.sh</code> 를 source 하고 <code>references/create-cmd.md</code> 의 bash 블록을 verbatim 실행한다 — 임시 본문 파일, <code>GH_DISABLE_AI_METRICS=1</code> 숏서킷, ai-metrics footer, 3개의 GraphQL 호출(repo node ID 조회, category ID 조회, <code>createDiscussion</code>)을 처리한다. 확인 질문 없이 즉시 실행한다.</p></div></div>
+      <div class="step"><div class="step-n">5</div><div><h3>리포트</h3><p><code>[OK]</code> / <code>[FAIL]</code> 블록과 <code>Next:</code> 힌트를 출력한다. Step 2.1 거부는 자체 메시지를 찍고 Step 3~5 를 통째로 건너뛴다.</p></div></div>
+    </div>
+    <div class="flow" data-reveal style="margin-top:18px">
+      <span class="flow-node">repo node ID 조회</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node">category ID 조회</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node hi">createDiscussion</span>
+    </div>
+    <p class="text-secondary" style="margin-top:14px">Step 4 의 GraphQL 호출 3개.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>제약</div>
+    <h2 data-reveal style="margin:8px 0 22px">주의사항</h2>
+
+    <article class="card" data-reveal style="border-color:color-mix(in srgb,var(--negative) 35%,transparent)">
+      <div class="caveat crit">
+        <h4>라우팅 가드를 SSOT 갱신 없이 끄지 않는다 — Step 2.1</h4>
+        <p>가드는 issue #617 의 F-3 + F-4 를 구현한 load-bearing 요구사항이다. 이것이 없으면 "이제 X 를 코딩하겠다" 급 대화가 전부 <code>Ideas</code> 에 쌓이고, 칸반 보드가 없는 Discussions 포럼이 사실상의 이슈 트래커가 되며, <code>discussion-convert</code> 의 백링크 감사 사슬이 의미를 잃는다.</p>
+        <p><code>--force-discussion</code> 은 <strong>1회용 우회 전용</strong>이지 가드 제거가 아니다. 가드를 없애고 싶다면 <code>docs/.ssot/discussions-policy.md</code> 를 먼저 고쳐야 한다.</p>
+        <p>결정된 to-do 신호가 잡히면 뮤테이션을 호출하지 않고 <code>/gh-issue:create</code> 로 되돌려 보낸다.</p>
+      </div>
+    </article>
+
+    <div style="margin-top:16px">
+      <details open>
+        <summary>모든 <code>gh</code> 호출은 <code>--repo "$TARGET_REPO"</code> 를 명시한다 (#1403)</summary>
+        <div class="det-body">암묵적 repo 감지에 의존하지 않는다. 이 계열 전체의 규약은 <code>GH_HOST</code> 와 <code>--repo</code> 를 <strong>같은 remote URL 에서 뽑아 함께</strong> 넘기는 것이다. <code>--repo</code> 없는 <code>gh</code> 는 git 의 <code>origin</code> 이 아니라 gh CLI 자신의 <code>gh repo set-default</code> 를 따라가므로, github.com 과 GHES 에 동시 로그인한 상태면 에러 없이 다른 서버에 글을 쓴다. 예상 밖의 <code>gh</code> 결과를 <code>--repo</code> 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다.</div>
+      </details>
+      <details>
+        <summary><code>Ideas</code> 외 카테고리에서도 가드는 동일하게 작동한다</summary>
+        <div class="det-body">바뀌는 것은 본문 골격뿐이다.</div>
+      </details>
+      <details>
+        <summary>없는 remote 를 받았을 때 <code>origin</code> 으로 fallback 하지 않는다</summary>
+        <div class="det-body">오타를 가려서 엉뚱한 repo 에 Discussion 을 올리게 되기 때문이다.</div>
+      </details>
+      <details>
+        <summary>대화 로그를 2~3줄로 압축하지 않는다</summary>
+        <div class="det-body">Discussion 은 future-self 검색의 1차 SSOT 이고, 나중에 <code>discussion-convert</code> 가 이슈 본문의 씨앗으로 재사용한다.</div>
+      </details>
+      <details>
+        <summary>Discussion 카테고리를 자동 생성하지 않는다</summary>
+        <div class="det-body">API 가 허용하지 않으므로 사용자가 repo 설정에서 먼저 만들어 두어야 한다.</div>
+      </details>
+      <details>
+        <summary>카테고리 ID 를 디스크에 캐시하지 않는다</summary>
+        <div class="det-body">조회는 GraphQL 한 번이면 되고, 캐시 staleness 위험이 절약보다 크다 (<code>references/cache-decision.md</code>).</div>
+      </details>
+      <details>
+        <summary>"만들까요?" 같은 확인 질문을 하지 않는다</summary>
+        <div class="det-body">스킬 실행 자체가 컨펌이다.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><span class="mono">gh-issue-skills</span> · 스킬 가이드 · 원문 <code>docs/skill-guides/discussion-create.md</code></p>
+  </div>
+</footer>
+
+</main>
+
+<script>
+function toggleMenu(){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.toggle('open');}
+document.addEventListener('click',function(e){if(!e.target.closest('.viz-menu')){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+var savedTheme=localStorage.getItem('viz-theme');
+var currentTheme=savedTheme||(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+var ICON_MOON="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/></svg>";
+var ICON_SUN="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41\"/></svg>";
+function applyTheme(t){document.documentElement.className='theme-'+t;document.getElementById('themeIcon').innerHTML=t==='dark'?ICON_MOON:ICON_SUN;document.getElementById('themeLabel').textContent=t==='dark'?'Dark':'Light';localStorage.setItem('viz-theme',t);currentTheme=t;}
+function cycleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
+applyTheme(currentTheme);
+document.querySelectorAll('[data-reveal]').forEach(function(el){el.classList.add('reveal');});
+var revealObserver=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');revealObserver.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(function(el){revealObserver.observe(el);});
+async function downloadImage(){var m=document.querySelector('.viz-menu');m.style.display='none';try{var url=await htmlToImage.toPng(document.body,{quality:1,pixelRatio:2,filter:function(n){return !n.classList||!n.classList.contains('viz-menu');}});var a=document.createElement('a');a.href=url;a.download=document.title.replace(/\s+/g,'-').toLowerCase()+'.png';a.click();}catch(e){console.error('Download failed:',e);}m.style.display='';}
+</script>
+</body>
+</html>

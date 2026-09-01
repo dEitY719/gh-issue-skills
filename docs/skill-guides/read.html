@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>read — 이슈 읽기 스킬 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{interpolate-size:allow-keywords}
+html.theme-dark{--bg:#0A0A0A;--surface:#141414;--surface-hover:#1C1C1C;--border:rgba(255,255,255,0.07);--text:#EDEDED;--text-secondary:#8a8a8a;--accent:#3b82f6;--accent-secondary:#8b5cf6;--positive:#10b981;--negative:#f43f5e;--warning:#f59e0b}
+html.theme-light{--bg:#FAFAF9;--surface:#FFFFFF;--surface-hover:#F5F5F4;--border:rgba(0,0,0,0.09);--text:#0f172a;--text-secondary:#64748b;--accent:#2563eb;--accent-secondary:#7c3aed;--positive:#059669;--negative:#e11d48;--warning:#d97706}
+body{font-family:'Inter','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;transition:background .3s,color .3s;scrollbar-gutter:stable}
+h1,h2,h3,h4{color:var(--text);letter-spacing:-0.03em;line-height:1.12;text-wrap:balance}
+h1{font-weight:800;font-size:clamp(2.6rem,6vw,4rem)}
+h2{font-weight:700;font-size:clamp(1.8rem,3.4vw,2.3rem)}
+h3{font-weight:650;font-size:1.5rem}
+p,li,td,th,span,label{color:var(--text);font-weight:400}
+.text-secondary{color:var(--text-secondary)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.92em}
+code{background:var(--surface-hover);border:1px solid var(--border);border-radius:5px;padding:.12em .42em}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;transition:box-shadow .2s ease}
+.card:hover{box-shadow:0 0 0 1px var(--border),0 8px 20px rgba(0,0,0,.10)}
+section{padding:56px 0}
+.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+/* hero */
+header.hero{padding:88px 0 56px;border-bottom:1px solid var(--border)}
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.badge{font-size:.8rem;font-weight:600;padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary)}
+.badge.ok{color:var(--positive);border-color:color-mix(in srgb,var(--positive) 35%,transparent)}
+.lede{font-size:1.24rem;color:var(--text-secondary);max-width:70ch;margin-top:18px}
+.readonly-stamp{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:12px 18px;border-radius:10px;border:1px solid color-mix(in srgb,var(--positive) 38%,transparent);background:color-mix(in srgb,var(--positive) 9%,transparent);font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--positive);flex:none}
+/* grid */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* table */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px}
+th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--border);font-size:.96rem;vertical-align:top}
+th{font-weight:650;color:var(--text-secondary);font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+tbody tr:last-child td{border-bottom:none}
+/* steps */
+.step{display:grid;grid-template-columns:56px 1fr;gap:20px;align-items:start;padding:22px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-n{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:1.1rem;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 32%,transparent)}
+.step h3{font-size:1.12rem;margin-bottom:6px}
+.step p{color:var(--text-secondary);font-size:.97rem}
+/* flow */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:22px;border-radius:12px;background:var(--surface);border:1px solid var(--border)}
+.flow-node{padding:11px 17px;border-radius:9px;border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:.94rem}
+.flow-node.hi{border-color:var(--accent);color:var(--accent)}
+.flow-arrow{color:var(--text-secondary);font-weight:700}
+/* caveat */
+.caveat{border-left:3px solid var(--warning);padding-left:18px;margin:14px 0}
+.caveat.crit{border-left-color:var(--negative)}
+.caveat h4{font-size:1.03rem;margin-bottom:5px}
+.caveat p{color:var(--text-secondary);font-size:.95rem}
+/* boundary */
+.bnd{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--border)}
+.bnd:last-child{border-bottom:none}
+.bnd-x{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:color-mix(in srgb,var(--negative) 13%,transparent);color:var(--negative)}
+.bnd-c{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:color-mix(in srgb,var(--positive) 13%,transparent);color:var(--positive)}
+/* animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeInUp .6s ease-out both}
+.animate.delay-1{animation-delay:.1s}.animate.delay-2{animation-delay:.2s}.animate.delay-3{animation-delay:.3s}.animate.delay-4{animation-delay:.4s}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+/* menu */
+.viz-menu{position:fixed;top:16px;right:16px;z-index:9999}
+.viz-menu-toggle{width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);transition:all .2s}
+.viz-menu-toggle:hover{background:var(--surface-hover)}
+.viz-menu-dropdown{position:absolute;top:52px;right:0;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s;backdrop-filter:blur(16px)}
+.viz-menu-dropdown.open{opacity:1;visibility:visible;transform:none}
+.viz-menu-dropdown button{width:100%;padding:10px 14px;border:none;border-radius:8px;background:transparent;color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;transition:background .15s}
+.viz-menu-dropdown button:hover{background:var(--surface-hover)}
+.viz-menu-dropdown .mi{display:inline-flex;align-items:center;flex:none}
+.skip-to-content{position:absolute;top:-40px;left:6px;background:var(--accent);color:#fff;padding:8px 12px;text-decoration:none;border-radius:4px;opacity:0;pointer-events:none;transition:all .2s;z-index:10000}
+.skip-to-content:focus{top:6px;opacity:1;pointer-events:auto}
+details{overflow:hidden;border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:10px}
+details summary{cursor:pointer;list-style:none;padding:16px 20px;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:'+';color:var(--accent);font-weight:800}
+details[open] summary::after{content:'\2212'}
+.det-body{padding:0 20px 18px;color:var(--text-secondary);font-size:.96rem}
+footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-secondary);font-size:.9rem}
+@media print{body{background:#fff!important;color:#000!important}.viz-menu{display:none}.reveal{opacity:1!important;transform:none!important}.card{break-inside:avoid;border:1px solid #ddd;box-shadow:none}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@page{margin:1in}
+@media(max-width:520px){.step{grid-template-columns:1fr;gap:10px}}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-to-content">본문으로 건너뛰기</a>
+
+<div class="viz-menu">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown">
+    <button onclick="cycleTheme()" aria-label="테마 전환"><span id="themeIcon" class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span><span id="themeLabel">Dark</span></button>
+    <button onclick="downloadImage()" aria-label="PNG 내려받기"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span>Download PNG</span></button>
+    <button onclick="window.print()" aria-label="인쇄"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span>Print / PDF</span></button>
+  </div>
+</div>
+
+<main id="main-content" role="main">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow animate">gh-issue 플러그인 · 스킬 가이드</div>
+    <h1 class="animate delay-1"><span class="mono">read</span></h1>
+    <p class="lede animate delay-2">GitHub 이슈 1건을 가져와 <strong>터미널에 구조화된 verbatim 요약을 출력</strong>한다. 산출물은 화면에 찍히는 텍스트 그 자체이며, GitHub 상태는 하나도 바뀌지 않는다.</p>
+    <div class="badge-row animate delay-3">
+      <span class="badge">호출 <code>/gh-issue:read &lt;N&gt; [remote]</code></span>
+      <span class="badge">Step 4단계</span>
+      <span class="badge ok">쓰기 0건</span>
+    </div>
+    <div class="readonly-stamp animate delay-4"><span class="dot"></span>6개 스킬 중 유일하게 아무것도 바꾸지 않는 스킬</div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>산출물</div>
+    <h2 data-reveal style="margin:8px 0 22px">입력에서 출력까지</h2>
+    <div class="flow" data-reveal>
+      <span class="flow-node">이슈 번호 + remote</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node hi">/gh-issue:read</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node">Header · Summary · Body · Discussion · Meta · Checklist</span>
+    </div>
+    <p class="text-secondary" style="margin-top:14px">Body 와 Discussion 은 verbatim 이라, 그대로 <code>implement</code> 나 <code>proceed</code> 의 입력으로 흘려보낼 수 있다.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>경계</div>
+    <h2 data-reveal style="margin:8px 0 22px">언제 쓰고 언제 안 쓰는가</h2>
+    <div class="grid g2">
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:14px">쓸 때</h3>
+        <div class="bnd"><span class="bnd-c">O</span><p>이슈 번호만 알고 본문과 코멘트 전문을 그대로 확인하고 싶을 때.</p></div>
+        <div class="bnd"><span class="bnd-c">O</span><p>구현이나 프로토콜 실행 전에 입력 자료를 먼저 확보하고 싶을 때.</p></div>
+        <div class="bnd"><span class="bnd-c">O</span><p>다른 remote(예: <code>upstream</code>)가 소유한 이슈를 확인할 때.</p></div>
+      </article>
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:14px">안 쓸 때 — 형제 스킬로</h3>
+        <div class="bnd"><span class="bnd-x">X</span><p>이슈 내용대로 코드를 고쳐야 함 → <code>implement</code></p></div>
+        <div class="bnd"><span class="bnd-x">X</span><p>이슈에 실행 가능한 8섹션 프로토콜이 박혀 있음 → <code>proceed</code></p></div>
+        <div class="bnd"><span class="bnd-x">X</span><p>대화를 이슈로 남겨야 함 → <code>create</code></p></div>
+      </article>
+    </div>
+    <div class="card" data-reveal style="margin-top:18px">
+      <p><code>gh issue edit</code> / <code>close</code> / <code>comment</code> 를 절대 호출하지 않는다. 라벨을 붙이거나 담당자를 지정하는 동작도 없다. "읽고 나서 이왕이면 라벨도" 같은 확장은 이 스킬의 경계 밖이며, 그런 쓰기는 <code>create</code> 나 <code>implement</code> 가 맡는다. 연결된 PR 이나 참조 이슈도 따라가지 않는다 — 대상은 인자로 받은 이슈 1건뿐이다.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>인터페이스</div>
+    <h2 data-reveal style="margin:8px 0 22px">호출 형식과 인자</h2>
+    <div class="tbl-scroll" data-reveal>
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">references/help.md 기준</caption>
+        <thead><tr><th>#</th><th>이름</th><th>기본값</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>&lt;issue-number&gt;</code> 또는 <code>-h</code>/<code>--help</code>/<code>help</code></td><td>—</td><td>조회할 GitHub 이슈 번호 (help 가 아니면 필수)</td></tr>
+          <tr><td>2</td><td><code>remote-name</code></td><td><code>origin</code></td><td>이슈를 소유한 repo 의 git remote 이름</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl-scroll" data-reveal style="margin-top:18px">
+      <table>
+        <thead><tr><th>명령</th><th>동작</th></tr></thead>
+        <tbody>
+          <tr><td><code>/gh-issue:read 42</code></td><td><code>origin</code> 의 repo 에서 #42 를 가져와 구조화 요약 출력</td></tr>
+          <tr><td><code>/gh-issue:read 42 upstream</code></td><td><code>upstream</code> remote 의 repo 에서 조회</td></tr>
+          <tr><td><code>/gh-issue:read -h</code></td><td>help 를 verbatim 출력하고 종료. API 호출 0건</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>동작</div>
+    <h2 data-reveal style="margin:8px 0 22px">Step 4단계</h2>
+    <div class="card" data-reveal style="padding:8px 24px">
+      <div class="step"><div class="step-n">1</div><div><h3>인자 파싱 + repo 해석</h3><p><code>START_TS</code> 기록, 이슈 번호 검증, <code>git remote get-url</code> 한 개의 URL 에서 <code>TARGET_REPO</code> 와 <code>TARGET_HOST</code> 를 함께 뽑고 <code>GH_HOST</code> 를 export. 번호가 없거나 잘못되면 <code>Run /gh-issue:read -h for usage.</code> 후 정지. remote 가 없으면 <code>git remote -v</code> 를 보여주고 정지 — <code>origin</code> 으로 조용히 되돌아가지 않는다.</p></div></div>
+      <div class="step"><div class="step-n">2</div><div><h3>이슈 fetch</h3><p><code>GH_HOST="$TARGET_HOST" gh issue view &lt;N&gt; --repo "$TARGET_REPO" --json ...</code> 로 번호·제목·본문·작성자·라벨·상태·코멘트·담당자·타임스탬프·URL 을 한 번에 받는다. 실패하면 <code>gh</code> 의 stderr 를 그대로 출력하고 정지 — fallback 재시도 없음.</p></div></div>
+      <div class="step"><div class="step-n">3</div><div><h3>출력 조립</h3><p>Header → Summary → Body → Discussion → Meta → Checklist 순. Body 와 Discussion 은 verbatim, Summary 만 2~4줄 추출. Checklist 는 본문과 코멘트에서 <code>- [ ]</code> / <code>- [x]</code> 라인을 전부 긁어 모은다. 섹션 제목은 대화 언어를 따르되 내용은 원문 언어를 유지.</p></div></div>
+      <div class="step"><div class="step-n">4</div><div><h3>리포트</h3><p>서두나 맺음말 없이 출력만 찍고, 마지막에 <code>[ai-metrics:gh-issue-read] ~{ELAPSED} min (read-only — not written to GitHub)</code> 한 줄을 붙인다.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>제약</div>
+    <h2 data-reveal style="margin:8px 0 22px">주의사항</h2>
+
+    <article class="card" data-reveal style="border-color:color-mix(in srgb,var(--negative) 35%,transparent)">
+      <div class="caveat crit">
+        <h4>실제 결함 (실행 중 확인됨) — <code>stateReason</code> 필드</h4>
+        <p>SKILL.md Step 2 및 <code>references/output-format.md</code> 의 <code>--json</code> 필드 목록에 <code>stateReason</code> 이 들어 있으나, gh 2.45.0 의 <code>gh issue view</code> 는 이 필드를 지원하지 않는다. 그대로 실행하면 <code>Unknown JSON field: "stateReason"</code> 와 함께 exit 1 로 즉시 실패한다. 해당 버전에서는 <code>stateReason</code> 을 <code>closed,closedAt</code> 으로 바꾸면 정상 동작한다. 이 오류를 만나면 "이슈가 없다" 로 해석하지 말고 필드 목록을 먼저 확인할 것.</p>
+      </div>
+    </article>
+
+    <div style="margin-top:16px">
+      <details open>
+        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (#1403)</summary>
+        <div class="det-body">둘 다 Step 1 이 같은 remote URL 에서 뽑은 쌍이어야 한다. <code>--repo</code> 가 없는 <code>gh</code> 는 git 의 <code>origin</code> 이 아니라 gh CLI 자신의 <code>gh repo set-default</code> 를 따라가므로, github.com 과 GHES 에 동시 로그인한 상태에서는 에러 없이 조용히 다른 서버를 조회한다. 읽기 전용 스킬에서는 그 결과가 사용자에게 "이슈 없음" 으로 그대로 보고되는데 실제로는 OPEN 이슈였던 것이 #1403 이다. 예상 밖의 <code>gh</code> 결과를 <code>--repo</code> 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다.</div>
+      </details>
+      <details>
+        <summary><code>TARGET_HOST</code> 가 빈 채로 진행하지 않는다</summary>
+        <div class="det-body">빈 <code>GH_HOST</code> 는 정확히 #1403 의 조용한 오조회 상태다.</div>
+      </details>
+      <details>
+        <summary>본문과 코멘트를 자르거나 바꿔 쓰지 않는다</summary>
+        <div class="det-body">요약해서 없애기, 줄바꿈 재정렬, 번역 모두 금지다. 보존된 기록이 이 스킬의 산출물이다.</div>
+      </details>
+      <details>
+        <summary>존재하지 않는 remote 를 받았을 때 <code>origin</code> 으로 fallback 하지 않는다</summary>
+        <div class="det-body">오타를 가려서 엉뚱한 repo 를 읽게 만들기 때문이다.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><span class="mono">gh-issue-skills</span> · 스킬 가이드 · 원문 <code>docs/skill-guides/read.md</code></p>
+  </div>
+</footer>
+
+</main>
+
+<script>
+function toggleMenu(){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.toggle('open');}
+document.addEventListener('click',function(e){if(!e.target.closest('.viz-menu')){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+var savedTheme=localStorage.getItem('viz-theme');
+var currentTheme=savedTheme||(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+var ICON_MOON="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/></svg>";
+var ICON_SUN="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41\"/></svg>";
+function applyTheme(t){document.documentElement.className='theme-'+t;document.getElementById('themeIcon').innerHTML=t==='dark'?ICON_MOON:ICON_SUN;document.getElementById('themeLabel').textContent=t==='dark'?'Dark':'Light';localStorage.setItem('viz-theme',t);currentTheme=t;}
+function cycleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
+applyTheme(currentTheme);
+document.querySelectorAll('[data-reveal]').forEach(function(el){el.classList.add('reveal');});
+var revealObserver=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');revealObserver.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(function(el){revealObserver.observe(el);});
+async function downloadImage(){var m=document.querySelector('.viz-menu');m.style.display='none';try{var url=await htmlToImage.toPng(document.body,{quality:1,pixelRatio:2,filter:function(n){return !n.classList||!n.classList.contains('viz-menu');}});var a=document.createElement('a');a.href=url;a.download=document.title.replace(/\s+/g,'-').toLowerCase()+'.png';a.click();}catch(e){console.error('Download failed:',e);}m.style.display='';}
+</script>
+</body>
+</html>

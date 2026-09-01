@@ -33,6 +33,18 @@ to-do becomes an Issue, an open question becomes a Discussion.
 `read` is the only skill here that mutates nothing, which is why it is also the
 one safe to point at someone else's repo.
 
+### Visual guides and worked examples (GitHub Pages)
+
+- `read` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/read.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/read-usage.html) (issue number to verbatim terminal summary)
+- `create` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/create.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/create-usage.html) (conversation to GitHub Issue)
+- `implement` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/implement.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/implement-usage.html) (issue to file edits and test run)
+- `proceed` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/proceed.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/proceed-usage.html) (directive issue to executed protocol)
+- `discussion-create` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/discussion-create.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/discussion-create-usage.html) (conversation to RFC Discussion)
+- `discussion-convert` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/discussion-convert.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/discussion-convert-usage.html) (Ideas Discussion to backlinked Issue)
+
+Each page is generated from a Markdown source under
+[`docs/skill-guides/`](docs/skill-guides) and [`docs/skill-output/`](docs/skill-output).
+
 ## Requirements
 
 | Skill | Needs |

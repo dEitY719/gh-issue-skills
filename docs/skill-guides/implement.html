@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>implement — 이슈 구현 스킬 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{interpolate-size:allow-keywords}
+html.theme-dark{--bg:#0A0A0A;--surface:#141414;--surface-hover:#1C1C1C;--border:rgba(255,255,255,0.07);--text:#EDEDED;--text-secondary:#8a8a8a;--accent:#3b82f6;--accent-secondary:#8b5cf6;--positive:#10b981;--negative:#f43f5e;--warning:#f59e0b}
+html.theme-light{--bg:#FAFAF9;--surface:#FFFFFF;--surface-hover:#F5F5F4;--border:rgba(0,0,0,0.09);--text:#0f172a;--text-secondary:#64748b;--accent:#2563eb;--accent-secondary:#7c3aed;--positive:#059669;--negative:#e11d48;--warning:#d97706}
+body{font-family:'Inter','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;transition:background .3s,color .3s;scrollbar-gutter:stable}
+h1,h2,h3,h4{color:var(--text);letter-spacing:-0.03em;line-height:1.12;text-wrap:balance}
+h1{font-weight:800;font-size:clamp(2.6rem,6vw,4rem)}
+h2{font-weight:700;font-size:clamp(1.8rem,3.4vw,2.3rem)}
+h3{font-weight:650;font-size:1.5rem}
+p,li,td,th,span,label{color:var(--text);font-weight:400}
+.text-secondary{color:var(--text-secondary)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.92em}
+code{background:var(--surface-hover);border:1px solid var(--border);border-radius:5px;padding:.12em .42em}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;transition:box-shadow .2s ease}
+.card:hover{box-shadow:0 0 0 1px var(--border),0 8px 20px rgba(0,0,0,.10)}
+section{padding:56px 0}
+.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+/* hero */
+header.hero{padding:88px 0 56px;border-bottom:1px solid var(--border)}
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.badge{font-size:.8rem;font-weight:600;padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary)}
+.badge.ok{color:var(--positive);border-color:color-mix(in srgb,var(--positive) 35%,transparent)}
+.badge.warn{color:var(--warning);border-color:color-mix(in srgb,var(--warning) 40%,transparent)}
+.lede{font-size:1.24rem;color:var(--text-secondary);max-width:70ch;margin-top:18px}
+.readonly-stamp{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:12px 18px;border-radius:10px;border:1px solid color-mix(in srgb,var(--positive) 38%,transparent);background:color-mix(in srgb,var(--positive) 9%,transparent);font-weight:600}
+.readonly-stamp.write{border-color:color-mix(in srgb,var(--warning) 42%,transparent);background:color-mix(in srgb,var(--warning) 10%,transparent)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--positive);flex:none}
+.readonly-stamp.write .dot{background:var(--warning)}
+/* grid */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* table */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px}
+th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--border);font-size:.96rem;vertical-align:top}
+th{font-weight:650;color:var(--text-secondary);font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+tbody tr:last-child td{border-bottom:none}
+/* steps */
+.step{display:grid;grid-template-columns:56px 1fr;gap:20px;align-items:start;padding:22px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-n{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:1.1rem;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 32%,transparent)}
+.step h3{font-size:1.12rem;margin-bottom:6px}
+.step p{color:var(--text-secondary);font-size:.97rem}
+.step p + p{margin-top:8px}
+/* flow */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:22px;border-radius:12px;background:var(--surface);border:1px solid var(--border)}
+.flow-node{padding:11px 17px;border-radius:9px;border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:.94rem}
+.flow-node.hi{border-color:var(--accent);color:var(--accent)}
+.flow-arrow{color:var(--text-secondary);font-weight:700}
+/* caveat */
+.caveat{border-left:3px solid var(--warning);padding-left:18px;margin:14px 0}
+.caveat.crit{border-left-color:var(--negative)}
+.caveat h4{font-size:1.03rem;margin-bottom:5px}
+.caveat p{color:var(--text-secondary);font-size:.95rem}
+.caveat p + p{margin-top:10px}
+/* boundary */
+.bnd{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--border)}
+.bnd:last-child{border-bottom:none}
+.bnd-x{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:color-mix(in srgb,var(--negative) 13%,transparent);color:var(--negative)}
+.bnd-c{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:color-mix(in srgb,var(--positive) 13%,transparent);color:var(--positive)}
+/* animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeInUp .6s ease-out both}
+.animate.delay-1{animation-delay:.1s}.animate.delay-2{animation-delay:.2s}.animate.delay-3{animation-delay:.3s}.animate.delay-4{animation-delay:.4s}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+/* menu */
+.viz-menu{position:fixed;top:16px;right:16px;z-index:9999}
+.viz-menu-toggle{width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);transition:all .2s}
+.viz-menu-toggle:hover{background:var(--surface-hover)}
+.viz-menu-dropdown{position:absolute;top:52px;right:0;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s;backdrop-filter:blur(16px)}
+.viz-menu-dropdown.open{opacity:1;visibility:visible;transform:none}
+.viz-menu-dropdown button{width:100%;padding:10px 14px;border:none;border-radius:8px;background:transparent;color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;transition:background .15s}
+.viz-menu-dropdown button:hover{background:var(--surface-hover)}
+.viz-menu-dropdown .mi{display:inline-flex;align-items:center;flex:none}
+.skip-to-content{position:absolute;top:-40px;left:6px;background:var(--accent);color:#fff;padding:8px 12px;text-decoration:none;border-radius:4px;opacity:0;pointer-events:none;transition:all .2s;z-index:10000}
+.skip-to-content:focus{top:6px;opacity:1;pointer-events:auto}
+details{overflow:hidden;border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:10px}
+details summary{cursor:pointer;list-style:none;padding:16px 20px;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:'+';color:var(--accent);font-weight:800}
+details[open] summary::after{content:'\2212'}
+.det-body{padding:0 20px 18px;color:var(--text-secondary);font-size:.96rem}
+footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-secondary);font-size:.9rem}
+@media print{body{background:#fff!important;color:#000!important}.viz-menu{display:none}.reveal{opacity:1!important;transform:none!important}.card{break-inside:avoid;border:1px solid #ddd;box-shadow:none}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@page{margin:1in}
+@media(max-width:520px){.step{grid-template-columns:1fr;gap:10px}}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-to-content">본문으로 건너뛰기</a>
+
+<div class="viz-menu">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown">
+    <button onclick="cycleTheme()" aria-label="테마 전환"><span id="themeIcon" class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span><span id="themeLabel">Dark</span></button>
+    <button onclick="downloadImage()" aria-label="PNG 내려받기"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span>Download PNG</span></button>
+    <button onclick="window.print()" aria-label="인쇄"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span>Print / PDF</span></button>
+  </div>
+</div>
+
+<main id="main-content" role="main">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow animate">gh-issue 플러그인 · 스킬 가이드</div>
+    <h1 class="animate delay-1"><span class="mono">implement</span></h1>
+    <p class="lede animate delay-2">이슈 1건을 받아 <strong>파일을 수정하고 테스트를 돌린다</strong>. 산출물은 워킹 트리의 변경분과 테스트 결과 리포트다. 커밋도 PR 도 만들지 않는다.</p>
+    <div class="badge-row animate delay-3">
+      <span class="badge">호출 <code>/gh-issue:implement &lt;N&gt; [mode] [remote]</code></span>
+      <span class="badge">Step 6단계</span>
+      <span class="badge warn">쓰기 있음 — 파일 · self-assign · 보드 카드</span>
+    </div>
+    <div class="readonly-stamp write animate delay-4"><span class="dot"></span>"테스트 통과" 에서 멈춘다 — 커밋 · PR · 워크트리는 경계 밖</div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>산출물</div>
+    <h2 data-reveal style="margin:8px 0 22px">입력에서 출력까지</h2>
+    <div class="flow" data-reveal>
+      <span class="flow-node">이슈 번호 + mode + remote</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node hi">/gh-issue:implement</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node">워킹 트리 변경분 + 테스트 결과 리포트</span>
+    </div>
+    <p class="text-secondary" style="margin-top:14px">커밋은 <code>gh-pr:commit</code>, PR 은 <code>gh-pr:create</code>, 이슈부터 PR 까지 한 번에 엮는 것은 <code>gh-flow:issue</code> 다. 워크트리 생성은 <code>gwt</code> / <code>ai-worktree:spawn</code> 의 몫이다.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>경계</div>
+    <h2 data-reveal style="margin:8px 0 22px">언제 쓰고 언제 안 쓰는가</h2>
+    <div class="grid g2">
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:14px">쓸 때</h3>
+        <div class="bnd"><span class="bnd-c">O</span><p>코드 변경을 요구하는 이슈를 실제로 구현할 때.</p></div>
+        <div class="bnd"><span class="bnd-c">O</span><p>이미 전용 워크트리(예: <code>gwt</code>)를 만들고 그 안으로 <code>cd</code> 한 뒤.</p></div>
+      </article>
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:14px">안 쓸 때 — 형제 스킬로</h3>
+        <div class="bnd"><span class="bnd-x">X</span><p>지시(directive) 이슈 — 8섹션 프로토콜이 본문에 박혀 있음 → <code>proceed</code></p></div>
+        <div class="bnd"><span class="bnd-x">X</span><p>이슈를 읽기만 할 것 → <code>read</code></p></div>
+        <div class="bnd"><span class="bnd-x">X</span><p>커밋 → <code>gh-pr:commit</code> · PR → <code>gh-pr:create</code> · 전 구간 → <code>gh-flow:issue</code></p></div>
+      </article>
+    </div>
+
+    <p class="text-secondary" style="margin:22px 0 12px"><code>implement</code> 와 <code>proceed</code> 를 가르는 축은 <strong>이슈의 종류</strong>다.</p>
+    <div class="tbl-scroll" data-reveal>
+      <table>
+        <thead><tr><th>이슈 종류</th><th>맞는 스킬</th><th>하는 일</th></tr></thead>
+        <tbody>
+          <tr><td>코드 변경 이슈</td><td><code>implement</code></td><td>파일을 고쳐 이슈를 만족시킨다</td></tr>
+          <tr><td>지시(directive) 이슈 — 8섹션 프로토콜이 본문에 박혀 있음</td><td><code>proceed</code></td><td>이슈가 품고 있는 프로토콜을 그대로 실행한다</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>인터페이스</div>
+    <h2 data-reveal style="margin:8px 0 22px">호출 형식과 인자</h2>
+    <div class="tbl-scroll" data-reveal>
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">references/help.md 기준 — <code>/gh-issue:implement &lt;issue-number&gt; [mode] [remote] [--no-next-hint]</code></caption>
+        <thead><tr><th>#</th><th>이름</th><th>기본값</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>&lt;issue-number&gt;</code> 또는 <code>-h</code> / <code>--help</code> / <code>help</code></td><td>—</td><td>GitHub 이슈 번호</td></tr>
+          <tr><td>2</td><td><code>mode</code></td><td><code>direct</code></td><td><code>direct</code>, <code>plan</code>, <code>brainstorming</code> 중 하나</td></tr>
+          <tr><td>3</td><td><code>remote-name</code></td><td><code>origin</code></td><td>이슈를 소유한 repo 의 git remote</td></tr>
+          <tr><td>flag</td><td><code>--no-next-hint</code></td><td>off</td><td>Step 6 리포트의 마지막 <code>Next:</code> 힌트를 생략</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-scroll" data-reveal style="margin-top:18px">
+      <table>
+        <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">사용 예</caption>
+        <thead><tr><th>명령</th><th>동작</th></tr></thead>
+        <tbody>
+          <tr><td><code>/gh-issue:implement 16</code></td><td>direct 모드 — 이슈를 읽고 구현하고 테스트. 사람 개입 없음</td></tr>
+          <tr><td><code>/gh-issue:implement 16 plan</code></td><td><code>superpowers:writing-plans</code> 먼저, 계획대로 구현</td></tr>
+          <tr><td><code>/gh-issue:implement 16 brainstorming</code></td><td>brainstorming → plan → 구현</td></tr>
+          <tr><td><code>/gh-issue:implement 16 direct upstream</code></td><td><code>upstream</code> remote 의 repo 대상 direct 모드</td></tr>
+          <tr><td><code>/gh-issue:implement -h</code></td><td>help verbatim 출력 후 종료. API 호출 0건</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>동작</div>
+    <h2 data-reveal style="margin:8px 0 22px">동작 단계 요약</h2>
+    <div class="card" data-reveal style="padding:8px 24px">
+      <div class="step"><div class="step-n">1</div><div><h3>Step 1 — 인자 파싱 + repo 해석 + 전제조건</h3><p><code>START_TS</code> 기록, remote URL 하나에서 <code>TARGET_REPO</code> 와 <code>TARGET_HOST</code> 해석. 전제조건 3종을 병렬 검사하고 fail-fast 한다: git repo 안인가(<code>git rev-parse --show-toplevel</code>), 현재 브랜치가 기본 브랜치가 <strong>아닌가</strong>(<code>gh repo view --json defaultBranchRef</code> 로 얻은 값과 비교), 워킹 트리가 깨끗한가(<code>git status --porcelain</code> 이 비어 있는가).</p></div></div>
+      <div class="step"><div class="step-n">2</div><div><h3>Step 2 — superpowers 플러그인 탐지</h3><p>플러그인이 없으면 모드를 <code>direct</code> 로 강제하고 경고 1줄. resolve 검사는 <code>test-driven-development</code>(Step 5 의 TDD 경로 게이트)와 <code>subagent-driven-development</code>(Step 4 의 계획 경로 TDD 보장 게이트)를 함께 본다.</p></div></div>
+      <div class="step"><div class="step-n">3</div><div><h3>Step 3 — 이슈 fetch + claim</h3><p>3.1 fetch(CLOSED 는 거부) → 3.2 block-label 가드 → 3.3 self-assign → 3.3b 중복 PR 소프트 경고 → 3.4 보드 카드 이동(<code>Backlog</code>/<code>Ready</code> 에서만 <code>In progress</code> 로) → 3.5 <code>Depends on #M</code> 소프트 경고.</p><p>각 단계 뒤에 <code>[step:gh-issue-implement/&lt;marker&gt;] OK</code> 마커를 출력한다.</p></div></div>
+      <div class="step"><div class="step-n">4</div><div><h3>Step 4 — 모드 디스패치</h3><p><code>direct</code> 는 바로 Step 5. <code>plan</code> 은 모호성 신호가 있으면 <code>brainstorming</code> 으로 승격, 아니면 <code>writing-plans</code>. <code>brainstorming</code> 은 설계 후 계획, 승인 뒤 Step 5.</p></div></div>
+      <div class="step"><div class="step-n">5</div><div><h3>Step 5 — 구현 + 테스트</h3><p>공통 단계(fetch, 의도 추출, repo 스캔, <code>$TEST_CMD</code> 탐지, <strong>편집 전 baseline</strong> 캡처) 후 분기한다. 러너가 검출되고 superpowers 도 있으면 <strong>TDD 경로</strong>(시도 횟수 제한 없음, 판단으로 멈춤), 그 외에는 <strong>fallback 경로</strong>(편집 → 러너가 있으면 테스트 → 실패 루프 최대 3회).</p><p>러너가 없으면 baseline 과 테스트 단계를 건너뛰고 "No test runner detected, skipping tests." 로 보고한다.</p></div></div>
+      <div class="step"><div class="step-n">6</div><div><h3>Step 6 — 리포트</h3><p>변경 파일, 어떤 경로가 돌았는지(<code>tdd</code>/<code>fallback</code>), 테스트 결과, ai-metrics 라인, 그리고 <code>--no-next-hint</code> 가 없으면 <code>Next:</code> 힌트.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>제약</div>
+    <h2 data-reveal style="margin:8px 0 22px">주의사항과 제약</h2>
+
+    <article class="card" data-reveal style="border-color:color-mix(in srgb,var(--negative) 35%,transparent)">
+      <div class="caveat crit">
+        <h4>커밋 · PR · 워크트리를 만들지 않고, 기본 브랜치에서 실행하지 않는다</h4>
+        <p><strong>커밋도 PR 도 만들지 않는다.</strong> "파일 수정됨, 테스트 돌림" 에서 멈춘다. 사람이 diff 를 먼저 보고, 여러 시도를 하나로 squash 하고, repo 별 커밋 스타일을 고를 수 있게 하기 위한 의도적 경계다. 여기서 <code>git commit</code> 을 실행하려 한다면 멈추고 리포트를 출력할 것.</p>
+        <p><strong>워크트리를 만들지 않는다.</strong> 이 스킬이 돌 때 사용자는 이미 올바른 디렉터리에 있다. 내부에서 워크트리를 만들면 중첩되어 정리 흐름을 망친다.</p>
+        <p><strong>기본 브랜치에서 실행하지 않는다.</strong> <code>main</code> / <code>master</code> 에서 직접 구현하면 진행 중인 모든 피처 브랜치의 base 가 오염된다. Step 1 이 이를 강제하며, 걸리면 우회하지 않는다.</p>
+      </div>
+    </article>
+
+    <article class="card" data-reveal style="margin-top:16px;border-color:color-mix(in srgb,var(--warning) 35%,transparent)">
+      <div class="caveat">
+        <h4>기존 실패 테스트를 고치지 않는다 — baseline 이 PRE-EXISTING 과 CAUSED 를 가른다</h4>
+        <p>첫 편집 <strong>이전</strong>에 찍은 baseline 이 PRE-EXISTING(이 스킬 실행 전부터 실패)과 CAUSED(이 스킬 편집이 유발)를 가른다. PRE-EXISTING 은 리포트에만 적고 고칠지 여부는 사람이 정한다.</p>
+        <p>이 규칙은 <strong>모든 경로에 적용되며</strong>, TDD 스킬의 "Other tests fail? Fix now." 문구보다 우선한다. TDD 스킬 자체를 고쳐서 이 예외를 박아 넣지 말 것.</p>
+      </div>
+    </article>
+
+    <div style="margin-top:16px">
+      <details open>
+        <summary>block label 은 우회 불가능한 하드 거부 — <code>exit 2</code></summary>
+        <div class="det-body"><code>GH_ISSUE_BLOCK_LABELS</code>(기본값: <code>do-not-work</code>, <code>on-hold</code>, <code>보류</code>, <code>Postpone</code> 계열, <code>reference</code>) 중 하나라도 이슈에 붙어 있으면 Step 3.2 가 fail-closed 로 <strong>exit 2</strong> 하고 멈춘다. 이 계열에서 exit 2 는 "정책상 거부", exit 1 은 "스킬이 깨짐" 을 뜻한다. 강제 실행 플래그는 제안됐다가 기각됐다 — 라벨을 떼는 것만이 유일한 해제 방법이다.</div>
+      </details>
+      <details>
+        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (#1403)</summary>
+        <div class="det-body">두 값은 Step 1 이 같은 remote URL 에서 뽑은 쌍이다. <code>--repo</code> 가 없으면 gh CLI 는 git 의 <code>origin</code> 이 아니라 자기 <code>gh repo set-default</code> 를 따라가고, github.com 과 GHES 동시 로그인 상태에서는 <strong>에러 없이 성공한다</strong> — OPEN 이슈가 "없음" 으로 돌아오고, 쓰기(self-assign, 보드 이동)는 남의 이슈 #N 에 꽂힌다. 이상한 <code>gh</code> 결과를 재시도, <code>--repo</code> 제거, remote 교체로 우회하지 말고 host 를 먼저 검증할 것.</div>
+      </details>
+      <details>
+        <summary>테스트 실패 루프는 최대 3회 — fallback 경로 한정</summary>
+        <div class="det-body">fallback 경로에 한정된 카운터다. TDD 경로에는 카운터가 없고 앞으로도 만들지 않는다. 같은 실패 반복, 초록 테스트를 깨는 수정, 설명 불가한 실패에서 판단으로 멈춘다.</div>
+      </details>
+      <details>
+        <summary>superpowers 를 필수로 요구하지 않는다</summary>
+        <div class="det-body"><code>direct</code> 모드는 항상 동작하고, fallback 경로는 baseline 캡처, 편집, 테스트, 제한된 실패 루프, 완전한 리포트를 갖춘 <strong>온전한</strong> 흐름이다. 열등한 경로가 아니라 같은 결승선으로 가는 다른 길이다.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><span class="mono">gh-issue-skills</span> · 스킬 가이드 · 원문 <code>docs/skill-guides/implement.md</code></p>
+  </div>
+</footer>
+
+</main>
+
+<script>
+function toggleMenu(){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.toggle('open');}
+document.addEventListener('click',function(e){if(!e.target.closest('.viz-menu')){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+var savedTheme=localStorage.getItem('viz-theme');
+var currentTheme=savedTheme||(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+var ICON_MOON="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/></svg>";
+var ICON_SUN="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41\"/></svg>";
+function applyTheme(t){document.documentElement.className='theme-'+t;document.getElementById('themeIcon').innerHTML=t==='dark'?ICON_MOON:ICON_SUN;document.getElementById('themeLabel').textContent=t==='dark'?'Dark':'Light';localStorage.setItem('viz-theme',t);currentTheme=t;}
+function cycleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
+applyTheme(currentTheme);
+document.querySelectorAll('[data-reveal]').forEach(function(el){el.classList.add('reveal');});
+var revealObserver=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');revealObserver.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(function(el){revealObserver.observe(el);});
+async function downloadImage(){var m=document.querySelector('.viz-menu');m.style.display='none';try{var url=await htmlToImage.toPng(document.body,{quality:1,pixelRatio:2,filter:function(n){return !n.classList||!n.classList.contains('viz-menu');}});var a=document.createElement('a');a.href=url;a.download=document.title.replace(/\s+/g,'-').toLowerCase()+'.png';a.click();}catch(e){console.error('Download failed:',e);}m.style.display='';}
+</script>
+</body>
+</html>

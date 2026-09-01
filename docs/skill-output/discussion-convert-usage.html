@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>discussion-convert 사용 결과 — gh-issue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{interpolate-size:allow-keywords}
+html.theme-dark{--bg:#0A0A0A;--surface:#141414;--surface-hover:#1C1C1C;--border:rgba(255,255,255,0.07);--text:#EDEDED;--text-secondary:#8a8a8a;--accent:#3b82f6;--accent-secondary:#8b5cf6;--positive:#10b981;--negative:#f43f5e;--warning:#f59e0b}
+html.theme-light{--bg:#FAFAF9;--surface:#FFFFFF;--surface-hover:#F5F5F4;--border:rgba(0,0,0,0.09);--text:#0f172a;--text-secondary:#64748b;--accent:#2563eb;--accent-secondary:#7c3aed;--positive:#059669;--negative:#e11d48;--warning:#d97706}
+body{font-family:'Inter','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;transition:background .3s,color .3s;scrollbar-gutter:stable;overflow-x:hidden}
+h1,h2,h3,h4{color:var(--text);letter-spacing:-0.03em;line-height:1.12;text-wrap:balance}
+h1{font-weight:800;font-size:clamp(2rem,5.6vw,3.4rem)}
+h2{font-weight:700;font-size:clamp(1.6rem,3.4vw,2.2rem)}
+h3{font-weight:650;font-size:1.4rem}
+p,li,td,th,span,label{color:var(--text);font-weight:400}
+.text-secondary{color:var(--text-secondary)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.92em}
+code{background:var(--surface-hover);border:1px solid var(--border);border-radius:5px;padding:.12em .42em;overflow-wrap:anywhere}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;transition:box-shadow .2s ease}
+.card:hover{box-shadow:0 0 0 1px var(--border),0 8px 20px rgba(0,0,0,.10)}
+section{padding:52px 0}
+.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+header.hero{padding:80px 0 50px;border-bottom:1px solid var(--border)}
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.badge{font-size:.8rem;font-weight:600;padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary)}
+.badge.ok{color:var(--positive);border-color:color-mix(in srgb,var(--positive) 35%,transparent)}
+.badge.bad{color:var(--negative);border-color:color-mix(in srgb,var(--negative) 35%,transparent)}
+.lede{font-size:1.18rem;color:var(--text-secondary);max-width:70ch;margin-top:18px;border-left:3px solid var(--accent);padding-left:16px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--positive);flex:none}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:20px;border-radius:12px;background:var(--surface);border:1px solid var(--border)}
+.flow-node{padding:11px 16px;border-radius:9px;border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:.92rem}
+.flow-node.hi{border-color:var(--accent);color:var(--accent)}
+.flow-arrow{color:var(--text-secondary);font-weight:700}
+.term{border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;margin-top:12px}
+.term.err{border-color:color-mix(in srgb,var(--negative) 40%,transparent)}
+.term-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-hover)}
+.term-bar .d{width:10px;height:10px;border-radius:50%;background:var(--border)}
+.term-bar .t{margin-left:8px;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);font-weight:700}
+.term.err .term-bar .t{color:var(--negative)}
+.term pre{padding:16px 18px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.9rem;line-height:1.65;color:var(--text);white-space:pre}
+.term pre .pfx{color:var(--accent);font-weight:700}
+.term pre .neg{color:var(--negative);font-weight:700}
+.term pre .key{color:var(--accent-secondary)}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px}
+.stat-num{font-weight:800;font-size:clamp(2rem,5vw,2.9rem);letter-spacing:-.045em;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.stat.pos .stat-num{color:var(--positive)}
+.stat.neg .stat-num{color:var(--negative)}
+.stat.warn .stat-num{color:var(--warning)}
+.stat-lbl{color:var(--text-secondary);font-size:.88rem;margin-top:10px;line-height:1.45}
+/* step ladder */
+.ladder{display:grid;gap:8px}
+.lrow{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+.lrow .n{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:var(--surface-hover);color:var(--text-secondary)}
+.lrow .nm{flex:1;font-weight:600;font-size:.98rem}
+.lrow .st{flex:none;font-size:.72rem;font-weight:800;letter-spacing:.08em;padding:4px 10px;border-radius:999px;color:var(--text-secondary);background:var(--surface-hover)}
+.lrow.done{border-color:color-mix(in srgb,var(--positive) 40%,transparent);background:color-mix(in srgb,var(--positive) 8%,transparent)}
+.lrow.done .n{background:color-mix(in srgb,var(--positive) 16%,transparent);color:var(--positive)}
+.lrow.done .st{color:var(--positive);background:color-mix(in srgb,var(--positive) 15%,transparent)}
+.lrow.abort{border-color:color-mix(in srgb,var(--negative) 45%,transparent);background:color-mix(in srgb,var(--negative) 9%,transparent)}
+.lrow.abort .n{background:color-mix(in srgb,var(--negative) 16%,transparent);color:var(--negative)}
+.lrow.abort .st{color:var(--negative);background:color-mix(in srgb,var(--negative) 15%,transparent)}
+.lrow.skip{opacity:.55;border-style:dashed}
+.lrow.skip .nm{text-decoration:line-through;color:var(--text-secondary)}
+.verdict{margin-top:18px;padding:18px 22px;border-radius:12px;border:1px solid color-mix(in srgb,var(--negative) 40%,transparent);background:color-mix(in srgb,var(--negative) 9%,transparent);font-weight:650}
+.zero{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:20px 24px;border-radius:14px;border:1px solid color-mix(in srgb,var(--positive) 45%,transparent);background:color-mix(in srgb,var(--positive) 10%,transparent)}
+.zero .big{font-weight:800;font-size:clamp(1.1rem,2.6vw,1.5rem);color:var(--positive);letter-spacing:-.03em}
+.zero p{color:var(--text-secondary);font-size:.95rem;flex:1;min-width:220px}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeInUp .6s ease-out both}
+.animate.delay-1{animation-delay:.1s}.animate.delay-2{animation-delay:.2s}.animate.delay-3{animation-delay:.3s}.animate.delay-4{animation-delay:.4s}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+.viz-menu{position:fixed;top:16px;right:16px;z-index:9999}
+.viz-menu-toggle{width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);transition:all .2s}
+.viz-menu-toggle:hover{background:var(--surface-hover)}
+.viz-menu-dropdown{position:absolute;top:52px;right:0;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s;backdrop-filter:blur(16px)}
+.viz-menu-dropdown.open{opacity:1;visibility:visible;transform:none}
+.viz-menu-dropdown button{width:100%;padding:10px 14px;border:none;border-radius:8px;background:transparent;color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;transition:background .15s}
+.viz-menu-dropdown button:hover{background:var(--surface-hover)}
+.viz-menu-dropdown .mi{display:inline-flex;align-items:center;flex:none}
+.skip-to-content{position:absolute;top:-40px;left:6px;background:var(--accent);color:#fff;padding:8px 12px;text-decoration:none;border-radius:4px;opacity:0;pointer-events:none;transition:all .2s;z-index:10000}
+.skip-to-content:focus{top:6px;opacity:1;pointer-events:auto}
+footer{border-top:1px solid var(--border);padding:32px 0 52px;color:var(--text-secondary);font-size:.9rem}
+@media print{body{background:#fff!important;color:#000!important}.viz-menu{display:none}.reveal{opacity:1!important;transform:none!important}.card,.stat,.lrow,.term{break-inside:avoid;box-shadow:none}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@page{margin:1in}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-to-content">본문으로 건너뛰기</a>
+
+<div class="viz-menu">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown">
+    <button onclick="cycleTheme()" aria-label="테마 전환"><span id="themeIcon" class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span><span id="themeLabel">Dark</span></button>
+    <button onclick="downloadImage()" aria-label="PNG 내려받기"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span>Download PNG</span></button>
+    <button onclick="window.print()" aria-label="인쇄"><span class="mi" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span>Print / PDF</span></button>
+  </div>
+</div>
+
+<main id="main-content" role="main">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow animate">gh-issue 플러그인 · 스킬 사용 결과</div>
+    <h1 class="animate delay-1"><span class="mono">discussion-convert</span> 사용 결과</h1>
+    <p class="lede animate delay-2"><strong>한 줄 요약</strong> — Discussion 번호를 받아 fetch 결과(또는 Issue + 잠긴 Discussion)를 생성합니다.</p>
+    <div class="flow animate delay-3" style="margin-top:26px">
+      <span class="flow-node">Discussion 번호</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node hi">/gh-issue:discussion-convert</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node">fetch 오류 판정 (터미널 출력)</span>
+    </div>
+    <div class="badge-row animate delay-4">
+      <span class="badge ok">GitHub 쓰기 0건</span>
+      <span class="badge">help 경로 + Step 2 fetch</span>
+      <span class="badge bad">Step 2 에서 abort</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>1. 실행한 명령</div>
+    <h2 data-reveal style="margin:8px 0 18px">범용 형식과 이번 실행</h2>
+    <div data-reveal>
+      <div class="term">
+        <div class="term-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">범용 형식</span></div>
+        <pre><span class="pfx">$</span> /gh-issue:discussion-convert &lt;discussion-number&gt; [remote]</pre>
+      </div>
+    </div>
+    <div data-reveal>
+      <div class="term">
+        <div class="term-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">이번 실행</span></div>
+        <pre><span class="pfx">$</span> /gh-issue:discussion-convert --help</pre>
+      </div>
+      <p class="text-secondary" style="margin-top:12px">Step 2 fetch 는 <code>origin</code> 에 실제 실행했습니다.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>2. 입력</div>
+    <h2 data-reveal style="margin:8px 0 18px">두 갈래 입력</h2>
+    <div class="grid g2">
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:10px;font-size:1.1rem">help 경로</h3>
+        <p class="text-secondary">인자 <code>--help</code> 하나. API 호출 없음.</p>
+      </article>
+      <article class="card" data-reveal>
+        <h3 style="margin-bottom:10px;font-size:1.1rem">fetch 경로</h3>
+        <p class="text-secondary">Discussion #1, remote <code>origin</code> = <code>dEitY719/gh-issue-skills</code>. 이 repo 는 Discussions 기능이 비활성 상태입니다.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>3. 결과 — help 출력 실측</div>
+    <h2 data-reveal style="margin:8px 0 18px">help 경로</h2>
+    <div class="grid g3">
+      <div class="stat" data-reveal><div class="stat-num" data-count="94">0</div><div class="stat-lbl">lines</div></div>
+      <div class="stat" data-reveal><div class="stat-num" data-count="4681">0</div><div class="stat-lbl">chars</div></div>
+      <div class="stat" data-reveal><div class="stat-num" data-count="7">0</div><div class="stat-lbl">개 섹션</div></div>
+    </div>
+    <article class="card" data-reveal style="margin-top:16px">
+      <p class="text-secondary">Arguments · Flags · Env Vars · What the skill does · Bidirectional-backlink contract · What the skill will NOT do · Related skills</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>3. 결과 — Step 2 fetch 실측</div>
+    <h2 data-reveal style="margin:8px 0 18px">GraphQL 오류 응답</h2>
+    <p class="text-secondary" data-reveal style="margin-bottom:6px"><code>GH_HOST=github.com gh api graphql</code> 로 <code>discussion(number:1)</code> 을 조회한 응답입니다.</p>
+    <div data-reveal>
+      <div class="term err">
+        <div class="term-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">GraphQL response</span></div>
+        <pre><span class="key">hasDiscussionsEnabled</span>: <span class="neg">false</span>
+<span class="key">discussion</span>: <span class="neg">null</span>
+<span class="key">errors[0].type</span>: <span class="neg">NOT_FOUND</span></pre>
+      </div>
+    </div>
+    <div data-reveal>
+      <div class="term err">
+        <div class="term-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">gh stderr</span></div>
+        <pre><span class="neg">gh: Could not resolve to a Discussion with the number of 1.</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>단계 진행</div>
+    <h2 data-reveal style="margin:8px 0 18px">Step 2 에서 중단</h2>
+    <div class="ladder" data-reveal>
+      <div class="lrow done"><span class="n">1</span><span class="nm">인자 파싱 · repo 해석</span><span class="st">DONE</span></div>
+      <div class="lrow abort"><span class="n">2</span><span class="nm">Discussion fetch — Fetch failure → abort with stderr</span><span class="st">ABORT</span></div>
+      <div class="lrow skip"><span class="n">3</span><span class="nm">카테고리 가드</span><span class="st">SKIPPED</span></div>
+      <div class="lrow skip"><span class="n">4+</span><span class="nm">Issue 생성 · Discussion lock/close</span><span class="st">SKIPPED</span></div>
+    </div>
+    <div class="verdict" data-reveal>SKILL.md Step 2 의 "Fetch failure -&gt; abort with stderr" 경로를 그대로 타서 중단했으며, Step 3(카테고리 가드) 이하로는 진입하지 않았습니다.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="zero" data-reveal>
+      <span class="dot"></span>
+      <span class="big">GitHub 쓰기 0건</span>
+      <p>비변경 경로만 실행했습니다.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><span class="mono">gh-issue-skills</span> · 스킬 사용 결과 · 원문 <code>docs/skill-output/discussion-convert-usage.md</code></p>
+  </div>
+</footer>
+
+</main>
+
+<script>
+var reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function toggleMenu(){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.toggle('open');}
+document.addEventListener('click',function(e){if(!e.target.closest('.viz-menu')){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var d=document.getElementById('vizMenuDropdown');if(d)d.classList.remove('open');}});
+var savedTheme=localStorage.getItem('viz-theme');
+var currentTheme=savedTheme||(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+var ICON_MOON="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/></svg>";
+var ICON_SUN="<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41\"/></svg>";
+function applyTheme(t){document.documentElement.className='theme-'+t;document.getElementById('themeIcon').innerHTML=t==='dark'?ICON_MOON:ICON_SUN;document.getElementById('themeLabel').textContent=t==='dark'?'Dark':'Light';localStorage.setItem('viz-theme',t);currentTheme=t;}
+function cycleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
+applyTheme(currentTheme);
+document.querySelectorAll('[data-reveal]').forEach(function(el){el.classList.add('reveal');});
+var revealObserver=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');revealObserver.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(function(el){revealObserver.observe(el);});
+function fmtCount(v,suffix){return v.toLocaleString('en-US')+suffix;}
+function runCount(el){var target=parseFloat(el.getAttribute('data-count'))||0;var suffix=el.getAttribute('data-suffix')||'';if(reduceMotion||target===0){el.textContent=fmtCount(target,suffix);return;}var dur=1200,start=null;function step(ts){if(start===null)start=ts;var p=Math.min((ts-start)/dur,1);var eased=1-Math.pow(1-p,3);el.textContent=fmtCount(Math.round(target*eased),suffix);if(p<1){requestAnimationFrame(step);}else{el.textContent=fmtCount(target,suffix);}}requestAnimationFrame(step);}
+var countObserver=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting&&!e.target.dataset.counted){e.target.dataset.counted='1';runCount(e.target);countObserver.unobserve(e.target);}});},{threshold:.4});
+document.querySelectorAll('[data-count]').forEach(function(el){countObserver.observe(el);});
+async function downloadImage(){var m=document.querySelector('.viz-menu');m.style.display='none';try{var url=await htmlToImage.toPng(document.body,{quality:1,pixelRatio:2,filter:function(n){return !n.classList||!n.classList.contains('viz-menu');}});var a=document.createElement('a');a.href=url;a.download=document.title.replace(/\s+/g,'-').toLowerCase()+'.png';a.click();}catch(e){console.error('Download failed:',e);}m.style.display='';}
+</script>
+</body>
+</html>
