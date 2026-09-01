@@ -1,0 +1,21 @@
+{
+  "name": "gh-issue-skills",
+  "version": "0.1.0",
+  "description": "Skills for the GitHub issue and discussion lifecycle — read, create, implement, run directive protocols, author and promote Discussions",
+  "type": "module",
+  "main": ".opencode/plugins/gh-issue.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dEitY719/gh-issue-skills.git"
+  },
+  "keywords": [
+    "skills",
+    "plugin",
+    "marketplace",
+    "github",
+    "issues",
+    "discussions",
+    "workflow"
+  ]
+}

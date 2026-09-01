@@ -1,0 +1,43 @@
+{
+  "name": "gh-issue",
+  "version": "0.1.0",
+  "description": "GitHub issue and discussion lifecycle: read, create, implement, directive-protocol execution, Discussion authoring and promotion.",
+  "author": {
+    "name": "dEitY719",
+    "url": "https://github.com/dEitY719"
+  },
+  "homepage": "https://github.com/dEitY719/gh-issue-skills",
+  "repository": "https://github.com/dEitY719/gh-issue-skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "plugin",
+    "marketplace",
+    "github",
+    "issues",
+    "discussions",
+    "workflow"
+  ],
+  "skills": "./skills/",
+  "hooks": {},
+  "interface": {
+    "displayName": "GH Issue",
+    "shortDescription": "GitHub issue and discussion lifecycle",
+    "longDescription": "gh-issue owns the issue and discussion half of the GitHub workflow. read fetches an issue and prints it verbatim, mutating nothing. create classifies the current chat by conventional-commit prefix and files it, refusing to invent requirements the chat never decided. implement claims the issue, moves its board card, captures a pre-edit test baseline, and edits files -- it never commits and never opens a PR. proceed executes the 8-section protocol a directive issue embeds, with strict schema validation and a safety gate per step. discussion-create saves a pre-decision chat as an RFC-shaped Discussion, and discussion-convert promotes a decided one into a backlinked Issue, then locks and closes it. All six need an authenticated gh CLI and carry GH_HOST plus --repo on every call, because --repo alone names no server.",
+    "developerName": "dEitY719",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Read issue #42 and summarise it.",
+      "Save this conversation as an issue.",
+      "Implement issue #42 without committing."
+    ],
+    "websiteURL": "https://github.com/dEitY719/gh-issue-skills",
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

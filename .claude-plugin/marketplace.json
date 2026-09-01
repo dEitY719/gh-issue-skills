@@ -1,0 +1,20 @@
+{
+  "name": "gh-issue-skills",
+  "description": "GitHub issue and discussion lifecycle skills — read, create, implement, run directive protocols, author and promote Discussions",
+  "owner": {
+    "name": "dEitY719",
+    "url": "https://github.com/dEitY719"
+  },
+  "plugins": [
+    {
+      "name": "gh-issue",
+      "description": "Drive one GitHub issue or discussion through its whole lifecycle: read it verbatim, save a chat as a classified issue, implement it with a test baseline that never touches pre-existing failures, execute the 8-section protocol a directive issue embeds, and author or promote an RFC-shaped Discussion",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "dEitY719",
+        "url": "https://github.com/dEitY719"
+      }
+    }
+  ]
+}

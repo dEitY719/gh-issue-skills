@@ -1,0 +1,34 @@
+name: validate
+
+# This repo owns no CI logic of its own. It calls the reusable workflow owned by
+# `dEitY719/harness-skills` (dotfiles #1410 D-10), so a new check lands here the
+# moment it lands there — no copy to keep in sync.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    uses: dEitY719/harness-skills/.github/workflows/skill-check.yml@main
+    with:
+      plugin-name: gh-issue
+      # Two narrow exemptions from the repo-wide emoji ban, both for text the
+      # skills quote rather than decorate with:
+      #   1. the ai-metrics footer, whose chart / person / robot glyphs are the
+      #      wire format itself (dotfiles #317 F-2, PR #320) — `create` writes
+      #      it and `discussion-create` mirrors it;
+      #   2. the pause-glyph `Postpone` block label, a real GitHub label name that
+      #      `implement` and `proceed` refuse to start on.
+      # Everywhere else the ban still applies.
+      allow-emoji-paths: |
+        skills/create/references/
+        skills/discussion-create/references/create-cmd.md
+        skills/implement/references/claim.md
+        skills/proceed/references/claim.md
+        skills/proceed/references/help.md
