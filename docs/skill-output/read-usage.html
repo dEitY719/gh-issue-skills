@@ -175,7 +175,7 @@ footer{border-top:1px solid var(--border);padding:32px 0 52px;color:var(--text-s
       <article class="stat" data-reveal><div class="stat-n" data-count="135">0</div><div class="stat-l">본문 줄 수</div><div class="stat-s">lines</div></article>
       <article class="stat" data-reveal><div class="stat-n alt" data-count="2">0</div><div class="stat-l">코멘트</div><div class="stat-s">333 chars · 511 chars</div></article>
       <article class="stat" data-reveal><div class="stat-n alt" data-count="9">0</div><div class="stat-l">체크리스트 추출</div><div class="stat-s">본문 9 + 코멘트 0</div></article>
-      <article class="stat" data-reveal><div class="stat-n pos" data-count="13937">0</div><div class="stat-l">응답 JSON</div><div class="stat-s">bytes · exit 0</div></article>
+      <article class="stat" data-reveal><div class="stat-n pos" data-count="10324">0</div><div class="stat-l">응답 JSON</div><div class="stat-s">bytes · exit 0 · 키 11개</div></article>
     </div>
 
     <div class="grid g2" style="margin-top:18px">
@@ -189,11 +189,11 @@ footer{border-top:1px solid var(--border);padding:32px 0 52px;color:var(--text-s
         <div class="kv"><span class="kv-k">assignees</span><span class="kv-v"><code>[dEitY719]</code></span></div>
       </article>
       <article class="card" data-reveal>
-        <h3 style="margin-bottom:10px">Step 2 <code>gh issue view</code> 재시도</h3>
-        <p class="text-secondary" style="font-size:.96rem">1차 시도는 SKILL.md 의 필드 목록을 그대로 써서 <strong>exit 1</strong> 로 실패했습니다.</p>
+        <h3 style="margin-bottom:10px">Step 2 <code>gh issue view</code> + 종료 사유</h3>
+        <p class="text-secondary" style="font-size:.96rem">SKILL.md 의 Step 2 블록을 문서에서 그대로 추출해 실행했고 <strong>exit 0</strong>, JSON 10,324 bytes(키 11개)로 성공했습니다.</p>
         <div class="note">
-          <h4><code>Unknown JSON field: "stateReason"</code></h4>
-          <p>gh 2.45.0 미지원 필드. <code>stateReason</code> 을 <code>closed,closedAt</code> 으로 바꾼 2차 시도가 <strong>exit 0</strong>, JSON 13,937 bytes 로 성공했습니다.</p>
+          <h4><code>state=CLOSED</code> → 추가 REST 읽기</h4>
+          <p><code>gh api repos/dEitY719/dotfiles/issues/1676 --jq .state_reason</code> → <code>completed</code>. 대조로 <code>#1665</code> 는 <code>not_planned</code>, OPEN 인 <code>#1678</code> 은 추가 읽기를 생략했습니다.</p>
         </div>
         <div class="kv" style="margin-top:14px"><span class="kv-k">마지막 줄</span><span class="kv-v"><code>[ai-metrics:gh-issue-read] ~0 min (read-only — not written to GitHub)</code></span></div>
       </article>

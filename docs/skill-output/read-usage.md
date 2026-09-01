@@ -23,14 +23,16 @@
 
 ## 3. 결과
 
-Step 2 의 `gh issue view` 1차 시도는 SKILL.md 의 필드 목록을 그대로 써서 exit 1 로
-실패했습니다 (`Unknown JSON field: "stateReason"` — gh 2.45.0 미지원). `stateReason` 을
-`closed,closedAt` 으로 바꾼 2차 시도가 exit 0, JSON 13,937 bytes 로 성공했습니다.
+SKILL.md 의 Step 2 블록을 문서에서 그대로 추출해 실행했고 exit 0, JSON 10,324 bytes
+(키 11개) 로 성공했습니다. `state` 가 `CLOSED` 라 Header 의 종료 사유는 추가 REST
+읽기에서 가져왔습니다 — `gh api repos/dEitY719/dotfiles/issues/1676 --jq .state_reason`
+→ `completed`.
 
-- `number=1676`, `state=CLOSED`, `closed=true`, `closedAt=2026-09-01T11:09:44Z`
+- `number=1676`, `state=CLOSED`, `state_reason=completed`
 - title: `feat(skills): #1410 Phase 3 — gh-issue-skills repo 생성`
 - author `dEitY719` / labels `[feat]` / assignees `[dEitY719]`
 - 본문: 8,113 chars / 135 lines (verbatim 보존)
 - 코멘트 2건: 2026-09-01T10:41:02Z (333 chars), 2026-09-01T10:45:27Z (511 chars)
 - Checklist 추출: 본문 9개 + 코멘트 0개 = 합계 9개
 - 마지막 줄: `[ai-metrics:gh-issue-read] ~0 min (read-only — not written to GitHub)`
+- 대조 실행: `#1665` → `not_planned`, OPEN 인 `#1678` → 추가 읽기 생략

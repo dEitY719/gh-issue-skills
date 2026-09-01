@@ -87,10 +87,14 @@ SKILL.md 의 Step 구조는 4단계다.
   번역 모두 금지다. 보존된 기록이 이 스킬의 산출물이다.
 - **존재하지 않는 remote 를 받았을 때 `origin` 으로 fallback 하지 않는다.**
   오타를 가려서 엉뚱한 repo 를 읽게 만들기 때문이다.
-- **실제 결함 (실행 중 확인됨) — `stateReason` 필드.** SKILL.md Step 2 및
-  `references/output-format.md` 의 `--json` 필드 목록에 `stateReason` 이 들어 있으나,
-  gh 2.45.0 의 `gh issue view` 는 이 필드를 지원하지 않는다. 그대로 실행하면
-  `Unknown JSON field: "stateReason"` 와 함께 exit 1 로 즉시 실패한다. 해당 버전에서는
-  `stateReason` 을 `closed,closedAt` 으로 바꾸면 정상 동작한다 (유효 필드 목록에
-  `closed` / `closedAt` 이 있다). 스킬 문서 쪽 필드 목록이 아직 수정되지 않은 상태이니,
-  이 오류를 만나면 "이슈가 없다" 로 해석하지 말고 필드 목록을 먼저 확인할 것.
+- **CLOSED 이슈의 종료 사유는 별도 REST 읽기로 가져온다.** Header 의
+  `(CLOSED — completed)` 괄호는 `gh issue view --json stateReason` 이 아니라
+  `gh api "repos/$TARGET_REPO/issues/<N>" --jq .state_reason` 에서 온다.
+  `stateReason` 은 비교적 최신 gh 에서만 `--json` 필드로 제공되고, 없는 버전에
+  요청하면 `Unknown JSON field: "stateReason"` 로 **fetch 전체가 exit 1** 이 되어
+  아무것도 출력되지 않는다. REST 필드는 모든 버전이 노출하므로 이 경로가 안전하다.
+  추가 읽기는 `state` 가 `CLOSED` 일 때만 실행하고, 실패하거나 `null` 이면 괄호만
+  생략한다 — 이미 성공한 fetch 를 뒤엎지 않는다. GET 이라 읽기 전용 계약도 유지된다.
+- **`--json` 필드 목록은 한 줄로 유지한다.** 백슬래시로 이어붙인 다음 줄에
+  들여쓰기가 있으면 그 공백이 인자 구분자가 되어 목록이 두 개의 인자로 쪼개지고,
+  `gh` 가 `accepts 1 arg(s), received 2` 로 거절한다.
