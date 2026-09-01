@@ -23,8 +23,8 @@
 
 ## 3. 결과
 
-SKILL.md 의 Step 2 블록을 문서에서 그대로 추출해 실행했고 exit 0, JSON 10,324 bytes
-(키 11개) 로 성공했습니다. `state` 가 `CLOSED` 라 Header 의 종료 사유는 추가 REST
+SKILL.md 의 Step 2 블록을 문서에서 그대로 추출해 실행했고 exit 0, JSON 13,889 bytes
+(`wc -c` 기준, 키 11개) 로 성공했습니다. `state` 가 `CLOSED` 라 Header 의 종료 사유는 추가 REST
 읽기에서 가져왔습니다 — `gh api repos/dEitY719/dotfiles/issues/1676 --jq .state_reason`
 → `completed`.
 
