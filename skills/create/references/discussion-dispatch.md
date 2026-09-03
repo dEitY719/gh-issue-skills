@@ -8,12 +8,13 @@ verbatim:
   ai-metrics footer printf, and `gh issue create` with `LABEL_ARGS` /
   `MILESTONE_ARGS` from Step 2.5.
 - **Discussion path** (`DISCUSSION_MODE=1`) — same body file +
-  ai-metrics footer, then source
-  `shell-common/functions/gh_discussion.sh` and run the three lookups
+  ai-metrics footer, then source `gh_discussion.sh` (resolved from
+  `$DOTFILES_ROOT/shell-common/functions/`, falling back to
+  `${CLAUDE_PLUGIN_ROOT}/lib/vendor/shell-common/functions/`) and run
+  the three lookups
   (`_gh_discussion_repo_id`, `_gh_discussion_category_id`,
   `_gh_discussion_create`). Print the Discussion URL instead of an
-  issue URL. If the helper is missing, fail with
-  `[FAIL] gh-discussion helper not found at $DOTFILES_ROOT/shell-common/functions/gh_discussion.sh`
-  and exit 1.
+  issue URL. If neither path has the helper, fail with
+  `[FAIL] gh-discussion helper not found at $_GD` and exit 1.
 
 확인 질문하지 말고 즉시 실행.

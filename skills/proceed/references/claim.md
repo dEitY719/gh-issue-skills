@@ -70,6 +70,7 @@ whichever repo `gh repo set-default` picked (#1403 / #1407).
 ```
 if GH_ISSUE_SKIP_BOARD_TRANSITION set: return 0
 _HELPER="${SHELL_COMMON:-$HOME/dotfiles/shell-common}/functions/gh_project_status.sh"
+[ -f "$_HELPER" ] || _HELPER="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_project_status.sh"
 [ -r "$_HELPER" ] && . "$_HELPER"
 command -v _gh_project_status_sync >/dev/null 2>&1 \
   && _gh_project_status_sync issue <N> "In progress" \
