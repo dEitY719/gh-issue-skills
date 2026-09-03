@@ -50,14 +50,15 @@ validation here.
 ```bash
 # Fail fast if the helper file is missing (skill installed but
 # helper not yet symlinked into shell-common/).
-if [ ! -r "$DOTFILES_ROOT/shell-common/functions/gh_discussion.sh" ]; then
-    printf '[FAIL] gh-discussion helper not found at %s/shell-common/functions/gh_discussion.sh\n' \
-      "$DOTFILES_ROOT" >&2
+_GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"
+[ -f "$_GD" ] || _GD="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_discussion.sh"
+if [ ! -r "$_GD" ]; then
+    printf '[FAIL] gh-discussion helper not found at %s\n' "$_GD" >&2
     printf 'Next: install gh-discussion-create skill first.\n' >&2
     exit 1
 fi
 # shellcheck disable=SC1091
-. "$DOTFILES_ROOT/shell-common/functions/gh_discussion.sh"
+. "$_GD"
 
 BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # GH_HOST was exported in Step 1; the _gh_discussion_* GraphQL helpers

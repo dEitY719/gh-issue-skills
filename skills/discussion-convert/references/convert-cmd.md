@@ -18,10 +18,14 @@ Inputs bound by the caller:
 - `$OPT_NO_BOARD_SYNC`  — `1` if `--no-board-sync` was passed
 
 ```bash
+_GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"
+[ -f "$_GD" ] || _GD="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_discussion.sh"
+_PS="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_project_status.sh"
+[ -f "$_PS" ] || _PS="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_project_status.sh"
 # shellcheck disable=SC1091
-. "$DOTFILES_ROOT/shell-common/functions/gh_discussion.sh"
+. "$_GD"
 # shellcheck disable=SC1091
-. "$DOTFILES_ROOT/shell-common/functions/gh_project_status.sh"
+. "$_PS"
 
 DISC_ID=$(jq -r '.id'     "$DISC_JSON")
 DTITLE=$(jq -r '.title'   "$DISC_JSON")

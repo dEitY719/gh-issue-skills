@@ -11,8 +11,10 @@ against the repo's category list).
 `$TITLE` is drafted in Step 3.
 
 ```bash
+_GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"
+[ -f "$_GD" ] || _GD="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_discussion.sh"
 # shellcheck disable=SC1091
-. "$DOTFILES_ROOT/shell-common/functions/gh_discussion.sh"
+. "$_GD"
 
 BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # ... write drafted body to "$BODY" ...

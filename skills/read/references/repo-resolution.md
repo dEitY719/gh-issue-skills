@@ -31,7 +31,9 @@ file holds the substeps and error-message shape.
    step 3. Both must be read from that same URL — never from two sources:
 
    ```bash
-   . "${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_host.sh"
+   _SC="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
+   [ -f "$_SC/functions/gh_host.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"
+   . "$_SC/functions/gh_host.sh"
    REMOTE_URL=$(git remote get-url <remote-name>) || exit 1
    TARGET_REPO=$(_gh_parse_owner_repo_url "$REMOTE_URL") || exit 1
    TARGET_HOST=$(_gh_host_from_url "$REMOTE_URL") || TARGET_HOST=$(_gh_resolve_host)
