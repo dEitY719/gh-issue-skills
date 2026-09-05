@@ -43,7 +43,7 @@ got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" origin >/dev/null 2>&1 &&
 chk "github.com remote" "$got" "acme/widget|github.com|github.com"
 
 # 2. GHES remote: the host follows the URL, not the PC's setup mode. This is
-#    the #1403 case the whole helper exists for.
+#    the dEitY719/dotfiles#1403 case the whole helper exists for.
 got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" ghes >/dev/null 2>&1 &&
        printf '%s|%s' "$TARGET_REPO" "$GH_HOST" )
 chk "GHES remote picks its own host" "$got" "acme/widget|github.samsungds.net"
@@ -69,7 +69,7 @@ chk "outside a git repo returns non-zero" "$?" "1"
 
 # 7. A non-github remote is refused outright rather than half-resolved: the
 #    caller must never proceed with an empty GH_HOST, which is precisely the
-#    silent wrong-server state of #1403.
+#    silent wrong-server state of dEitY719/dotfiles#1403.
 git -C "$TMP" remote add other https://gitlab.com/acme/widget.git
 got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" other >/dev/null 2>&1; printf '%s|%s' "$?" "${GH_HOST:-unset}" )
 chk "non-github remote refused, GH_HOST untouched" "$got" "1|unset"

@@ -60,6 +60,8 @@ The shipped parser (`shell-common/functions/parse_yaml_defaults.sh`, vendored
 here as `lib/vendor/shell-common/functions/parse_yaml_defaults.sh`) is
 intentionally minimal and only understands those keys — anchors, nested
 maps, multi-doc files, and other YAML features are NOT supported.
+`lib/parse-yaml-defaults.selfcheck.sh` pins the vendored copy's presence, both
+`static` forms, and the `DOTFILES_FORCE_INIT` the dispatch below depends on.
 
 ## Dispatch order (inside Step 2.5)
 

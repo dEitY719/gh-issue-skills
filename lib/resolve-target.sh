@@ -10,7 +10,7 @@
 # Exports TARGET_REPO, TARGET_HOST, GH_HOST, and SHELL_COMMON (whichever
 #         shell-common tree actually resolved).
 #
-# Why GH_HOST and not just `--repo` (#1403): `gh api graphql` — the Discussion
+# Why GH_HOST and not just `--repo` (dEitY719/dotfiles#1403): `gh api graphql` — the Discussion
 # read and write path — accepts no `--repo`, so an inherited GH_HOST is its
 # only host selector. Without it `gh` follows its own `gh repo set-default`
 # rather than git's remote, and on a dual-host login (github.com + GHES) the
@@ -77,7 +77,7 @@ _rt_resolve() {
     TARGET_REPO=$(_gh_parse_owner_repo_url "$_rt_url") || return 1
     TARGET_HOST=$(_gh_host_from_url "$_rt_url") || TARGET_HOST=$(_gh_resolve_host)
     if [ -z "$TARGET_HOST" ]; then
-        echo "Error: no host resolved for $_rt_url — refusing to run with an empty GH_HOST (#1403)." >&2
+        echo "Error: no host resolved for $_rt_url — refusing to run with an empty GH_HOST (dEitY719/dotfiles#1403)." >&2
         return 1
     fi
 
