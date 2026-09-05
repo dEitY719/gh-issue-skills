@@ -1,6 +1,6 @@
 # Decision — No Disk Cache for Repo / Category IDs
 
-Issue #617 Open Question:
+Issue dEitY719/dotfiles#617 Open Question:
 > 카테고리 ID 캐시 위치 — `.cache/gh-discussions-categories.json` vs
 > 매 호출 fetch (refresh 비용 vs staleness).
 
@@ -45,7 +45,7 @@ Until then, the helper does the obvious thing: fetch on every call.
 
 ## Why this lives here
 
-The Open Question was raised in issue #617's body. Capturing the
+The Open Question was raised in issue dEitY719/dotfiles#617's body. Capturing the
 decision next to the code that implements it (the `_gh_discussion_*`
 helpers and `Step 4` create command) keeps the rationale discoverable
 when a future maintainer asks "why is there no cache?" — instead of

@@ -5,6 +5,7 @@ description: >-
   strict schema validation, safety-gated writes. Use for /gh-issue:proceed,
   "이 지시 이슈 끝까지 수행해", "proceed #81". Not a code implementer
   (gh-issue:implement).
+license: MIT
 allowed-tools: Bash, Read, Grep, Glob, Edit, Write, Skill, TaskCreate, TaskUpdate, TaskList
 metadata:
   model_recommendation:
@@ -39,7 +40,7 @@ Positional args: `<issue-number> [remote]` — no `mode` arg; always `direct`.
 - `remote` — default `origin`. Bind `TARGET_REPO` **and** `TARGET_HOST` from
   that one remote URL per `references/repo-resolution.md`, then
   `export GH_HOST="$TARGET_HOST"` — every `gh` call below runs as
-  `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"` (#1403 / #1407).
+  `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"` (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407).
   Missing remote → `git remote -v` + stop (no silent fallback).
 
 ## Step 2: Fetch + Claim + Schema Validation

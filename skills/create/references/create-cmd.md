@@ -3,7 +3,7 @@
 Detail companion to SKILL.md Step 4. Writes the drafted body to a temp
 file, appends the ai-metrics footer (unless `GH_DISABLE_AI_METRICS=1`),
 and calls either `gh issue create` (default) or the
-`_gh_discussion_*` helpers (`DISCUSSION_MODE=1`, #619).
+`_gh_discussion_*` helpers (`DISCUSSION_MODE=1`, dEitY719/dotfiles#619).
 
 `$TOKENS`, `$HUMAN_H`, `$ELAPSED` come from Step 3.5.
 `LABEL_ARGS` / `MILESTONE_ARGS` are the arrays Step 2.5 prepared (one
@@ -32,7 +32,7 @@ GH_HOST="$TARGET_HOST" gh issue create --repo "$TARGET_REPO" \
 `GH_HOST` 와 `--repo` 는 둘 다 필수이며 Step 1 이 같은 remote URL 에서 뽑은
 쌍이다 (`references/repo-resolution.md`). 하나라도 빠지면 gh CLI 가 자기
 `gh repo set-default` 를 따라가 dual-host 로그인에서 다른 서버에 이슈를
-만들어 버린다 — 사람이 지워야 되돌아온다 (#1403).
+만들어 버린다 — 사람이 지워야 되돌아온다 (dEitY719/dotfiles#1403).
 
 `--assignee` is still only added when the user asks. User-supplied
 `--label` flags survive Step 2.5 (union with auto labels) unless
@@ -63,7 +63,7 @@ fi
 BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # GH_HOST was exported in Step 1; the _gh_discussion_* GraphQL helpers
 # below read it from the environment, so the Discussion lands on the same
-# host as the Issue path would have (#1403).
+# host as the Issue path would have (dEitY719/dotfiles#1403).
 # ... write Open-Questions-forward body to "$BODY" (Step 3 sets shape) ...
 if [ "${GH_DISABLE_AI_METRICS:-0}" = "1" ]; then
     : # ai-metrics footer skipped via GH_DISABLE_AI_METRICS

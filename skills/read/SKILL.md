@@ -5,6 +5,7 @@ description: >-
   never mutates. Use for /gh-issue:read, "이슈 #N 읽고 정리해줘",
   "#16 요약". Not an implementer (gh-issue:implement) nor a protocol runner
   (gh-issue:proceed).
+license: MIT
 allowed-tools: Bash, Read, Grep
 metadata:
   model_recommendation:
@@ -45,7 +46,7 @@ Positional args: `<issue-number> [remote]`.
 
 Substeps and error templates in `references/repo-resolution.md`.
 
-**Host targeting (#1403)** — every `gh` call below is
+**Host targeting (dEitY719/dotfiles#1403)** — every `gh` call below is
 `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"`; rationale + failure mode in
 `references/repo-resolution.md` → "Host targeting rule".
 
@@ -87,7 +88,7 @@ Compute `ELAPSED=$(( ($(date +%s) - START_TS) / 60 ))` just before printing.
 ## Constraints
 
 - Read-only — never call `gh issue edit`, `close`, or `comment`.
-- Never call `gh` without both `GH_HOST` and `--repo` (#1403).
+- Never call `gh` without both `GH_HOST` and `--repo` (dEitY719/dotfiles#1403).
 - Never fall back to `origin` when a non-existent remote is passed.
 - Never truncate or paraphrase body/comments — the point is preservation.
 - Never assume English — issue language for content, chat language for headers.

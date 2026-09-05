@@ -1,11 +1,11 @@
 # Routing Guard — Issue vs Discussion
 
-Step 2.1 safety net. Implements requirements F-3 + F-4 from issue #617:
+Step 2.1 safety net. Implements requirements F-3 + F-4 from issue dEitY719/dotfiles#617:
 prevent the `Ideas` Discussion bucket from accumulating decided to-do
 items that should have been Issues, and surface ambiguity before the
 mutation runs.
 
-The SSOT principle is `docs/.ssot/discussions-policy.md` -> "운영 원칙
+The SSOT principle is `dEitY719/dotfiles/docs/.ssot/discussions-policy.md` -> "운영 원칙
 4 개조" #1: **Issue is default**. Discussion is for items that are too
 early (RFC) or too late (announcement / lesson) to be tracked as
 Issues.

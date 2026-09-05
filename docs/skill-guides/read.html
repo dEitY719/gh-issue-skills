@@ -223,12 +223,12 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
 
     <div style="margin-top:16px">
       <details open>
-        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (#1403)</summary>
-        <div class="det-body">둘 다 Step 1 이 같은 remote URL 에서 뽑은 쌍이어야 한다. <code>--repo</code> 가 없는 <code>gh</code> 는 git 의 <code>origin</code> 이 아니라 gh CLI 자신의 <code>gh repo set-default</code> 를 따라가므로, github.com 과 GHES 에 동시 로그인한 상태에서는 에러 없이 조용히 다른 서버를 조회한다. 읽기 전용 스킬에서는 그 결과가 사용자에게 "이슈 없음" 으로 그대로 보고되는데 실제로는 OPEN 이슈였던 것이 #1403 이다. 예상 밖의 <code>gh</code> 결과를 <code>--repo</code> 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다.</div>
+        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (dEitY719/dotfiles#1403)</summary>
+        <div class="det-body">둘 다 Step 1 이 같은 remote URL 에서 뽑은 쌍이어야 한다. <code>--repo</code> 가 없는 <code>gh</code> 는 git 의 <code>origin</code> 이 아니라 gh CLI 자신의 <code>gh repo set-default</code> 를 따라가므로, github.com 과 GHES 에 동시 로그인한 상태에서는 에러 없이 조용히 다른 서버를 조회한다. 읽기 전용 스킬에서는 그 결과가 사용자에게 "이슈 없음" 으로 그대로 보고되는데 실제로는 OPEN 이슈였던 것이 dEitY719/dotfiles#1403 이다. 예상 밖의 <code>gh</code> 결과를 <code>--repo</code> 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다.</div>
       </details>
       <details>
         <summary><code>TARGET_HOST</code> 가 빈 채로 진행하지 않는다</summary>
-        <div class="det-body">빈 <code>GH_HOST</code> 는 정확히 #1403 의 조용한 오조회 상태다.</div>
+        <div class="det-body">빈 <code>GH_HOST</code> 는 정확히 dEitY719/dotfiles#1403 의 조용한 오조회 상태다.</div>
       </details>
       <details>
         <summary>본문과 코멘트를 자르거나 바꿔 쓰지 않는다</summary>

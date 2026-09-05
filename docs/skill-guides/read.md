@@ -74,14 +74,14 @@ SKILL.md 의 Step 구조는 4단계다.
 
 ## 주의사항과 제약
 
-- **모든 `gh` 호출이 `GH_HOST` 와 `--repo` 를 함께 넘긴다 (#1403).** 둘 다 Step 1 이
+- **모든 `gh` 호출이 `GH_HOST` 와 `--repo` 를 함께 넘긴다 (dEitY719/dotfiles#1403).** 둘 다 Step 1 이
   같은 remote URL 에서 뽑은 쌍이어야 한다. `--repo` 가 없는 `gh` 는 git 의 `origin`
   이 아니라 gh CLI 자신의 `gh repo set-default` 를 따라가므로, github.com 과 GHES 에
   동시 로그인한 상태에서는 **에러 없이 조용히 다른 서버를 조회한다**. 읽기 전용
   스킬에서는 그 결과가 사용자에게 "이슈 없음" 으로 그대로 보고되는데 실제로는 OPEN
-  이슈였던 것이 #1403 이다. 예상 밖의 `gh` 결과를 `--repo` 를 빼거나 remote 를 바꿔서
+  이슈였던 것이 dEitY719/dotfiles#1403 이다. 예상 밖의 `gh` 결과를 `--repo` 를 빼거나 remote 를 바꿔서
   우회하지 말고 host 를 먼저 검증한다.
-- **`TARGET_HOST` 가 빈 채로 진행하지 않는다.** 빈 `GH_HOST` 는 정확히 #1403 의
+- **`TARGET_HOST` 가 빈 채로 진행하지 않는다.** 빈 `GH_HOST` 는 정확히 dEitY719/dotfiles#1403 의
   조용한 오조회 상태다.
 - **본문과 코멘트를 자르거나 바꿔 쓰지 않는다.** 요약해서 없애기, 줄바꿈 재정렬,
   번역 모두 금지다. 보존된 기록이 이 스킬의 산출물이다.

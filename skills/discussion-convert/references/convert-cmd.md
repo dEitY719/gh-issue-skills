@@ -38,7 +38,7 @@ DLOCKED=$(jq -r '.locked' "$DISC_JSON")
 # Step 4 — idempotency check.
 # `// empty` keeps EXISTING the empty string when the array is empty;
 # without it jq prints the literal "null" which [ -n ... ] treats as
-# non-empty, breaking first-run conversion (PR #628 gemini review).
+# non-empty, breaking first-run conversion (PR dEitY719/dotfiles#628 gemini review).
 EXISTING=$(GH_HOST="$TARGET_HOST" gh issue list --repo "$TARGET_REPO" --state all \
     --search "in:body \"Originated from discussion #${N}\"" \
     --json number,url --limit 1 --jq '.[0].url // empty')
@@ -69,10 +69,10 @@ ISSUE_NUMBER="${ISSUE_URL##*/}"
 
 # Step 6 — board sync (best-effort).
 if [ "${OPT_NO_BOARD_SYNC:-0}" != "1" ]; then
-    # --repo "$TARGET_REPO" (Step 1) is explicit (#1405): the helper's
+    # --repo "$TARGET_REPO" (Step 1) is explicit (dEitY719/dotfiles#1405): the helper's
     # `gh repo view` fallback answers `gh repo set-default`, not the
     # remote this run resolved. The host half rides along via the
-    # exported GH_HOST from Step 1 (#1403 / #1407) -- --repo names a
+    # exported GH_HOST from Step 1 (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407) -- --repo names a
     # repo but no server.
     _gh_project_status_sync issue "$ISSUE_NUMBER" "In progress" \
         --only-from "Backlog,Ready" --repo "$TARGET_REPO" || true

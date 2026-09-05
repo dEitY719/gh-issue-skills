@@ -5,6 +5,7 @@ description: >-
   conventional-commit prefix. Use for /gh-issue:create,
   "이 대화 이슈로 등록", "기록용 이슈 만들어". A pre-decision RFC goes to
   gh-issue:discussion-create instead. Flags: references/help.md.
+license: MIT
 allowed-tools: Bash, Read, Grep
 metadata:
   model_recommendation:
@@ -31,7 +32,7 @@ All arguments, flags, and env vars are in `references/options.md` (Option | Desc
 
 ## Step 1: Detect Repo Context
 
-Record `START_TS=$(date +%s)` for Step 3.5. Parse the positional remote arg + flags. Confirm a git repo (`git rev-parse --show-toplevel`) and resolve **both** `TARGET_REPO=<owner>/<repo>` and `TARGET_HOST` from that remote's URL, then `export GH_HOST="$TARGET_HOST"` (substeps in `references/repo-resolution.md`). Never silently fall back to `origin` when the user-supplied remote is missing. 이후 모든 `gh` 호출은 `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"` 형태로 host 와 repo 를 명시한다 — 생략하면 gh CLI 가 자기 `gh repo set-default` 를 따라가 dual-host 로그인에서 조용히 엉뚱한 서버에 이슈를 만든다 (#1403). When `--as-discussion <category>` is present, follow `references/discussion-mode.md` to bind `DISCUSSION_MODE` / `CATEGORY` and validate the category (exit 3 on mismatch).
+Record `START_TS=$(date +%s)` for Step 3.5. Parse the positional remote arg + flags. Confirm a git repo (`git rev-parse --show-toplevel`) and resolve **both** `TARGET_REPO=<owner>/<repo>` and `TARGET_HOST` from that remote's URL, then `export GH_HOST="$TARGET_HOST"` (substeps in `references/repo-resolution.md`). Never silently fall back to `origin` when the user-supplied remote is missing. 이후 모든 `gh` 호출은 `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"` 형태로 host 와 repo 를 명시한다 — 생략하면 gh CLI 가 자기 `gh repo set-default` 를 따라가 dual-host 로그인에서 조용히 엉뚱한 서버에 이슈를 만든다 (dEitY719/dotfiles#1403). When `--as-discussion <category>` is present, follow `references/discussion-mode.md` to bind `DISCUSSION_MODE` / `CATEGORY` and validate the category (exit 3 on mismatch).
 
 ## Step 2: Classify the Conversation
 
@@ -44,11 +45,11 @@ Apply `references/clarification.md` trigger signals (동사 없는 명사 나열
 
 ## Step 2.5: Auto-labels + Milestone (opt-in via SSOT)
 
-Skip entirely when `--no-auto-labels` **or** `DISCUSSION_MODE=1` is set (#619 F-3). Otherwise read `references/auto-labels.md` and follow verbatim (Stage-1 signal → SSOT load → label union → `GH_HOST`-pinned `gh label list` validation → milestone resolution). Stash kept labels + milestone for Step 4. `--auto-label-debug` emits the Stage-1 trace.
+Skip entirely when `--no-auto-labels` **or** `DISCUSSION_MODE=1` is set (dEitY719/dotfiles#619 F-3). Otherwise read `references/auto-labels.md` and follow verbatim (Stage-1 signal → SSOT load → label union → `GH_HOST`-pinned `gh label list` validation → milestone resolution). Stash kept labels + milestone for Step 4. `--auto-label-debug` emits the Stage-1 trace.
 
 ## Step 2.6: Dependency Auto-detect
 
-Skip entirely when `--no-auto-deps` **or** `DISCUSSION_MODE=1` is set (#1424 F-3). Otherwise scan the conversation for the F-1 선행-이슈 trigger phrases per `references/dependency-detect.md` — `#N 참고` 류 단순 언급은 제외(오탐 방지), `owner/repo#N` 은 v1 범위 밖이라 경고 후 스킵(NF-2). Stash the surviving numbers as `DEP_NUMS` for Step 4.5; detection touches no GitHub state (its only outputs are `DEP_NUMS` + the NF-2 stderr line), so it is safe before the issue exists.
+Skip entirely when `--no-auto-deps` **or** `DISCUSSION_MODE=1` is set (dEitY719/dotfiles#1424 F-3). Otherwise scan the conversation for the F-1 선행-이슈 trigger phrases per `references/dependency-detect.md` — `#N 참고` 류 단순 언급은 제외(오탐 방지), `owner/repo#N` 은 v1 범위 밖이라 경고 후 스킵(NF-2). Stash the surviving numbers as `DEP_NUMS` for Step 4.5; detection touches no GitHub state (its only outputs are `DEP_NUMS` + the NF-2 stderr line), so it is safe before the issue exists.
 
 ## Step 3: Draft the Issue Body
 
@@ -59,7 +60,7 @@ Use the `references/templates/<prefix>.md` skeleton; title format per
 
 ## Step 3.1: 미결 게이트 (Open-Questions Gate)
 
-Apply `references/clarification.md` → "미결 게이트 (Step 3.1)". 초안에 미결이 남아 있으면 결정으로 전환하기 전까지 `gh issue create` 를 호출하지 않는다 — 이 저장소의 이슈는 `gh-flow:issue` / `gh-flow:autopilot` / `gh-issue:proceed` 의 무인 실행 입력이라, 미결이 남으면 그 지점에서 체인이 멈추거나 근거 없이 추측해 진행한다 (#1446). 확정 결과는 본문 `## 확정 사항 (Decisions)` 에 결정+근거로 남긴다. `--no-ask` 는 묻는 대신 보수적 자율 결정 후 `(자율 판단)` 표기, `DISCUSSION_MODE=1` 은 게이트 전체 스킵 (RFC 는 미결이 본질). 미결이 없으면 no-op — 아무 출력도 내지 않는다.
+Apply `references/clarification.md` → "미결 게이트 (Step 3.1)". 초안에 미결이 남아 있으면 결정으로 전환하기 전까지 `gh issue create` 를 호출하지 않는다 — 이 저장소의 이슈는 `gh-flow:issue` / `gh-flow:autopilot` / `gh-issue:proceed` 의 무인 실행 입력이라, 미결이 남으면 그 지점에서 체인이 멈추거나 근거 없이 추측해 진행한다 (dEitY719/dotfiles#1446). 확정 결과는 본문 `## 확정 사항 (Decisions)` 에 결정+근거로 남긴다. `--no-ask` 는 묻는 대신 보수적 자율 결정 후 `(자율 판단)` 표기, `DISCUSSION_MODE=1` 은 게이트 전체 스킵 (RFC 는 미결이 본질). 미결이 없으면 no-op — 아무 출력도 내지 않는다.
 
 ## Step 3.5: Compute AI Metrics
 
@@ -90,4 +91,4 @@ auto-link is non-fatal, `--as-discussion` explicit-intent only, no confirmation 
 ## Related Skills
 
 `gh-issue:discussion-create` — same conversation capture, pre-decision RFC lifecycle;
-reachable from here via `--as-discussion <category>` (#619).
+reachable from here via `--as-discussion <category>` (dEitY719/dotfiles#619).

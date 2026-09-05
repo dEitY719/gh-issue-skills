@@ -58,7 +58,7 @@ invariant that the new Issue must carry the backlink.
 
 ## Bidirectional-backlink contract
 
-`docs/.ssot/discussions-policy.md` operating principle #4 mandates
+`dEitY719/dotfiles/docs/.ssot/discussions-policy.md` operating principle #4 mandates
 two-way links between the converted Discussion and the new Issue.
 This skill enforces that contract mechanically:
 
@@ -91,4 +91,4 @@ This skill enforces that contract mechanically:
   in the first place. Same helper module (`gh_discussion.sh`).
 - [[gh-issue:create]] — default destination for to-do items; preferred
   over Discussion when the chat is already a decided to-do.
-- SSOT: `docs/.ssot/discussions-policy.md` (#612).
+- SSOT: `dEitY719/dotfiles/docs/.ssot/discussions-policy.md` (dEitY719/dotfiles#612).

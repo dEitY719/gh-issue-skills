@@ -76,9 +76,9 @@ STRUCTURED)
 
 Callees that see `NO_INTERACTIVE: true` skip confirmation prompts.
 
-**`gh-issue:create` 는 예외 — `--no-ask` 가 정본이다 (#1460).** 이 경계에서
+**`gh-issue:create` 는 예외 — `--no-ask` 가 정본이다 (dEitY719/dotfiles#1460).** 이 경계에서
 무인성의 근거는 `NO_INTERACTIVE` 필드가 아니라 `--no-ask` 플래그다. 수신측이
-실제로 구현·문서화·테스트한 규약이 그쪽이기 때문이다 (#1446 / PR #1455).
+실제로 구현·문서화·테스트한 규약이 그쪽이기 때문이다 (dEitY719/dotfiles#1446 / PR dEitY719/dotfiles#1455).
 플래그 없이 STRUCTURED 필드만 넘기면 Step 3.1 미결 게이트가 응답할 사람이
 없는 자리에서 확인을 기다린다. 이 verb 를 호출할 때 `--no-ask` 를 빼지 않는다.
 

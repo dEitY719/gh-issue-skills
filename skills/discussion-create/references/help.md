@@ -25,7 +25,7 @@ Examples:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `GH_DISABLE_AI_METRICS=1` | off | Skip the ai-metrics footer in the Discussion body. Mirrors the same env var honoured by `gh-issue:create` and the rest of the gh-* skill family (issue #399). |
+| `GH_DISABLE_AI_METRICS=1` | off | Skip the ai-metrics footer in the Discussion body. Mirrors the same env var honoured by `gh-issue:create` and the rest of the gh-* skill family (issue dEitY719/dotfiles#399). |
 
 ## What the skill does
 
@@ -82,4 +82,4 @@ A 200-line Discussion body is fine if the conversation warranted it.
 - [[gh-issue:discussion-convert]] — Discussion -> Issue conversion + back-link.
 - [[gh-issue:create --as-discussion]] — `--as-discussion` routing flag on
   the issue-create entry point (separate issue).
-- SSOT: `docs/.ssot/discussions-policy.md` (issue #612).
+- SSOT: `dEitY719/dotfiles/docs/.ssot/discussions-policy.md` (issue dEitY719/dotfiles#612).

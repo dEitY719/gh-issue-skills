@@ -34,7 +34,7 @@ workflow; this file holds the argument shape and the blast radius.
 helpers in `gh_discussion.sh` — they inherit the exported `GH_HOST`, so the
 Discussion mutations hit the same server as the Issue creation.
 
-## Host targeting rule (issues #1403 / #1407)
+## Host targeting rule (issues dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407)
 
 Every `gh` call this skill runs names both host and repo:
 

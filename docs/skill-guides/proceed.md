@@ -110,7 +110,7 @@ SKILL.md 의 Step 구조는 4단계이며, 각 단계 성공 시
 
 ## 주의사항과 제약
 
-- **모든 `gh` 호출이 `GH_HOST` 와 `--repo` 를 함께 넘긴다 (#1403 / #1407).** 둘 다
+- **모든 `gh` 호출이 `GH_HOST` 와 `--repo` 를 함께 넘긴다 (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407).** 둘 다
   Step 1 이 같은 remote URL 에서 뽑은 쌍이어야 한다. `--repo` 없는 `gh` 는 git 의
   `origin` 이 아니라 gh CLI 자신의 `gh repo set-default` 를 따라가므로, github.com 과
   GHES 에 동시 로그인한 상태에서는 에러 없이 조용히 다른 서버로 간다. 읽기라면 OPEN

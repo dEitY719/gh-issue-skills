@@ -14,12 +14,12 @@ GitHub 쓰기 0건 — 비변경 경로만 실행했습니다.
 /gh-issue:proceed <issue-number> [remote]
 ```
 
-이번 실행: `/gh-issue:proceed --help` (Step 2.2 스키마 검증은 dotfiles#1676 본문에 적용)
+이번 실행: `/gh-issue:proceed --help` (Step 2.2 스키마 검증은 dEitY719/dotfiles#1676 본문에 적용)
 
 ## 2. 입력
 
 - help 경로: 인자 `--help` 하나. API 호출 없음.
-- 스키마 검증 경로: `dEitY719/dotfiles` 이슈 #1676 의 본문. 지시 이슈가 아닌
+- 스키마 검증 경로: dEitY719/dotfiles#1676 의 본문. 지시 이슈가 아닌
   일반 feat 이슈를 대상으로 `references/protocol-schema.md` 의 8섹션 스키마를 적용.
 
 ## 3. 결과

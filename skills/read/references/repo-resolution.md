@@ -32,7 +32,7 @@ file holds the argument shape and the blast radius.
 
 `TARGET_REPO` and `TARGET_HOST` are consumed by Step 2 of the main workflow.
 
-## Host targeting rule (issue #1403)
+## Host targeting rule (issue dEitY719/dotfiles#1403)
 
 이 스킬의 **모든** `gh` 호출은 host 와 repo 를 명시한다:
 
@@ -44,11 +44,11 @@ GH_HOST="$TARGET_HOST" gh issue view <N> --repo "$TARGET_REPO" ...
 `gh repo set-default` 를 따른다. github.com 과 GHES 에 동시에 로그인한
 상태에서 그 둘이 어긋나면 **에러 없이 조용히 다른 host 를 조회한다** —
 읽기 전용 스킬인 만큼 결과가 그대로 사용자에게 "이슈 없음" 으로 보고되고,
-실제로는 OPEN 인 이슈였던 것이 #1403 이다.
+실제로는 OPEN 인 이슈였던 것이 dEitY719/dotfiles#1403 이다.
 
 ## Failure rule
 
 `resolve-target.sh` fails (non-zero, `git remote -v` printed) rather than
 falling back to `origin` when the user-specified remote is missing, and
 refuses to continue with an empty `TARGET_HOST`. 빈 `GH_HOST` 는 정확히
-#1403 의 조용한 오조회 상태다.
+dEitY719/dotfiles#1403 의 조용한 오조회 상태다.

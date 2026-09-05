@@ -32,7 +32,7 @@ file holds the argument shape and the blast radius.
 
 `TARGET_REPO` and `TARGET_HOST` are consumed by Step 3 of the main workflow.
 
-## Host targeting rule (issue #1403)
+## Host targeting rule (issue dEitY719/dotfiles#1403)
 
 이 스킬이 실행하는 **모든** `gh` 호출은 host 와 repo 를 명시한다:
 
@@ -43,7 +43,7 @@ GH_HOST="$TARGET_HOST" gh <sub-command> ... --repo "$TARGET_REPO"
 `--repo` 없이 부른 `gh` 는 git 의 `origin` 이 아니라 gh CLI 자신의
 `gh repo set-default` 값을 따른다. github.com 과 GHES 두 host 에 동시에
 로그인한 상태에서 그 둘이 어긋나면 **에러 없이 조용히 엉뚱한 host 를 조회한다**
-— OPEN 인 이슈가 "not found" 로 돌아온 #1403 이 그 사례다.
+— OPEN 인 이슈가 "not found" 로 돌아온 dEitY719/dotfiles#1403 이 그 사례다.
 
 `resolve-target.sh` 의 `export GH_HOST` 는 이 스킬이 source 하는 헬퍼
 (`gh_project_status.sh` 등) 까지 같은 host 를 상속시킨다 — 그 헬퍼들은 자기가
@@ -54,6 +54,6 @@ GH_HOST="$TARGET_HOST" gh <sub-command> ... --repo "$TARGET_REPO"
 
 `resolve-target.sh` fails (non-zero, `git remote -v` printed) rather than
 falling back to `origin` when the user-specified remote is missing, and
-refuses to continue with an empty `TARGET_HOST` — 빈 `GH_HOST` 는 바로 #1403
+refuses to continue with an empty `TARGET_HOST` — 빈 `GH_HOST` 는 바로 dEitY719/dotfiles#1403
 의 조용한 오조회 상태다. `_gh_host_from_url` 이 실패(github 계열이 아닌
 remote)하면 `_gh_resolve_host` 로 폴백하되, 그 결과도 비면 실패한다.

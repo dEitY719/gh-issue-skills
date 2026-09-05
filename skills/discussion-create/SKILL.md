@@ -5,6 +5,7 @@ description: >-
   Use for /gh-issue:discussion-create, "이 대화 RFC 로 등록",
   "깃허브 디스커션으로 남겨". Refuses a decided to-do — that is gh-issue:create.
   Options: references/options.md.
+license: MIT
 allowed-tools: Bash, Read, Grep
 metadata:
   model_recommendation:
@@ -39,7 +40,7 @@ Arguments (positional `[remote]`/`[category]`, `--force-discussion`,
 
 Record `START_TS=$(date +%s)` for Step 4. Parse args, confirm a git repo, then bind
 `TARGET_REPO` **and** `TARGET_HOST` from that one remote URL and `export GH_HOST="$TARGET_HOST"` — substeps in
-[`references/repo-resolution.md`](references/repo-resolution.md). Step 4's `gh api graphql` calls take no `--repo`, so that exported `GH_HOST` is their only host selector (#1403). No silent `origin` fallback on a missing remote.
+[`references/repo-resolution.md`](references/repo-resolution.md). Step 4's `gh api graphql` calls take no `--repo`, so that exported `GH_HOST` is their only host selector (dEitY719/dotfiles#1403). No silent `origin` fallback on a missing remote.
 
 ## Step 2: Classify the Conversation
 
@@ -55,7 +56,7 @@ signals in [`references/scope-guard.md`](references/scope-guard.md): a **decided
 to-do** -> stop with that file's "Refusal format" (destination `/gh-issue:create`;
 override with `--force-discussion`); ambiguous-noun-list / ≥3-component-mix ->
 emit the same 1~2 line clarification as `gh-issue:create` and wait. Load-bearing
-requirement F-3 + F-4 (issue #617) — never disable without a SSOT update.
+requirement F-3 + F-4 (issue dEitY719/dotfiles#617) — never disable without a SSOT update.
 
 ## Step 3: Draft the Discussion Body
 
@@ -77,7 +78,7 @@ title + body; for `Ideas`, size like `feat`).
 Source `shell-common/functions/gh_discussion.sh` and paste the full bash
 block in [`references/create-cmd.md`](references/create-cmd.md) verbatim — it
 handles the `mktemp` body file, the `GH_DISABLE_AI_METRICS=1` short-circuit
-(#399 parity), the ai-metrics footer printf, and the three GraphQL calls.
+(dEitY719/dotfiles#399 parity), the ai-metrics footer printf, and the three GraphQL calls.
 확인 질문하지 말고 즉시 실행.
 
 ## Step 5: Report

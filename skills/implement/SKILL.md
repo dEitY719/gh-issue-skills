@@ -5,6 +5,7 @@ description: >-
   a PR. Use for /gh-issue:implement, "issue #16 구현해",
   "PR 없이 코드만 짜줘". Not a directive-protocol runner (gh-issue:proceed).
   Flags: references/help.md.
+license: MIT
 allowed-tools: Bash, Read, Grep, Glob, Edit, Write, Skill
 metadata:
   model_recommendation:
@@ -21,8 +22,7 @@ metadata:
 If arg #1 is `-h`, `--help`, or `help`, read `references/help.md` and
 output its content verbatim, then stop. No API calls.
 
-**Stop-on-error policy** — HARD-abort: Step 1 preconditions, 3.1 fetch, 3.2 block-label
-guard. All else (3.3–3.5 claim writes, Step 5 test loop) soft-fails or bounded-retries, so a transient blip never blocks.
+**Stop-on-error policy** — HARD-abort: Step 1 preconditions, 3.1 fetch, 3.2 block-label guard; all else (3.3–3.5 claim writes, Step 5 test loop) soft-fails or bounded-retries.
 
 ## Step 1: Parse Args + Resolve Repo + Preconditions
 
@@ -36,7 +36,7 @@ Positional args: `<issue-number> [mode] [remote]`; flag `--no-next-hint`.
   `export GH_HOST="$TARGET_HOST"`; missing remote → `git remote -v` + stop.
 - `--no-next-hint` — omit the final `Next:` line in Step 6.
 
-**Host targeting (#1403)** — every `gh` call in this skill run is
+**Host targeting (dEitY719/dotfiles#1403)** — every `gh` call in this skill run is
 `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"`; rationale + failure mode
 in `references/repo-resolution.md` → "Host targeting rule".
 
@@ -54,13 +54,13 @@ Per `references/superpowers-detection.md`: plugin missing → force mode `direct
 
 Six substeps in order — full policy, env vars, and behavior matrix in
 `references/claim.md`. After 3.1/3.3/3.4 emit `printf '[step:gh-issue-implement/<marker>] OK\n'`
-(`fetch-issue`, `self-assign`, `board-transition`) for the step-skip guard (#753).
+(`fetch-issue`, `self-assign`, `board-transition`) for the step-skip guard (dEitY719/dotfiles#753).
 
 3.1 **Fetch** — `references/fetch-issue.md` (CLOSED refusal there).
 3.2 **Block-label guard** — fail-closed abort (exit 2) if any label matches `GH_ISSUE_BLOCK_LABELS`.
 3.3 **Self-assign** — `--add-assignee @me` unless already assigned (warn, no override, if held by another).
-3.3b **Duplicate open-PR guard** — soft-warn when an open PR already closes `#N` (another session got there first, #1507); silent otherwise, silent on API error.
-3.4 **Board transition** — `_gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO"` (#1405); no-op without a board, soft-warn when Status is already outside `Backlog`/`Ready` (#1507).
+3.3b **Duplicate open-PR guard** — soft-warn when an open PR already closes `#N` (another session got there first, dEitY719/dotfiles#1507); silent otherwise, silent on API error.
+3.4 **Board transition** — `_gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO"` (dEitY719/dotfiles#1405); no-op without a board, soft-warn when Status is already outside `Backlog`/`Ready` (dEitY719/dotfiles#1507).
 3.5 **Depends-on guard** — soft-warn per OPEN `Depends on #M` line.
 
 Skip 3.3 / 3.3b / 3.4 / 3.5 via their `GH_ISSUE_SKIP_*` env vars (3.3b is `GH_ISSUE_SKIP_DUPLICATE_CHECK`).

@@ -10,7 +10,7 @@ GH_HOST="$TARGET_HOST" gh issue view <N> --repo "$TARGET_REPO" --json \
 `TARGET_HOST` and `TARGET_REPO` are bound together in Step 1 from one remote
 URL (`references/repo-resolution.md`). `--repo` alone carries no host, so
 without the prefix `gh` follows `gh repo set-default` and a dual-host login
-can answer "not found" for an OPEN issue (#1403 / #1407).
+can answer "not found" for an OPEN issue (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407).
 
 ## Error handling
 

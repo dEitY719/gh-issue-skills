@@ -4,7 +4,7 @@ The issue body must contain **8 required sections**, each identified by an
 H2 or H3 heading whose normalized text matches one of the listed aliases
 (case-insensitive substring; alias list per row is OR). SSOT for the
 schema validator; the bats fixture
-`tests/bats/skills/_fixtures/gh_issue_proceed_schema.sh` mirrors this and
+`dEitY719/dotfiles/tests/bats/skills/_fixtures/gh_issue_proceed_schema.sh` mirrors this and
 the suite `gh_issue_proceed_schema.bats` exercises five variants.
 
 ## 1. Required sections

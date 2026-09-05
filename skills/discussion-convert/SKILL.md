@@ -5,6 +5,7 @@ description: >-
   close it. Idempotent. Use for /gh-issue:discussion-convert,
   "Discussion #N 이슈로 승격", "convert this RFC". Does not author Discussions
   (gh-issue:discussion-create).
+license: MIT
 allowed-tools: Bash, Read, Grep
 metadata:
   model_recommendation:
@@ -24,7 +25,7 @@ output its content verbatim, then stop. No API calls.
 ## Role
 
 Automate the 4-step `Discussion -> Issue` 변환 규약 from
-`docs/.ssot/discussions-policy.md` (#612). GitHub exposes no public
+`dEitY719/dotfiles/docs/.ssot/discussions-policy.md` (dEitY719/dotfiles#612). GitHub exposes no public
 `convertDiscussion` mutation, so this skill emulates the UI `Convert to issue`
 path via four primitive mutations — Issue carrying an `Originated from discussion
 #<N>` backlink, a `Linked to issue #<M>` comment back on the Discussion, close
@@ -45,7 +46,7 @@ a git repo, and bind `TARGET_REPO` **and** `TARGET_HOST` from the chosen
 remote's URL, then `export GH_HOST="$TARGET_HOST"` — substeps in
 [`references/repo-resolution.md`](references/repo-resolution.md). Every `gh`
 call below runs as `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"`
-(#1403 / #1407). No silent `origin` fallback on a missing remote.
+(dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407). No silent `origin` fallback on a missing remote.
 
 ## Step 2: Fetch the Discussion
 

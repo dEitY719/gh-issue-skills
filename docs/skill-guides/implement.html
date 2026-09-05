@@ -142,7 +142,7 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
       <span class="flow-arrow">──▶</span>
       <span class="flow-node">워킹 트리 변경분 + 테스트 결과 리포트</span>
     </div>
-    <p class="text-secondary" style="margin-top:14px">커밋은 <code>gh-pr:commit</code>, PR 은 <code>gh-pr:create</code>, 이슈부터 PR 까지 한 번에 엮는 것은 <code>gh-flow:issue</code> 다. 워크트리 생성은 <code>gwt</code> / <code>ai-worktree:spawn</code> 의 몫이다.</p>
+    <p class="text-secondary" style="margin-top:14px">커밋은 <code>gh-pr:commit</code>, PR 은 <code>gh-pr:create</code>, 이슈부터 PR 까지 한 번에 엮는 것은 <code>gh-flow:issue</code> 다. 워크트리 생성은 <code>gwt</code> / <code>session:worktree-spawn</code> 의 몫이다.</p>
   </div>
 </section>
 
@@ -253,7 +253,7 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
         <div class="det-body"><code>GH_ISSUE_BLOCK_LABELS</code>(기본값: <code>do-not-work</code>, <code>on-hold</code>, <code>보류</code>, <code>Postpone</code> 계열, <code>reference</code>) 중 하나라도 이슈에 붙어 있으면 Step 3.2 가 fail-closed 로 <strong>exit 2</strong> 하고 멈춘다. 이 계열에서 exit 2 는 "정책상 거부", exit 1 은 "스킬이 깨짐" 을 뜻한다. 강제 실행 플래그는 제안됐다가 기각됐다 — 라벨을 떼는 것만이 유일한 해제 방법이다.</div>
       </details>
       <details>
-        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (#1403)</summary>
+        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (dEitY719/dotfiles#1403)</summary>
         <div class="det-body">두 값은 Step 1 이 같은 remote URL 에서 뽑은 쌍이다. <code>--repo</code> 가 없으면 gh CLI 는 git 의 <code>origin</code> 이 아니라 자기 <code>gh repo set-default</code> 를 따라가고, github.com 과 GHES 동시 로그인 상태에서는 <strong>에러 없이 성공한다</strong> — OPEN 이슈가 "없음" 으로 돌아오고, 쓰기(self-assign, 보드 이동)는 남의 이슈 #N 에 꽂힌다. 이상한 <code>gh</code> 결과를 재시도, <code>--repo</code> 제거, remote 교체로 우회하지 말고 host 를 먼저 검증할 것.</div>
       </details>
       <details>

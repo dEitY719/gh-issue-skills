@@ -11,7 +11,7 @@ else lands here):
 4. `Depends on #M` cross-issue check.
 
 On top of those it adds one dotfiles-native guard AgentToolbox has no
-equivalent for — the duplicate-attempt detector of 3.3b (issue #1507).
+equivalent for — the duplicate-attempt detector of 3.3b (issue dEitY719/dotfiles#1507).
 
 ## Substep order — why this sequence
 
@@ -39,7 +39,7 @@ the board's pre-run state rather than mixed in with this run's own
 
 ## Substep detail
 
-> **Host targeting (#1403)** — every `gh` call in this file runs as
+> **Host targeting (dEitY719/dotfiles#1403)** — every `gh` call in this file runs as
 > `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"`, using the pair Step 1
 > bound from one and the same remote URL (`references/repo-resolution.md`).
 > Step 1 also `export`s `GH_HOST`, which is what carries the host into
@@ -137,8 +137,8 @@ bearing.
 assignee because *another one of my own sessions* claimed this issue
 minutes ago from a sibling worktree. To 3.3 that is indistinguishable
 from a plain restart, so it returns `noop-self` and says nothing. Issue
-#1482 was implemented twice, 13 minutes apart, producing PRs #1488 and
-#1489 that later collided in a merge train.
+dEitY719/dotfiles#1482 was implemented twice, 13 minutes apart, producing PRs dEitY719/dotfiles#1488 and
+dEitY719/dotfiles#1489 that later collided in a merge train.
 
 The reliable fingerprint of "someone already did this" is an **open PR
 that closes this issue**. Read-only, one search call, one warning line.
@@ -147,7 +147,7 @@ wants (a rewrite, an abandoned first attempt), so the decision stays
 with the human. The search matches both footer keywords this repo's
 `gh-pr:commit` accepts — `Closes` and `Fixes` — since a `Fixes #<N>` PR is
 just as valid a duplicate signal as a `Closes #<N>` one (codex review,
-PR #1509).
+PR dEitY719/dotfiles#1509).
 
 **Algorithm**:
 
@@ -171,7 +171,7 @@ back; the point is to send the human to the PR list, not to enumerate it.
 **Why silence on the empty result matters**: this guard fires on every
 implement run, so a line that also prints on the common "no duplicate"
 case would train users to scroll past it — costing exactly the signal
-#1507 exists to add.
+dEitY719/dotfiles#1507 exists to add.
 
 **Soft-fail rule** (NF-1): any failure of the search itself → **no
 output, continue**:
@@ -201,12 +201,12 @@ _HELPER="${SHELL_COMMON:-$HOME/dotfiles/shell-common}/functions/gh_project_statu
 if [ -r "$_HELPER" ]; then
     . "$_HELPER"
     if ! command -v _gh_project_status_sync >/dev/null 2>&1; then
-        # Defense-in-depth (#724): sourceable but undefined → silent no-op
+        # Defense-in-depth (dEitY719/dotfiles#724): sourceable but undefined → silent no-op
         # without this guard. One-line stderr warning, never blocks.
-        printf '[gh-issue-implement] %s sourced but _gh_project_status_sync undefined — board transition skipped (#724).\n' \
+        printf '[gh-issue-implement] %s sourced but _gh_project_status_sync undefined — board transition skipped (dEitY719/dotfiles#724).\n' \
             "$_HELPER" >&2
     else
-        # --repo "$TARGET_REPO" (Step 1) is explicit (#1405): the helper's
+        # --repo "$TARGET_REPO" (Step 1) is explicit (dEitY719/dotfiles#1405): the helper's
         # `gh repo view` fallback answers `gh repo set-default`, not the
         # remote this run resolved.
         _gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO"
@@ -216,7 +216,7 @@ fi
 
 The helper (`shell-common/functions/gh_project_status.sh`) handles:
 
-- **Explicit `--repo`**: `$TARGET_REPO` from Step 1 (#1405). Without it
+- **Explicit `--repo`**: `$TARGET_REPO` from Step 1 (dEitY719/dotfiles#1405). Without it
   the helper resolves via `gh repo view`, i.e. whatever
   `gh repo set-default` picked — which need not be the remote this run
   resolved.
@@ -228,14 +228,14 @@ The helper (`shell-common/functions/gh_project_status.sh`) handles:
   those moved should override the helper or skip with
   `GH_ISSUE_SKIP_BOARD_TRANSITION=1` and run the transition manually.
 
-**Warn when `--only-from` absorbs the write (#1507, F-2)**: before
+**Warn when `--only-from` absorbs the write (dEitY719/dotfiles#1507, F-2)**: before
 handing off to `_gh_project_status_sync`, read the card's current
 Status with the same SSOT query helper `gh-pr-merge` used for its
 now-retired board-approval gate (`_gh_project_status_query_current`,
 also from `gh_project_status.sh` — see
 the sibling repo `dEitY719/gh-pr-skills`'s
 `skills/merge/references/board-policy.md`, "Retired: Step 2-B
-(removed in #1513)"), and when it is neither `Backlog` nor `Ready`,
+(removed in dEitY719/dotfiles#1513)"), and when it is neither `Backlog` nor `Ready`,
 print one line before the (no-op) mutation:
 
 ```
@@ -257,7 +257,7 @@ here, which is fine — the line is advisory, not a refusal.
 The wording is deliberately non-committal about *why* the Status isn't
 `Backlog`/`Ready`: the same non-empty complement also includes terminal
 columns like `Done` or custom ones like `Spec`, where "another session
-already started this" would be the wrong read (codex review, PR #1509)
+already started this" would be the wrong read (codex review, PR dEitY719/dotfiles#1509)
 — the message names the fact (current Status) and offers duplicate-start
 as one possible explanation, not the only one.
 
@@ -265,7 +265,7 @@ Reading the Status is itself best-effort: a non-zero return from
 `_gh_project_status_query_current` (missing scope, network error, no
 board) skips the warning and lets `_gh_project_status_sync` run as
 usual (NF-1) — the same soft-fail posture 3.3b uses.
-- **Verify pair (race absorption, #393)**: after the mutation the
+- **Verify pair (race absorption, dEitY719/dotfiles#393)**: after the mutation the
   helper sleeps `_GH_PROJECT_STATUS_VERIFY_SLEEP` (default 1 s) and
   re-queries. Re-issues the mutation once if a builtin workflow
   reverted the value. Second mismatch → loud stderr, still rc 0.
@@ -316,9 +316,9 @@ not abort — the dependency check is informational.
 
 | Variable | Default | Effect |
 |---|---|---|
-| `GH_ISSUE_BLOCK_LABELS` | `do-not-work,on-hold,보류,⏸️ Postpone,reference` | Comma-separated block-label list for 3.2. Spaces inside a label are part of the label (don't pad commas). `reference` marks 참고용/구현 불필요 issues (issue #1226). |
+| `GH_ISSUE_BLOCK_LABELS` | `do-not-work,on-hold,보류,⏸️ Postpone,reference` | Comma-separated block-label list for 3.2. Spaces inside a label are part of the label (don't pad commas). `reference` marks 참고용/구현 불필요 issues (issue dEitY719/dotfiles#1226). |
 | `GH_ISSUE_SKIP_SELF_ASSIGN` | unset | When `1`, skip 3.3 entirely. |
-| `GH_ISSUE_SKIP_DUPLICATE_CHECK` | unset | When `1`, skip 3.3b entirely — no search call, no warning. For a deliberate second implementation of the same issue (issue #1507). |
+| `GH_ISSUE_SKIP_DUPLICATE_CHECK` | unset | When `1`, skip 3.3b entirely — no search call, no warning. For a deliberate second implementation of the same issue (issue dEitY719/dotfiles#1507). |
 | `GH_ISSUE_SKIP_BOARD_TRANSITION` | unset | When `1`, skip 3.4 entirely (its F-2 Status warning included). |
 | `GH_ISSUE_SKIP_DEPS_CHECK` | unset | When `1`, skip 3.5 entirely. |
 
@@ -343,7 +343,7 @@ intentional — see "Block-label guard (fail-closed)" above.
 | `GH_ISSUE_SKIP_BOARD_TRANSITION=1` | pass | add `@me` | silent | skip | OK | proceed |
 | `GH_ISSUE_SKIP_DEPS_CHECK=1` | pass | add `@me` | silent | `In progress` | skip | proceed |
 
-The two duplicate-attempt rows are the #1507 additions; "silent" in the
+The two duplicate-attempt rows are the dEitY719/dotfiles#1507 additions; "silent" in the
 3.3b column means the guard ran and found nothing, which is the normal
 outcome. Both warn rows still end in `proceed` — neither signal blocks.
 
@@ -375,8 +375,8 @@ outcome. Both warn rows still end in `proceed` — neither signal blocks.
 
 ## Test fixture
 
-`tests/bats/skills/_fixtures/gh_issue_implement_claim.sh` mirrors
+`dEitY719/dotfiles/tests/bats/skills/_fixtures/gh_issue_implement_claim.sh` mirrors
 the five substep functions verbatim. The bats suite at
-`tests/bats/skills/gh_issue_implement_claim.bats` exercises the
+`dEitY719/dotfiles/tests/bats/skills/gh_issue_implement_claim.bats` exercises the
 eight-case behavior matrix above. Any change to substep logic must
 land in both files (and this doc).

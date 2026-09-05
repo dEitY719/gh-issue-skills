@@ -56,14 +56,33 @@ milestone: auto                      # auto | none | "<exact name>"
 - `milestone: "<name>"` matches an open milestone with that exact title;
   unknown names warn-and-skip.
 
-The shipped parser (`shell-common/functions/parse_yaml_defaults.sh`) is
+The shipped parser (`shell-common/functions/parse_yaml_defaults.sh`, vendored
+here as `lib/vendor/shell-common/functions/parse_yaml_defaults.sh`) is
 intentionally minimal and only understands those keys — anchors, nested
 maps, multi-doc files, and other YAML features are NOT supported.
+`lib/parse-yaml-defaults.selfcheck.sh` pins the vendored copy's presence, both
+`static` forms, and the `DOTFILES_FORCE_INIT` the dispatch below depends on.
 
 ## Dispatch order (inside Step 2.5)
 
 1. Detect Stage-1 signals (above). If absent → skip.
-2. Source `parse_yaml_defaults.sh` and load:
+2. Source the parser through the two-tier fallback — `$SHELL_COMMON` is the
+   tree `lib/resolve-target.sh` already resolved in Step 1. Missing parser →
+   warn once and skip to Step 3 with empty auto-label sets; never
+   `command not found` mid-step:
+
+   ```bash
+   _PYD="${SHELL_COMMON:-${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common}/functions/parse_yaml_defaults.sh"
+   [ -r "$_PYD" ] || _PYD="${CLAUDE_PLUGIN_ROOT:-.}/lib/vendor/shell-common/functions/parse_yaml_defaults.sh"
+   if [ -r "$_PYD" ]; then
+       # The helper self-disables in a non-interactive shell unless this is set.
+       DOTFILES_FORCE_INIT=1 . "$_PYD"
+   else
+       printf '[WARN] parse_yaml_defaults.sh not found at %s — auto-labels skipped.\n' "$_PYD" >&2
+   fi
+   ```
+
+   Then, only when the helpers are defined, load:
    - `static_labels` ← `_parse_yaml_defaults_static <yml>`
    - `prefix_labels` ← `_parse_yaml_defaults_by_prefix <yml> <prefix>`
      (`<prefix>` = the conventional-commit prefix chosen in Step 2)
@@ -77,7 +96,7 @@ maps, multi-doc files, and other YAML features are NOT supported.
    `GH_HOST="$TARGET_HOST" gh label list --repo "$TARGET_REPO" --json name --jq '.[].name'`.
    The `GH_HOST` prefix is not optional: without it a dual-host `gh` login
    validates against the *other* server's label set, and every real label
-   gets dropped as "not found" (#1403). Missing labels emit
+   gets dropped as "not found" (dEitY719/dotfiles#1403). Missing labels emit
    `auto-labels: label '<x>' not found in $TARGET_REPO — skip` on stderr
    and are dropped from the set. **Never auto-create labels** — see the
    pinned memory rule "gh labels — verify before apply".
@@ -109,5 +128,5 @@ maps, multi-doc files, and other YAML features are NOT supported.
 | `--no-auto-labels` | n/a | n/a | original behaviour |
 | dotfiles, title `docs: ...`, `documentation` label missing | yes | yes | warn + skip; other labels still apply |
 
-The bats suite at `tests/bats/skills/gh_issue_create_auto_labels.bats`
+The bats suite at `dEitY719/dotfiles/tests/bats/skills/gh_issue_create_auto_labels.bats`
 locks all seven rows.

@@ -32,7 +32,7 @@ file holds the argument shape and the blast radius.
 `TARGET_REPO` and `TARGET_HOST` are consumed by Step 2.5 / Step 4 of the main
 workflow.
 
-## Host targeting rule (issue #1403)
+## Host targeting rule (issue dEitY719/dotfiles#1403)
 
 이 스킬의 **모든** `gh` 호출 — `gh issue create`, `gh label list`,
 `gh api .../milestones`, ai-metrics 코멘트 POST — 은 host 와 repo 를 명시한다:
@@ -45,7 +45,7 @@ GH_HOST="$TARGET_HOST" gh <sub-command> ... --repo "$TARGET_REPO"
 `gh repo set-default` 를 따른다. github.com 과 GHES 에 동시에 로그인한
 상태에서 둘이 어긋나면 **에러 없이 조용히 다른 host 에 붙는다**. 쓰기
 스킬인 이 스킬에서는 그 결과가 "이슈가 엉뚱한 repo 에 생성됨" 이고, 되돌리려면
-사람이 직접 지워야 한다 (#1403).
+사람이 직접 지워야 한다 (dEitY719/dotfiles#1403).
 
 `--as-discussion` 경로는 `--repo` 를 받지 않는 `gh api graphql` 을 쓴다 —
 `gh_discussion.sh` 의 GraphQL 호출에는 `resolve-target.sh` 가 export 한
@@ -58,4 +58,4 @@ github.com 에 생기는 어긋남을 막는 것이 정확히 그 export 다.
 falling back to `origin` when the user-specified remote is missing, and
 refuses to continue with an empty `TARGET_HOST`. Both are load-bearing here:
 a silent fallback masks a typo and creates the issue in the wrong repo, and
-an empty `GH_HOST` is exactly the silent mis-creation state of #1403.
+an empty `GH_HOST` is exactly the silent mis-creation state of dEitY719/dotfiles#1403.

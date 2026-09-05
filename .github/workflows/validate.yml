@@ -1,7 +1,7 @@
 name: validate
 
 # This repo owns no CI logic of its own. It calls the reusable workflow owned by
-# `dEitY719/harness-skills` (dotfiles #1410 D-10), so a new check lands here the
+# `dEitY719/harness-skills` (dEitY719/dotfiles#1410 D-10), so a new check lands here the
 # moment it lands there — no copy to keep in sync.
 
 on:
@@ -21,7 +21,7 @@ jobs:
       # Two narrow exemptions from the repo-wide emoji ban, both for text the
       # skills quote rather than decorate with:
       #   1. the ai-metrics footer, whose chart / person / robot glyphs are the
-      #      wire format itself (dotfiles #317 F-2, PR #320) — `create` writes
+      #      wire format itself (dEitY719/dotfiles#317 F-2, PR dEitY719/dotfiles#320) — `create` writes
       #      it and `discussion-create` mirrors it;
       #   2. the pause-glyph `Postpone` block label, a real GitHub label name that
       #      `implement` and `proceed` refuse to start on.
