@@ -60,8 +60,10 @@ chk "no empty-default path splices in tracked files" 0 "$((hits))"
 # Tier 5 conditions: no harness exported CLAUDE_PLUGIN_ROOT, no ~/dotfiles, and
 # a cwd that is not the checkout — so tiers 1, 2 and 4 all miss.
 run() { # run <shell> <block>  -> stderr on stdout, rc in $?
-    ( cd "$SANDBOX" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
-        HOME="$HOME_EMPTY" "$1" "$TMP/$2.sh" 2>&1 >/dev/null )
+    # Braces, not `2>&1 >/dev/null`: same effect, but unambiguous to shellcheck
+    # (SC2069) and to the next reader — only stderr is captured.
+    ( cd "$SANDBOX" && { env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
+        HOME="$HOME_EMPTY" "$1" "$TMP/$2.sh" >/dev/null; } 2>&1 )
 }
 
 for sh in sh bash zsh; do
