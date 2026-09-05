@@ -7,14 +7,31 @@
 #   . "${CLAUDE_PLUGIN_ROOT:-.}/lib/resolve-target.sh" "${REMOTE:-origin}" || exit 1
 #
 # Reads   $1 (remote name, default `origin`), DOTFILES_ROOT, CLAUDE_PLUGIN_ROOT.
-# Exports TARGET_REPO, TARGET_HOST, GH_HOST — plus SHELL_COMMON when the
-#         vendored copy of shell-common was the one that resolved.
+# Exports TARGET_REPO, TARGET_HOST, GH_HOST, and SHELL_COMMON (whichever
+#         shell-common tree actually resolved).
 #
 # Why GH_HOST and not just `--repo` (#1403): `gh api graphql` — the Discussion
 # read and write path — accepts no `--repo`, so an inherited GH_HOST is its
 # only host selector. Without it `gh` follows its own `gh repo set-default`
 # rather than git's remote, and on a dual-host login (github.com + GHES) the
 # mutation succeeds against the wrong server with no error at all.
+#
+# Self-check: lib/resolve-target.selfcheck.sh
+
+# Path of this file, used to locate the vendored shell-common when
+# CLAUDE_PLUGIN_ROOT is unset — the normal case on the five non-Claude
+# harnesses this plugin supports. This branch MUST stay at file top level:
+# zsh rebinds $0 to the sourced file only for this file's own statements, and
+# inside a function $0 is the function's own name. Same shape as the branch in
+# lib/vendor/shell-common/functions/gh_host.sh.
+if [ -n "${ZSH_VERSION-}" ]; then
+    _rt_self="$0"
+elif [ -n "${BASH_VERSION-}" ]; then
+    # shellcheck disable=SC3028  # bash-only var, gated by $BASH_VERSION above
+    _rt_self="${BASH_SOURCE[0]-}"
+else
+    _rt_self=""
+fi
 
 _rt_resolve() {
     _rt_remote="${1:-origin}"
@@ -34,13 +51,24 @@ _rt_resolve() {
 
     _rt_sc="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
     if [ ! -f "$_rt_sc/functions/gh_host.sh" ]; then
-        _rt_sc="${CLAUDE_PLUGIN_ROOT:-.}/lib/vendor/shell-common"
-        export SHELL_COMMON="$_rt_sc"
+        # Vendored tier. Prefer CLAUDE_PLUGIN_ROOT, fall back to this file's
+        # own directory so the plugin still works when no harness exports it.
+        _rt_root="${CLAUDE_PLUGIN_ROOT:-}"
+        if [ -z "$_rt_root" ]; then
+            case "$_rt_self" in
+                */lib/resolve-target.sh) _rt_root="${_rt_self%/lib/resolve-target.sh}" ;;
+                *)                       _rt_root="." ;;
+            esac
+        fi
+        _rt_sc="$_rt_root/lib/vendor/shell-common"
     fi
     if [ ! -r "$_rt_sc/functions/gh_host.sh" ]; then
         echo "Error: gh_host.sh not found under $_rt_sc/functions/." >&2
         return 1
     fi
+    # Export whichever tree resolved, so helpers sourced later by the calling
+    # skill (gh_project_status.sh, gh_discussion.sh) read the same one.
+    export SHELL_COMMON="$_rt_sc"
     # shellcheck disable=SC1090,SC1091  # path is resolved at runtime
     . "$_rt_sc/functions/gh_host.sh"
 

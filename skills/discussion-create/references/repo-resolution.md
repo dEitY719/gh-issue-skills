@@ -21,10 +21,11 @@ file holds the argument shape and the blast radius.
    [`lib/resolve-target.sh`](../../../lib/resolve-target.sh) is the SSOT for
    this step across all six skills — it confirms we are in a git repo, reads
    `git remote get-url "$REMOTE"`, sources `gh_host.sh` from `$DOTFILES_ROOT`
-   or the vendored copy under `$CLAUDE_PLUGIN_ROOT/lib/vendor/`, and exports
-   `TARGET_REPO`, `TARGET_HOST` and `GH_HOST` (plus `SHELL_COMMON` when the
-   vendored copy resolved). Repo and host are read from that **one** URL, so
-   they can never name different servers:
+   or the vendored copy under `lib/vendor/` (located via `CLAUDE_PLUGIN_ROOT`,
+   falling back to the helper's own directory when no harness exports it), and
+   exports `TARGET_REPO`, `TARGET_HOST`, `GH_HOST` and `SHELL_COMMON`. Repo and
+   host are read from that **one** URL, so they can never name different
+   servers:
 
    - `https://github.com/<owner>/<repo>.git` -> `github.com` + `<owner>/<repo>`
    - `git@github.samsungds.net:<owner>/<repo>.git` -> `github.samsungds.net`
