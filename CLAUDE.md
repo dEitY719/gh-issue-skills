@@ -27,7 +27,7 @@ The skills were extracted from `dEitY719/dotfiles`
 as a content snapshot at source commit
 `42c0d83fd263bca99b3d085ba06b2b5906c480eb` — no history rewriting. That source
 tree no longer exists: Phase 4 of that repo's migration plan removed the
-dotfiles copies as planned (dEitY719/dotfiles#1410 NF-1 / NF-3). This is
+dotfiles copies (dEitY719/dotfiles#1410 NF-1 / NF-3). This is
 Phase 3 of dEitY719/dotfiles#1410, alongside the two sibling repos
 `gh-pr-skills` and `gh-flow-skills`; `packaging-skills` was Phase 0 and
 `harness-skills` was Phase 1 and owns the shared assets.
