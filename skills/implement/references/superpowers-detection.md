@@ -4,9 +4,11 @@
 
 superpowers is present if EITHER is true:
 
-1. Plugin cache directory exists:
+1. A plugin cache directory exists. The marketplace owning superpowers is not
+   fixed (`claude-plugins-official` today), and the config dir moves with
+   `CLAUDE_CONFIG_DIR`, so glob both rather than hard-coding either:
    ```bash
-   test -d "$HOME/.claude/plugins/cache/superpowers-dev"
+   ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/*/superpowers >/dev/null 2>&1
    ```
 2. The required skills are resolvable via the Skill tool (checked by
    attempting to describe `superpowers:writing-plans`,

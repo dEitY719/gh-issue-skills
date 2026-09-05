@@ -38,6 +38,6 @@ intent explicit and creates an audit trail.
 
 ## After successful fetch
 
-Continue to the claim step (`references/claim-issue.md`). The fetched
+Continue to the claim step (`references/claim.md`). The fetched
 JSON (title, body, comments) becomes the input for change-intent
 extraction in Step 5.
