@@ -28,7 +28,7 @@ pattern-repetition carveout below.
 
 | Signal                  | How to measure                                                |
 |-------------------------|---------------------------------------------------------------|
-| Components touched      | Distinct top-level dirs from `git diff --name-only`. For changes under `claude/skills/`, count each skill directory (`claude/skills/<skill>/`) as its own component, so a 9-skill cross-cut counts as 9, not 1. |
+| Components touched      | Distinct top-level dirs from `git diff --name-only`. For changes under a skills tree (`skills/` here, `claude/skills/` in dEitY719/dotfiles), count each skill directory as its own component, so a 9-skill cross-cut counts as 9, not 1. |
 | Architectural footprint | Explicit NF reqs, cross-system contracts, new public APIs     |
 | Diff weight             | `additions + deletions` from `git diff --stat`                |
 
@@ -42,7 +42,7 @@ pattern-repetition carveout below.
 ### Carveouts
 
 - **Pattern repetition** (same edit replicated across N files): bump down one
-  tier (floor at **Small** — never goes lower). Example: PR #321 changed 11
+  tier (floor at **Small** — never goes lower). Example: PR dEitY719/dotfiles#321 changed 11
   files to add the same `<!-- ai-metrics:* -->` block — **Large** by raw file
   count, but actually **Medium** because the work was one edit ×11.
 - **Single component, many files** (≥ 6 files in one top-level dir): stays
@@ -50,14 +50,14 @@ pattern-repetition carveout below.
 
 When unsure, default to **medium** (8 h).
 
-### Decision log — KISS over 4-factor scoring (2026-05-05, issue #322)
+### Decision log — KISS over 4-factor scoring (2026-05-05, issue dEitY719/dotfiles#322)
 
-Issue #322 proposed a 4-factor weighted score
+Issue dEitY719/dotfiles#322 proposed a 4-factor weighted score
 (file_count × 25% + diff_lines × 25% + components × 25% + ai_judgment × 25%)
 with thresholds `< 1.5 → small`, `< 2.5 → medium`, `≥ 2.5 → large`.
 
 **Retroactive comparison on the 5 most recent `feat` PRs**
-(#325, #321, #320, #314, #301) at issue authorship time:
+(dEitY719/dotfiles#325, dEitY719/dotfiles#321, dEitY719/dotfiles#320, dEitY719/dotfiles#314, dEitY719/dotfiles#301) at issue authorship time:
 
 | PR  | files | diff  | components | 4-factor score | 4-factor tier | Strict-heuristic tier | Match |
 |-----|-------|-------|------------|----------------|---------------|-----------------------|-------|

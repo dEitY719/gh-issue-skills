@@ -25,11 +25,12 @@ below is a hard rule rather than a preference.
 The skills were extracted from `dEitY719/dotfiles`
 (`claude/skills/{gh-issue-read,gh-issue-create,gh-issue-implement,gh-issue-proceed,gh-discussion-create,gh-discussion-convert}`)
 as a content snapshot at source commit
-`42c0d83fd263bca99b3d085ba06b2b5906c480eb` — no history rewriting. The dotfiles
-copies remain in place; they are removed in Phase 4 of that repo's migration
-plan (#1410 NF-1 / NF-3). This is Phase 3 of dotfiles #1410, alongside the two
-sibling repos `gh-pr-skills` and `gh-flow-skills`; `packaging-skills` was
-Phase 0 and `harness-skills` was Phase 1 and owns the shared assets.
+`42c0d83fd263bca99b3d085ba06b2b5906c480eb` — no history rewriting. That source
+tree no longer exists: Phase 4 of that repo's migration plan removed the
+dotfiles copies as planned (dEitY719/dotfiles#1410 NF-1 / NF-3). This is
+Phase 3 of dEitY719/dotfiles#1410, alongside the two sibling repos
+`gh-pr-skills` and `gh-flow-skills`; `packaging-skills` was Phase 0 and
+`harness-skills` was Phase 1 and owns the shared assets.
 
 ## Layout: root manifests, one flat `skills/`
 
@@ -57,7 +58,7 @@ manifests under a `plugins/` directory.**
 
 This repo owns none. Both belong to `dEitY719/harness-skills`:
 
-**1. Per-harness tool mappings** (`references/*-tools.md` there, dotfiles #1410
+**1. Per-harness tool mappings** (`references/*-tools.md` there, dEitY719/dotfiles#1410
 F-5). Do not create a `references/` directory at this repo's root. If a doc here
 needs a mapping, link to
 `https://github.com/dEitY719/harness-skills/blob/main/references/<harness>-tools.md`.
@@ -81,7 +82,7 @@ point.
   invocation time.
 - **The old `gh-issue-` / `gh-` prefixes are gone and stay gone.** They
   stuttered against the namespace (`/gh-issue:gh-issue-implement`), so the
-  migration dropped them (#1410 F-4). Do not reintroduce them, and do not
+  migration dropped them (dEitY719/dotfiles#1410 F-4). Do not reintroduce them, and do not
   shorten the remaining names further — `discussion-create`, not `discuss`.
 - **Invocation form in prose is namespaced.** Body text referring to a skill as
   a command writes `/gh-issue:create`. The old colon form (`gh:issue-create`)
@@ -91,15 +92,15 @@ point.
   Phase 2 repos, this one was migrated after the Phase 3 names were fixed, so
   `gh-pr:commit`, `gh-pr:create`, `gh-pr:merge`, `gh-flow:issue`,
   `gh-flow:autopilot`, and `spec-flow:trd-to-issues` are written here in their
-  final form even where the sibling repo does not exist yet (#1676 §2). Do not
+  final form even where the sibling repo does not exist yet (dEitY719/dotfiles#1676 §2). Do not
   "correct" them back to `gh:commit` / `devx:autopilot`.
 - **Marker strings are a wire format, not an invocation form.** The
   `[step:gh-issue-implement/<id>] OK` lines `implement` prints, and the
   `[step:gh-issue-proceed/<id>] OK` lines `proceed` prints, are matched verbatim
-  by dotfiles' `claude/hooks/skill_completion_guard.py` against its
+  by `dEitY719/dotfiles/claude/hooks/skill_completion_guard.py` against its
   `skill_step_catalog.yml` keys. They were **not** renamed in the migration and
   must not be — `gh-issue` + `implement` happens to spell the old key exactly,
-  and `proceed` is guarded the same way (#1676 NF-4). The same goes for the
+  and `proceed` is guarded the same way (dEitY719/dotfiles#1676 NF-4). The same goes for the
   `<!-- ai-metrics -->` footer markers: an interop format shared with the skills
   in `gh-pr-skills` that write cards, not something to renamespace.
 - **Progressive disclosure.** `SKILL.md` stays under 100 lines (CI enforces it)
@@ -118,7 +119,7 @@ These are acceptance criteria carried over from dotfiles, not advice:
   remote URL.** A bare `gh issue view <N>` follows gh CLI's own
   `gh repo set-default`, not git's `origin`. On a dual-host login (github.com
   plus GHES) that succeeds silently against the wrong server: an OPEN issue comes
-  back "not found", and a write lands on a stranger's issue #N (dotfiles #1403).
+  back "not found", and a write lands on a stranger's issue #N (dEitY719/dotfiles#1403).
   Never work around a surprising `gh` result by dropping `--repo` or switching
   remotes — verify the host first.
 - **`read` mutates nothing and prints verbatim.** No summarising the body away,
@@ -166,5 +167,5 @@ The version appears in seven manifests: `.claude-plugin/marketplace.json`,
 `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`,
 `.kimi-plugin/plugin.json`, `.hermes-plugin/plugin.yaml`,
 `gemini-extension.json`, and `package.json`. CI checks that they agree — bump
-all of them together. Versioning is independent per repo (#1410 D-9); this repo
+all of them together. Versioning is independent per repo (dEitY719/dotfiles#1410 D-9); this repo
 does not release in lockstep with its siblings.

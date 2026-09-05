@@ -58,7 +58,7 @@ Each page is generated from a Markdown source under
 Every skill carries `GH_HOST` **and** `--repo` on every `gh` call, both resolved
 from the same remote URL. `--repo` alone names no server: on a dual-host login
 (github.com plus a GHES instance) a bare call silently queries the wrong one and
-reports an OPEN issue as "not found" (dotfiles #1403).
+reports an OPEN issue as "not found" (dEitY719/dotfiles#1403).
 
 ## Install
 
@@ -138,12 +138,12 @@ This repo owns none — deliberately.
   (`{codex,kimi,gemini,antigravity,hermes,opencode}-tools.md`). That repo is
   their sole owner; the other fourteen `*-skills` repos link there rather than
   carrying copies, so one tool rename is one edit, not fifteen
-  (dotfiles #1410 F-5 / NF-2). The only condensed mirror here is
+  (dEitY719/dotfiles#1410 F-5 / NF-2). The only condensed mirror here is
   `.kimi-plugin/plugin.json`'s `skillInstructions`, because Kimi CLI cannot read
   a reference file at load time — it points back to the canonical file.
 - **The reusable CI workflow** is
   [`harness-skills/.github/workflows/skill-check.yml`](https://github.com/dEitY719/harness-skills/blob/main/.github/workflows/skill-check.yml)
-  (#1410 D-10). See [CI](#ci).
+  (dEitY719/dotfiles#1410 D-10). See [CI](#ci).
 
 ## Layout
 
@@ -170,14 +170,14 @@ Only Claude Code understands a nested `plugins/<name>/skills/` layout; the other
 five resolve manifests at the repo root and a skills tree at `./skills/`, so this
 repo keeps everything flat. Skill directory names dropped their old `gh-issue-` /
 `gh-` prefixes in the migration — `/gh-issue:gh-issue-implement` stutters and the
-namespace already carries that meaning (#1410 F-4). `.kimi-plugin/` is
+namespace already carries that meaning (dEitY719/dotfiles#1410 F-4). `.kimi-plugin/` is
 pre-provisioned for a CLI not yet installed. Rationale: [`CLAUDE.md`](CLAUDE.md).
 
 ## Cross-repo names
 
 Unlike the Phase 2 repos, this one was migrated **after** the Phase 3 names were
 fixed, so references to sibling repos are written in their final form even where
-the sibling does not exist yet (#1676 §2):
+the sibling does not exist yet (dEitY719/dotfiles#1676 §2):
 
 | Old | New | Lives in |
 |-----|-----|----------|
@@ -192,8 +192,8 @@ the sibling does not exist yet (#1676 §2):
 
 One thing deliberately did **not** move: the `[step:gh-issue-implement/<id>] OK`
 and `[step:gh-issue-proceed/<id>] OK` marker lines — a wire format matched
-verbatim by dotfiles' `claude/hooks/skill_completion_guard.py` against its
-`skill_step_catalog.yml` keys. Renaming them would break the guard (#1676 NF-4).
+verbatim by `dEitY719/dotfiles/claude/hooks/skill_completion_guard.py` against its
+`skill_step_catalog.yml` keys. Renaming them would break the guard (dEitY719/dotfiles#1676 NF-4).
 
 ## CI
 
@@ -219,7 +219,7 @@ on the next run.
 
 The `allow-emoji-paths` entries cover text the skills **quote** rather than
 decorate with: the ai-metrics footer, whose glyphs are the wire format itself
-(dotfiles #317 F-2, PR #320), and the `Postpone` block label that `implement` and
+(dEitY719/dotfiles#317 F-2, PR dEitY719/dotfiles#320), and the `Postpone` block label that `implement` and
 `proceed` refuse to start on. Nothing else in the repo may carry an emoji.
 
 ## Provenance
@@ -228,7 +228,8 @@ Extracted from [`dEitY719/dotfiles`](https://github.com/dEitY719/dotfiles)
 (`claude/skills/{gh-issue-read,gh-issue-create,gh-issue-implement,gh-issue-proceed,gh-discussion-create,gh-discussion-convert}`)
 as a content snapshot — no history rewriting, behaviour unchanged. Only the
 namespace moved, from `gh:` to `gh-issue:`, and the directory names lost their
-now-redundant prefixes; the dotfiles copies go in Phase 4 (#1410 NF-1 / NF-3).
+now-redundant prefixes. That source tree is gone — Phase 4 removed the dotfiles
+copies (dEitY719/dotfiles#1410 NF-1 / NF-3).
 This is Phase 3, shared with `gh-pr-skills` and `gh-flow-skills`;
 `packaging-skills` was Phase 0 and `harness-skills` (Phase 1) owns the shared assets.
 

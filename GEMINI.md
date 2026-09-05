@@ -22,7 +22,7 @@ Each skill's `references/` directory holds the detail it loads on demand.
 - **All six** — an authenticated `gh` CLI. Every call carries `GH_HOST` **and**
   `--repo`: `--repo` alone names no server, and on a dual-host login (github.com
   plus a GHES instance) a bare call silently queries the wrong one and reports an
-  OPEN issue as "not found" (dotfiles #1403).
+  OPEN issue as "not found" (dEitY719/dotfiles#1403).
 - **`read`** — read scope only. It is the one skill here that mutates nothing.
 - **`create`, `discussion-create`, `discussion-convert`** — write access to
   issues and discussions. `discussion-*` use the GraphQL API, which needs the

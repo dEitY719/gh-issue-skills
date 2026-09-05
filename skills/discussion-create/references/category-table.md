@@ -1,6 +1,6 @@
 # Discussion Category Selection
 
-Mirrors the SSOT in `docs/.ssot/discussions-policy.md` -> "카테고리
+Mirrors the SSOT in `dEitY719/dotfiles/docs/.ssot/discussions-policy.md` -> "카테고리
 매트릭스". When the SSOT changes, update this file in lock-step.
 
 ## Categories

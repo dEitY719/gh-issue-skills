@@ -4,7 +4,7 @@ Read `references/create-cmd.md` and paste the matching bash block
 verbatim:
 
 - **Issue path** (default, `DISCUSSION_MODE` unset) — `mktemp` body
-  file, `GH_DISABLE_AI_METRICS=1` short-circuit (issue #399),
+  file, `GH_DISABLE_AI_METRICS=1` short-circuit (issue dEitY719/dotfiles#399),
   ai-metrics footer printf, and `gh issue create` with `LABEL_ARGS` /
   `MILESTONE_ARGS` from Step 2.5.
 - **Discussion path** (`DISCUSSION_MODE=1`) — same body file +

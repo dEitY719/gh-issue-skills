@@ -10,7 +10,7 @@ Run these in parallel at start; all must pass:
   `GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name`
   (pass the resolved host + repo explicitly — avoids implicit repo/host
   detection, which on a dual-host login resolves to gh CLI's own default
-  repo rather than git's `origin`, #1403).
+  repo rather than git's `origin`, dEitY719/dotfiles#1403).
 - `git status --porcelain` — must be empty (clean working tree).
 
 **Failure responses:**
@@ -90,7 +90,7 @@ Unchanged legacy flow — always available, never degraded.
 3. If fail → **Test-failure loop** (below).
 4. Report.
 
-### Async delegation of Step 5 (#1550)
+### Async delegation of Step 5 (dEitY719/dotfiles#1550)
 
 Applies to **both** paths above — either one's implementation work may be
 delegated. Per the global `CLAUDE.md` Advisor/Worker policy, open-ended
@@ -107,14 +107,14 @@ turn:
 ```
 
 Use `step=gh-issue-implement/report` instead when only the final report step
-is still pending. `claude/hooks/skill_completion_guard.py` then excuses that
+is still pending. `dEitY719/dotfiles/claude/hooks/skill_completion_guard.py` then excuses that
 step for a limited number of consecutive turns before blocking resumes. Grace
 is per step: a step with no marker of its own is still reported as
 outstanding and still blocks. The limit, its env override, and the full
 rationale live in the SSOT —
 the sibling repo `dEitY719/gh-flow-skills`'s
 `skills/issue/references/stop-guard.md` → "Async-wait
-exception (#1550)".
+exception (dEitY719/dotfiles#1550)".
 
 The marker is a stop-gap for the wait, **never a substitute for the real
 completion marker**. Once the delegated work actually finishes, verify it

@@ -298,14 +298,14 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
       <div class="caveat crit">
         <h4><code>Ideas</code> 외 카테고리는 <code>--force-category</code> 없이 거부한다</h4>
         <p>운영 원칙 #2 "결정되면 즉시 convert" 는 Ideas 버킷만을 가리킨다. Announcements 는 일회성, Lessons 는 Discussion-first, Q&amp;A 는 답변되고 변환되지 않는 것 — 생애주기가 달라서 트래커로 조용히 끌어오면 안 된다.</p>
-        <p>거부 메시지가 <code>docs/.ssot/discussions-policy.md</code> 운영 원칙 #2 를 인용하는 것은 감사 기록에 기계적 거절이 아니라 정책 근거를 남기기 위해서다. <code>--force-category</code> 는 1회용 우회이지 가드 제거가 아니다.</p>
+        <p>거부 메시지가 <code>dEitY719/dotfiles/docs/.ssot/discussions-policy.md</code> 운영 원칙 #2 를 인용하는 것은 감사 기록에 기계적 거절이 아니라 정책 근거를 남기기 위해서다. <code>--force-category</code> 는 1회용 우회이지 가드 제거가 아니다.</p>
       </div>
     </article>
 
     <div style="margin-top:16px">
       <details open>
-        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (#1403 / #1407)</summary>
-        <div class="det-body">둘 다 Step 1 이 같은 remote URL 에서 뽑은 쌍이고, <code>gh_discussion.sh</code> 의 GraphQL 헬퍼들도 export 된 <code>GH_HOST</code> 를 상속한다. <code>--repo</code> 없는 <code>gh</code> 는 git 의 <code>origin</code> 이 아니라 gh CLI 자신의 <code>gh repo set-default</code> 를 따라가므로, github.com 과 GHES 에 동시 로그인한 상태면 에러 없이 남의 repo 에 Issue 를 만든다. 예상 밖의 <code>gh</code> 결과를 <code>--repo</code> 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다. Step 6 의 보드 동기화 헬퍼에도 <code>--repo "$TARGET_REPO"</code> 를 명시한다(#1405).</div>
+        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407)</summary>
+        <div class="det-body">둘 다 Step 1 이 같은 remote URL 에서 뽑은 쌍이고, <code>gh_discussion.sh</code> 의 GraphQL 헬퍼들도 export 된 <code>GH_HOST</code> 를 상속한다. <code>--repo</code> 없는 <code>gh</code> 는 git 의 <code>origin</code> 이 아니라 gh CLI 자신의 <code>gh repo set-default</code> 를 따라가므로, github.com 과 GHES 에 동시 로그인한 상태면 에러 없이 남의 repo 에 Issue 를 만든다. 예상 밖의 <code>gh</code> 결과를 <code>--repo</code> 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다. Step 6 의 보드 동기화 헬퍼에도 <code>--repo "$TARGET_REPO"</code> 를 명시한다(dEitY719/dotfiles#1405).</div>
       </details>
       <details>
         <summary>Step 5 이후 단계가 실패해도 새 Issue 를 롤백하지 않는다</summary>

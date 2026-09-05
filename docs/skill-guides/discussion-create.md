@@ -50,7 +50,7 @@ Issue 로 승격시켜 트래커로 되돌린다.
 | 이름 | 기본값 | 설명 |
 |------|--------|------|
 | `--force-discussion` | off | Step 2.1 라우팅 가드 우회. 결정된 to-do 처럼 보이지만 실제로는 RFC 인 대화용. 가드의 판단 근거는 감사용으로 한 번 출력된다 |
-| `GH_DISABLE_AI_METRICS=1` (env) | off | Discussion 본문의 ai-metrics footer 생략 (#399 parity) |
+| `GH_DISABLE_AI_METRICS=1` (env) | off | Discussion 본문의 ai-metrics footer 생략 (dEitY719/dotfiles#399 parity) |
 
 사용 예:
 
@@ -103,16 +103,16 @@ SKILL.md 의 Step 구조는 5단계(+ 3.5)다.
 
 - **모든 `gh` 호출은 `--repo "$TARGET_REPO"` 를 명시한다.** 암묵적 repo 감지에
   의존하지 않는다. 이 계열 전체의 규약은 `GH_HOST` 와 `--repo` 를 **같은 remote URL
-  에서 뽑아 함께** 넘기는 것이다(#1403). `--repo` 없는 `gh` 는 git 의 `origin` 이 아니라
+  에서 뽑아 함께** 넘기는 것이다(dEitY719/dotfiles#1403). `--repo` 없는 `gh` 는 git 의 `origin` 이 아니라
   gh CLI 자신의 `gh repo set-default` 를 따라가므로, github.com 과 GHES 에 동시
   로그인한 상태면 에러 없이 다른 서버에 글을 쓴다. 예상 밖의 `gh` 결과를 `--repo` 를
   빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다.
-- **라우팅 가드를 SSOT 갱신 없이 끄지 않는다.** 가드는 issue #617 의 F-3 + F-4 를
+- **라우팅 가드를 SSOT 갱신 없이 끄지 않는다.** 가드는 issue dEitY719/dotfiles#617 의 F-3 + F-4 를
   구현한 load-bearing 요구사항이다. 이것이 없으면 "이제 X 를 코딩하겠다" 급 대화가
   전부 `Ideas` 에 쌓이고, 칸반 보드가 없는 Discussions 포럼이 사실상의 이슈 트래커가
   되며, `discussion-convert` 의 백링크 감사 사슬이 의미를 잃는다. `--force-discussion`
   은 **1회용 우회 전용**이지 가드 제거가 아니다. 가드를 없애고 싶다면
-  `docs/.ssot/discussions-policy.md` 를 먼저 고쳐야 한다.
+  `dEitY719/dotfiles/docs/.ssot/discussions-policy.md` 를 먼저 고쳐야 한다.
 - **`Ideas` 외 카테고리에서도 가드는 동일하게 작동한다.** 바뀌는 것은 본문 골격뿐이다.
 - **없는 remote 를 받았을 때 `origin` 으로 fallback 하지 않는다.** 오타를 가려서 엉뚱한
   repo 에 Discussion 을 올리게 되기 때문이다.

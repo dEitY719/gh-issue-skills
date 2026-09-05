@@ -99,20 +99,20 @@ SKILL.md 의 Step 구조는 9단계다.
 
 ## 주의사항과 제약
 
-- **모든 `gh` 호출이 `GH_HOST` 와 `--repo` 를 함께 넘긴다 (#1403 / #1407).** 둘 다
+- **모든 `gh` 호출이 `GH_HOST` 와 `--repo` 를 함께 넘긴다 (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407).** 둘 다
   Step 1 이 같은 remote URL 에서 뽑은 쌍이고, `gh_discussion.sh` 의 GraphQL 헬퍼들도
   export 된 `GH_HOST` 를 상속한다. `--repo` 없는 `gh` 는 git 의 `origin` 이 아니라
   gh CLI 자신의 `gh repo set-default` 를 따라가므로, github.com 과 GHES 에 동시
   로그인한 상태면 에러 없이 남의 repo 에 Issue 를 만든다. 예상 밖의 `gh` 결과를
   `--repo` 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다.
-  Step 6 의 보드 동기화 헬퍼에도 `--repo "$TARGET_REPO"` 를 명시한다(#1405).
+  Step 6 의 보드 동기화 헬퍼에도 `--repo "$TARGET_REPO"` 를 명시한다(dEitY719/dotfiles#1405).
 - **멱등이다.** 두 번 호출해도 Issue 가 두 개 생기지 않는다. Step 4 의 백링크 마커
   검색이 모든 뮤테이션보다 먼저 돌기 때문이다. 다만 백링크 마커가 검색 인덱스에
   반영되기 전에 재호출하면 중복이 가능하고, 그때는 사람 검토가 마지막 방어선이다.
 - **`Ideas` 외 카테고리는 `--force-category` 없이 거부한다.** 운영 원칙 #2
   "결정되면 즉시 convert" 는 Ideas 버킷만을 가리킨다. Announcements 는 일회성,
   Lessons 는 Discussion-first, Q&A 는 답변되고 변환되지 않는 것 — 생애주기가 달라서
-  트래커로 조용히 끌어오면 안 된다. 거부 메시지가 `docs/.ssot/discussions-policy.md`
+  트래커로 조용히 끌어오면 안 된다. 거부 메시지가 `dEitY719/dotfiles/docs/.ssot/discussions-policy.md`
   운영 원칙 #2 를 인용하는 것은 감사 기록에 기계적 거절이 아니라 정책 근거를 남기기
   위해서다. `--force-category` 는 1회용 우회이지 가드 제거가 아니다.
 - **양방향 백링크 불변식을 지킨다.** Issue → Discussion 방향(Step 5 가 본문 앞에 붙이는

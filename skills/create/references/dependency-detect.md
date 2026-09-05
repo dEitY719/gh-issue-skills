@@ -10,7 +10,7 @@ Native dependencies were chosen over a `blocked-by-13` label (nobody owns
 removing it when `#13` closes) and over making the `Depends on #13` body line
 this repo already uses the *only* channel — a plain-text trailer cannot be
 queried the way GitHub's own dependency graph can. Both alternatives and their
-rejection reasons are recorded in issue #1424.
+rejection reasons are recorded in issue dEitY719/dotfiles#1424.
 
 The trailer is not hypothetical here, so the two channels now coexist:
 `references/templates/feat.md` still tells Step 3 to write `Depends on #N`
@@ -28,10 +28,10 @@ so the step works on either host without a capability probe.
 `{issueId: ID!, blockingIssueId: ID!}`, verified against the live schema.
 The shape is recorded here, not just the availability, because a wrong
 argument name is not loud: NF-1 downgrades the rejection to one warning
-line and the issue is still created (#1445). Since #1457 that record is
+line and the issue is still created (dEitY719/dotfiles#1445). Since dEitY719/dotfiles#1457 that record is
 enforced rather than merely written down — see "Test fixture" below.
 That warning now also carries the server's own sentence as its `원인:` line
-(#1458), so the next such mismatch identifies itself instead of looking like
+(dEitY719/dotfiles#1458), so the next such mismatch identifies itself instead of looking like
 a network blip.
 
 ## Step 2.6 — Detection (F-1)
@@ -100,7 +100,7 @@ for N in $DEP_NUMS; do
     # `// ""` on both ids is what keeps a GraphQL null out of the mutation:
     # a missing issue resolves to null, and interpolating that would send the
     # literal string "null" as an ID!.
-    # stderr lands in $_errf rather than /dev/null (#1458): a non-existent
+    # stderr lands in $_errf rather than /dev/null (dEitY719/dotfiles#1458): a non-existent
     # number is rejected *here*, not by the mutation, and the rejection names
     # itself in plain text. stdout stays on the pipe because $IDS needs it —
     # which is why this is a file and not a `2>&1` merge.
@@ -162,7 +162,7 @@ per-`N` warning line falls out of that for free — one bad number can never
 reject its siblings.
 
 `GH_HOST` is mandatory here for the same reason it is on every other `gh`
-call in this skill (#1403): the GraphQL endpoint is chosen by host, and a
+call in this skill (dEitY719/dotfiles#1403): the GraphQL endpoint is chosen by host, and a
 dual-host login otherwise resolves node ids on the wrong server — where the
 query succeeds and returns ids for a stranger's issues.
 
@@ -179,10 +179,10 @@ one stderr line, one line stacked into `$DEP_WARNINGS` for the Step 5 report.
     원인: <captured stderr, first line>
 ```
 
-The `원인:` line is what separates those causes from one another (#1458).
+The `원인:` line is what separates those causes from one another (dEitY719/dotfiles#1458).
 "Does not abort" and "throws the diagnosis away" are independent decisions,
 and Step 4.5 used to take both: `>/dev/null 2>&1` on the calls meant a
-permanent defect and a transient blip printed the same sentence. #1445 was a
+permanent defect and a transient blip printed the same sentence. dEitY719/dotfiles#1445 was a
 100%-reproducible argument-schema mismatch, and the server named it —
 `Argument 'blockingIssueId' on InputObject 'AddBlockedByInput' is required` —
 into a discarded stream. A failure diagnoses itself only at the moment it
@@ -220,8 +220,8 @@ The result is a warning, not a wrong link, and the fix stays manual — and its
 ## Test fixture
 
 Detection **and** the Step 4.5 outcome classification are mirrored in
-`tests/bats/skills/_fixtures/gh_issue_create_dependency_detect.sh`, locked by
-`tests/bats/skills/gh_issue_create_dependency_detect.bats`. That fixture's
+`dEitY719/dotfiles/tests/bats/skills/_fixtures/gh_issue_create_dependency_detect.sh`, locked by
+`dEitY719/dotfiles/tests/bats/skills/gh_issue_create_dependency_detect.bats`. That fixture's
 header carries the sync rule for trigger-phrase changes.
 
 What the suite covers: the trigger matrix, the plain-mention negatives, the
@@ -232,13 +232,13 @@ reference regex printed here must be byte-identical to the fixture's, and this
 doc must not reintroduce `>/dev/null 2>&1` over the GraphQL calls. Editing one
 side without the other turns the suite red.
 
-Since #1457 it also pins the `addBlockedBy` argument shape, two ways:
+Since dEitY719/dotfiles#1457 it also pins the `addBlockedBy` argument shape, two ways:
 
 - **Offline** — string assertions that the prose shape line and the mutation
   above both still name `blockingIssueId`, plus a negative one that the
-  rejected `blockedByIds` array spelling from #1445 survives in none of this
+  rejected `blockedByIds` array spelling from dEitY719/dotfiles#1445 survives in none of this
   file's **fenced code blocks**. The negative half is scoped to fenced code
-  on purpose (PR #1465 review): a whole-file ban would also forbid this
+  on purpose (PR dEitY719/dotfiles#1465 review): a whole-file ban would also forbid this
   paragraph from naming the old spelling at all, and the history is worth
   writing down. Coverage does not narrow — the two positive assertions
   already pin both places the name appears.
@@ -251,8 +251,8 @@ Since #1457 it also pins the `addBlockedBy` argument shape, two ways:
 
 That skip raises a fair question — who ever runs the networked half? The
 answer is `git/hooks/pre-push`, which runs `mise run test` on every push;
-this repo has no CI test lane by design (#754 moved the suite to that hook,
-SSOT in `docs/.ssot/local-test-policy.md`). The pushing machine is the one
+this repo has no CI test lane by design (dEitY719/dotfiles#754 moved the suite to that hook,
+SSOT in `dEitY719/dotfiles/docs/.ssot/local-test-policy.md`). The pushing machine is the one
 that just authenticated `gh`, so the guard fires on the path that matters.
 It is a developer-machine guarantee rather than a server-side one — a push
 with `SKIP_LOCAL_PYTEST=1`, or from a shell without `gh` auth, skips it, and
@@ -265,5 +265,5 @@ What it still does not cover: the two GraphQL invocations themselves —
 mocking `gh` would test the mock. Everything that decides what happens
 *around* them is fixtured, which is where the branching lives. Scope of the
 shape guards is `addBlockedBy` alone; the `Issue.blockedBy` read path was
-confirmed working in #1445, and pinning the whole schema would cost more
+confirmed working in dEitY719/dotfiles#1445, and pinning the whole schema would cost more
 upkeep than it returns.

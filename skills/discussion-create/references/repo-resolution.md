@@ -35,7 +35,7 @@ file holds the argument shape and the blast radius.
 and `_repo="${TARGET_REPO##*/}"` for the GraphQL helpers in
 `gh_discussion.sh`.
 
-## Host targeting rule (issue #1403)
+## Host targeting rule (issue dEitY719/dotfiles#1403)
 
 This skill runs no `gh issue` and no `gh api repos/...`; every call it makes
 is `gh api graphql`, via the three `_gh_discussion_*` helpers in Step 4. **The

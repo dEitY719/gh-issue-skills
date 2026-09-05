@@ -4,7 +4,7 @@ These are deliberate boundaries. Do not violate them even when the user
 asks "just this once" — composition skills (`gh-flow:issue`) exist for
 the cases where these limits are inconvenient.
 
-## Never call `gh` without an explicit host + repo (#1403)
+## Never call `gh` without an explicit host + repo (dEitY719/dotfiles#1403)
 
 Every `gh` invocation is `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"`,
 with both values read from the one remote URL Step 1 resolved
@@ -31,7 +31,7 @@ report and exit.
 
 ## Never create a git worktree
 
-The `gwt` helper / `ai-worktree:spawn` skill is the entry point for
+The `gwt` helper / `session:worktree-spawn` skill is the entry point for
 worktree creation. By the time this skill runs, the user is already in
 the right directory. Creating a worktree from inside this skill would
 nest worktrees and confuse the cleanup flow.

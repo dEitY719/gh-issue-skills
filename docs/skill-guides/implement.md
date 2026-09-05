@@ -26,7 +26,7 @@
 - 이슈를 읽기만 할 거라면 `read`.
 - 커밋은 `gh-pr:commit`, PR 은 `gh-pr:create`, 이슈부터 PR 까지 한 번에 엮는 것은
   `gh-flow:issue` 다. `implement` 는 "테스트 통과" 에서 멈춘다.
-- 워크트리 생성은 `gwt` / `ai-worktree:spawn` 의 몫이다.
+- 워크트리 생성은 `gwt` / `session:worktree-spawn` 의 몫이다.
 
 ## 호출 형식과 인자
 
@@ -80,7 +80,7 @@
 
 ## 주의사항과 제약
 
-- **모든 `gh` 호출이 `GH_HOST` 와 `--repo` 를 함께 넘긴다 (#1403).** 두 값은 Step 1 이
+- **모든 `gh` 호출이 `GH_HOST` 와 `--repo` 를 함께 넘긴다 (dEitY719/dotfiles#1403).** 두 값은 Step 1 이
   같은 remote URL 에서 뽑은 쌍이다. `--repo` 가 없으면 gh CLI 는 git 의 `origin` 이 아니라
   자기 `gh repo set-default` 를 따라가고, github.com 과 GHES 동시 로그인 상태에서는
   **에러 없이 성공한다** — OPEN 이슈가 "없음" 으로 돌아오고, 쓰기(self-assign, 보드 이동)는

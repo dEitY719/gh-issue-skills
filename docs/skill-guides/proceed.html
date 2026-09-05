@@ -278,7 +278,7 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
         <div class="det-body"><code>do-not-work</code>, <code>on-hold</code>, <code>보류</code>, <code>Postpone</code> 등 <code>GH_ISSUE_BLOCK_LABELS</code> 에 있는 라벨이 붙어 있으면 claim 단계 2.1.2 에서 <code>exit 2</code> 로 즉시 중단한다. 우회용 환경 변수나 force 플래그는 의도적으로 존재하지 않으며, 라벨을 떼는 것만이 유일한 해제 방법이다. 이 계열에서 <strong><code>exit 2</code> 는 "정책 거부", <code>exit 1</code> 은 "스킬이 고장남"</strong> 으로 예약된 구분이다.</div>
       </details>
       <details>
-        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (#1403 / #1407)</summary>
+        <summary>모든 <code>gh</code> 호출이 <code>GH_HOST</code> 와 <code>--repo</code> 를 함께 넘긴다 (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407)</summary>
         <div class="det-body">둘 다 Step 1 이 같은 remote URL 에서 뽑은 쌍이어야 한다. <code>--repo</code> 없는 <code>gh</code> 는 git 의 <code>origin</code> 이 아니라 gh CLI 자신의 <code>gh repo set-default</code> 를 따라가므로, github.com 과 GHES 에 동시 로그인한 상태에서는 에러 없이 조용히 다른 서버로 간다. 읽기라면 OPEN 이슈가 "없음" 으로 보이고, 쓰기라면 남의 repo 이슈 #N 에 착지한다. 예상 밖의 <code>gh</code> 결과를 <code>--repo</code> 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다.</div>
       </details>
       <details>

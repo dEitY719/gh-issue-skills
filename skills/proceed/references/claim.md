@@ -63,7 +63,7 @@ teammate's claim is worse than a duplicated attempt — warn, don't override.
 This is a **write**, so both halves of the Step 1 binding matter:
 `--repo "$TARGET_REPO"` names the repo, `GH_HOST="$TARGET_HOST"` names the
 server. Dropping the host on a dual-host login would assign someone on
-whichever repo `gh repo set-default` picked (#1403 / #1407).
+whichever repo `gh repo set-default` picked (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407).
 
 ## 2.1.4 Board Status transition
 
@@ -77,7 +77,7 @@ command -v _gh_project_status_sync >/dev/null 2>&1 \
        --only-from "Backlog,Ready" --repo "$TARGET_REPO"
 ```
 
-`--repo "$TARGET_REPO"` (Step 1) is explicit (#1405) — the helper's
+`--repo "$TARGET_REPO"` (Step 1) is explicit (dEitY719/dotfiles#1405) — the helper's
 `gh repo view` fallback answers `gh repo set-default`, not the remote
 this run resolved.
 

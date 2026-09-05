@@ -235,7 +235,7 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
         <thead><tr><th>이름</th><th>기본값</th><th>설명</th></tr></thead>
         <tbody>
           <tr><td><code>--force-discussion</code></td><td>off</td><td>Step 2.1 라우팅 가드 우회. 결정된 to-do 처럼 보이지만 실제로는 RFC 인 대화용. 가드의 판단 근거는 감사용으로 한 번 출력된다</td></tr>
-          <tr><td><code>GH_DISABLE_AI_METRICS=1</code> (env)</td><td>off</td><td>Discussion 본문의 ai-metrics footer 생략 (#399 parity)</td></tr>
+          <tr><td><code>GH_DISABLE_AI_METRICS=1</code> (env)</td><td>off</td><td>Discussion 본문의 ai-metrics footer 생략 (dEitY719/dotfiles#399 parity)</td></tr>
         </tbody>
       </table>
     </div>
@@ -301,15 +301,15 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
     <article class="card" data-reveal style="border-color:color-mix(in srgb,var(--negative) 35%,transparent)">
       <div class="caveat crit">
         <h4>라우팅 가드를 SSOT 갱신 없이 끄지 않는다 — Step 2.1</h4>
-        <p>가드는 issue #617 의 F-3 + F-4 를 구현한 load-bearing 요구사항이다. 이것이 없으면 "이제 X 를 코딩하겠다" 급 대화가 전부 <code>Ideas</code> 에 쌓이고, 칸반 보드가 없는 Discussions 포럼이 사실상의 이슈 트래커가 되며, <code>discussion-convert</code> 의 백링크 감사 사슬이 의미를 잃는다.</p>
-        <p><code>--force-discussion</code> 은 <strong>1회용 우회 전용</strong>이지 가드 제거가 아니다. 가드를 없애고 싶다면 <code>docs/.ssot/discussions-policy.md</code> 를 먼저 고쳐야 한다.</p>
+        <p>가드는 issue dEitY719/dotfiles#617 의 F-3 + F-4 를 구현한 load-bearing 요구사항이다. 이것이 없으면 "이제 X 를 코딩하겠다" 급 대화가 전부 <code>Ideas</code> 에 쌓이고, 칸반 보드가 없는 Discussions 포럼이 사실상의 이슈 트래커가 되며, <code>discussion-convert</code> 의 백링크 감사 사슬이 의미를 잃는다.</p>
+        <p><code>--force-discussion</code> 은 <strong>1회용 우회 전용</strong>이지 가드 제거가 아니다. 가드를 없애고 싶다면 <code>dEitY719/dotfiles/docs/.ssot/discussions-policy.md</code> 를 먼저 고쳐야 한다.</p>
         <p>결정된 to-do 신호가 잡히면 뮤테이션을 호출하지 않고 <code>/gh-issue:create</code> 로 되돌려 보낸다.</p>
       </div>
     </article>
 
     <div style="margin-top:16px">
       <details open>
-        <summary>모든 <code>gh</code> 호출은 <code>--repo "$TARGET_REPO"</code> 를 명시한다 (#1403)</summary>
+        <summary>모든 <code>gh</code> 호출은 <code>--repo "$TARGET_REPO"</code> 를 명시한다 (dEitY719/dotfiles#1403)</summary>
         <div class="det-body">암묵적 repo 감지에 의존하지 않는다. 이 계열 전체의 규약은 <code>GH_HOST</code> 와 <code>--repo</code> 를 <strong>같은 remote URL 에서 뽑아 함께</strong> 넘기는 것이다. <code>--repo</code> 없는 <code>gh</code> 는 git 의 <code>origin</code> 이 아니라 gh CLI 자신의 <code>gh repo set-default</code> 를 따라가므로, github.com 과 GHES 에 동시 로그인한 상태면 에러 없이 다른 서버에 글을 쓴다. 예상 밖의 <code>gh</code> 결과를 <code>--repo</code> 를 빼거나 remote 를 바꿔서 우회하지 말고 host 를 먼저 검증한다.</div>
       </details>
       <details>

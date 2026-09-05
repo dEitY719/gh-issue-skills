@@ -9,7 +9,7 @@ have their own variants in the second half of this file.
 |---|---|---|
 | `Ideas` | `<type>[(<scope>)]: <한 줄 요약>` | `feat(gh-discussion-create): 대화 -> Ideas RFC Discussion` |
 | `Q&A` | `<질문 한 줄>` (no prefix) | `왜 gh-issue:discussion-create 는 카테고리 ID 를 캐시하지 않는가?` |
-| `Announcements` | `announce: <한 줄 요약>` | `announce: discussions-policy 도입 (#612)` |
+| `Announcements` | `announce: <한 줄 요약>` | `announce: discussions-policy 도입 (dEitY719/dotfiles#612)` |
 | `Lessons` | `lesson: <한 줄 요약>` | `lesson: GraphQL createDiscussion 권한 요구사항` |
 
 ## Ideas — RFC body skeleton (default)
@@ -56,7 +56,7 @@ Criteria (RFC has not committed to the work yet).
 
 ## References
 - 관련 파일·이슈·PR·외부 문서
-- SSOT: docs/.ssot/discussions-policy.md (#612)
+- SSOT: dEitY719/dotfiles/docs/.ssot/discussions-policy.md (dEitY719/dotfiles#612)
 ```
 
 ## Category variants
@@ -100,7 +100,7 @@ Criteria (RFC has not committed to the work yet).
 
 ### Lessons — body skeleton
 
-`docs/.ssot/discussions-policy.md` -> "Lessons 카테고리 운영" 에 따르면
+`dEitY719/dotfiles/docs/.ssot/discussions-policy.md` -> "Lessons 카테고리 운영" 에 따르면
 Lessons 는 Discussion-first 다. 짧은 단편 노트는 파일 없이 Discussion
 만 유지한다 — 본문 상단에 출처를 둔다.
 

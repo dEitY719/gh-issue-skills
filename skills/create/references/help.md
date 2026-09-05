@@ -79,7 +79,7 @@
    `GH_HOST="$TARGET_HOST" gh issue create --repo "$TARGET_REPO"` using a
    temp file written by `mktemp` (avoids shell escaping bugs). Host and repo
    are both pinned from the same remote URL so a dual-host `gh` login cannot
-   file the issue on the wrong server (#1403).
+   file the issue on the wrong server (dEitY719/dotfiles#1403).
 8. Prints only `Issue #N created: <url>` — no preamble, no summary.
 
 ## Title format
@@ -116,7 +116,7 @@ A 200-line issue is fine if the conversation warranted it.
 - Truncate or summarize the conversation log.
 - Auto-detect whether the chat is RFC-shaped and route to a Discussion
   on its own. `--as-discussion` requires an explicit user request
-  (#619 Non-Goal: no AI auto-judgement).
+  (dEitY719/dotfiles#619 Non-Goal: no AI auto-judgement).
 - Apply labels or assignees on the Discussion path — those are an
   Issue-only concept. Mixing `--as-discussion` with `--label` /
   `--assignee` drops the latter with a 1-line warning.
@@ -140,5 +140,5 @@ A 200-line issue is fine if the conversation warranted it.
   or a schema mismatch on the mutation's arguments) → the issue stays
   created; one `[WARN] Blocked by #N 링크 실패` line is appended to the
   report, followed by an indented `원인:` line carrying the first line of
-  the GraphQL rejection (#1458) — that is what tells those four causes
+  the GraphQL rejection (dEitY719/dotfiles#1458) — that is what tells those four causes
   apart. Never aborts, never retries.

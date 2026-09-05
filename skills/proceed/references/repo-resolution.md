@@ -32,7 +32,7 @@ shape and the blast radius.
 
 `TARGET_REPO` and `TARGET_HOST` are consumed by Step 2 of the main workflow.
 
-## Host targeting rule (issues #1403 / #1407)
+## Host targeting rule (issues dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407)
 
 Every `gh` call this skill runs — the Step 2.1 fetch/claim, the Step 3
 protocol directives, the Step 4 report — names both host and repo:
@@ -44,7 +44,7 @@ GH_HOST="$TARGET_HOST" gh <sub-command> ... --repo "$TARGET_REPO"
 `--repo <owner>/<repo>` carries no host, so a bare `gh` follows its own
 `gh repo set-default` instead of git's remote. On a dual-host login
 (github.com + GHES) the two disagree and the call silently hits the wrong
-server — an OPEN issue comes back "not found" (#1403), or worse, a
+server — an OPEN issue comes back "not found" (dEitY719/dotfiles#1403), or worse, a
 directive's write (self-assign, comment, close) lands in the wrong repo.
 
 `resolve-target.sh`'s `export GH_HOST` also makes the sourced helpers
@@ -57,4 +57,4 @@ spell the prefix out so every example stays copy-paste safe.
 falling back to `origin` when the user-specified remote is missing, and
 refuses to continue with an empty `TARGET_HOST`. A silent fallback masks a
 typo and proceeds against the wrong repo; an empty `GH_HOST` is exactly the
-silent-misroute state #1403 described.
+silent-misroute state dEitY719/dotfiles#1403 described.

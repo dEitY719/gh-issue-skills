@@ -29,12 +29,12 @@ multiline refusal verbatim and exit 1 (skip Steps 4-9):
 
 ```
 Discussion #<N> 카테고리가 '<X>' 입니다 — 정책상 Ideas 만 변환합니다.
-근거: docs/.ssot/discussions-policy.md -> "운영 원칙 4 개조" #2.
+근거: dEitY719/dotfiles/docs/.ssot/discussions-policy.md -> "운영 원칙 4 개조" #2.
 강제 변환하려면: /gh-issue:discussion-convert <N> --force-category
 ```
 
 The refusal text intentionally cites
-`docs/.ssot/discussions-policy.md` operating principle #2 so the
+`dEitY719/dotfiles/docs/.ssot/discussions-policy.md` operating principle #2 so the
 audit trail explains the policy decision, not just the mechanical
 rejection. Operating principle #2 ("결정되면 즉시 Issue convert") refers
 specifically to the Ideas bucket; other categories have different
