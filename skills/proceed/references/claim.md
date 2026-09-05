@@ -72,16 +72,23 @@ if GH_ISSUE_SKIP_BOARD_TRANSITION set: return 0
 _SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
 [ -f "$_SC/functions/gh_project_status.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
 _HELPER="$_SC/functions/gh_project_status.sh"
-# Drop any inherited definition BEFORE sourcing. After this, `command -v` is
-# proof that this load defined the function — not that some earlier one did.
-# A file-mode test cannot give that proof: -f passes an unreadable file, -r
-# passes a directory, and neither notices a helper that sources halfway.
-unset -f _gh_project_status_sync 2>/dev/null
-[ -r "$_HELPER" ] && . "$_HELPER"
+# Drop any inherited definition BEFORE sourcing, so the check below proves this
+# load defined the function rather than an earlier one. A file-mode test cannot:
+# -f passes an unreadable file, -r passes a directory, and neither notices a
+# helper that sources halfway.
+#
+# Every step here is errexit-safe: a pasted block inherits the caller's `set -e`,
+# and this transition is documented soft-fail — it must warn and skip, never
+# abort the run. `unset -f` on an undefined name, a bare `[ ... ] && cmd` whose
+# test fails, and a failed `.` are all non-zero, so each is neutralised.
+unset -f _gh_project_status_sync 2>/dev/null || :
+if [ -f "$_HELPER" ] && [ -r "$_HELPER" ]; then
+    . "$_HELPER" || :
+fi
 if command -v _gh_project_status_sync >/dev/null 2>&1; then
     export SHELL_COMMON="$_SC"   # export only after the load is proved
     _gh_project_status_sync issue <N> "In progress" \
-      --only-from "Backlog,Ready" --repo "$TARGET_REPO"
+      --only-from "Backlog,Ready" --repo "$TARGET_REPO" || :
 else
     printf '[gh-issue:proceed] gh_project_status.sh did not load from %s — board transition skipped. On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
         "$_SC" >&2

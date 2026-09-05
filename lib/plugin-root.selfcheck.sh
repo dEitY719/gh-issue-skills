@@ -47,11 +47,11 @@ extract discussion-convert '_GD="${DOTFILES_ROOT' 'done' \
     skills/discussion-convert/references/convert-cmd.md
 extract discussion-create '_GD="${DOTFILES_ROOT' '}' \
     skills/discussion-create/references/create-cmd.md
-extract implement-claim '_SC="${SHELL_COMMON' '[ -r "$_HELPER" ] && . "$_HELPER"' \
+extract implement-claim '_SC="${SHELL_COMMON' 'fi' \
     skills/implement/references/claim.md
 extract proceed-claim '_SC="${SHELL_COMMON' '```' \
     skills/proceed/references/claim.md
-extract proceed-claim-head '_SC="${SHELL_COMMON' '[ -r "$_HELPER" ] && . "$_HELPER"' \
+extract proceed-claim-head '_SC="${SHELL_COMMON' 'fi' \
     skills/proceed/references/claim.md
 
 # 1. The gate grep: an explicitly-empty default spliced straight into a path is
@@ -132,14 +132,15 @@ resolves() { # resolves <shell> <block> <cwd> <plugin-root-or-empty>
 # the sites now prove — so it is what this asserts.
 head_state() { # head_state <shell> <block> <cwd> <plugin-root-or-empty>
     _probe='[ -n "${INHERIT-}" ] && eval "_gh_project_status_sync() { :; }"
+            [ -n "${SETE-}" ] && set -e
             . "$1"
             command -v _gh_project_status_sync >/dev/null 2>&1 && printf loaded || printf not-loaded'
     if [ -n "$4" ]; then
         ( cd "$3" && env -u SHELL_COMMON -u DOTFILES_ROOT CLAUDE_PLUGIN_ROOT="$4" \
-            INHERIT="${INHERIT-}" HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/$2.sh" 2>/dev/null )
+            INHERIT="${INHERIT-}" SETE="${SETE-}" HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/$2.sh" 2>/dev/null )
     else
         ( cd "$3" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
-            INHERIT="${INHERIT-}" HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/$2.sh" 2>/dev/null )
+            INHERIT="${INHERIT-}" SETE="${SETE-}" HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/$2.sh" 2>/dev/null )
     fi
 }
 
@@ -197,6 +198,20 @@ for sh in sh bash zsh; do
         # And an inherited definition must not survive into the verdict.
         chk "$sh/$block drops an inherited definition" not-loaded \
             "$(INHERIT=1 head_state "$sh" "$block" "$SANDBOX" "")"
+
+        # Under the caller's `set -e` the same paths must still reach the
+        # warn-and-skip verdict rather than aborting: this transition is
+        # documented soft-fail, and a pasted block inherits shell options.
+        chk "$sh/$block survives set -e at tier 5" not-loaded \
+            "$(SETE=1 head_state "$sh" "$block" "$SANDBOX" "")"
+        chk "$sh/$block survives set -e on the directory trap" not-loaded \
+            "$(SETE=1 head_state "$sh" "$block" "$SANDBOX" "$DIRTRAP")"
+        chk "$sh/$block still loads under set -e" loaded \
+            "$(SETE=1 head_state "$sh" "$block" "$SANDBOX" "$ROOT")"
+        if [ "$CAN_TEST_UNREADABLE" -eq 1 ]; then
+            chk "$sh/$block survives set -e on an unreadable helper" not-loaded \
+                "$(SETE=1 head_state "$sh" "$block" "$SANDBOX" "$UNREADABLE")"
+        fi
     done
 done
 
