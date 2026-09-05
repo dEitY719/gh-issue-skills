@@ -199,25 +199,25 @@ if "GH_ISSUE_SKIP_BOARD_TRANSITION" set:
 _SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
 [ -f "$_SC/functions/gh_project_status.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
 _HELPER="$_SC/functions/gh_project_status.sh"
-if [ -f "$_HELPER" ]; then
-    # export only after the probe above proved $_SC — an unproven export
-    # poisons every later ${SHELL_COMMON:-...} default in the same run.
-    export SHELL_COMMON="$_SC"
-    . "$_HELPER"
-    if ! command -v _gh_project_status_sync >/dev/null 2>&1; then
-        # Defense-in-depth (dEitY719/dotfiles#724): sourceable but undefined → silent no-op
-        # without this guard. One-line stderr warning, never blocks.
-        printf '[gh-issue-implement] %s sourced but _gh_project_status_sync undefined — board transition skipped (dEitY719/dotfiles#724).\n' \
-            "$_HELPER" >&2
-    else
-        # --repo "$TARGET_REPO" (Step 1) is explicit (dEitY719/dotfiles#1405): the helper's
-        # `gh repo view` fallback answers `gh repo set-default`, not the
-        # remote this run resolved.
-        _gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO"
-    fi
+# Drop any inherited definition BEFORE sourcing, so the check below proves this
+# load defined the function rather than an earlier one. A file-mode test cannot:
+# -f passes an unreadable file, -r passes a directory, and neither notices a
+# helper that sources halfway.
+unset -f _gh_project_status_sync 2>/dev/null
+[ -r "$_HELPER" ] && . "$_HELPER"
+if ! command -v _gh_project_status_sync >/dev/null 2>&1; then
+    # Defense-in-depth (dEitY719/dotfiles#724): sourceable but undefined → silent no-op
+    # without this guard. One-line stderr warning, never blocks.
+    printf '[gh-issue-implement] _gh_project_status_sync did not load from %s — board transition skipped (dEitY719/dotfiles#724). On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
+        "$_HELPER" >&2
 else
-    printf '[gh-issue-implement] gh_project_status.sh not found under %s — board transition skipped. On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
-        "$_SC" >&2
+    # export only after the load is proved — an unproven export poisons every
+    # later ${SHELL_COMMON:-...} default in the same run.
+    export SHELL_COMMON="$_SC"
+    # --repo "$TARGET_REPO" (Step 1) is explicit (dEitY719/dotfiles#1405): the helper's
+    # `gh repo view` fallback answers `gh repo set-default`, not the
+    # remote this run resolved.
+    _gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO"
 fi
 ```
 

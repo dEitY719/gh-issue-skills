@@ -47,9 +47,11 @@ extract discussion-convert '_GD="${DOTFILES_ROOT' 'done' \
     skills/discussion-convert/references/convert-cmd.md
 extract discussion-create '_GD="${DOTFILES_ROOT' '}' \
     skills/discussion-create/references/create-cmd.md
-extract implement-claim '_SC="${SHELL_COMMON' '_HELPER="$_SC/functions/gh_project_status.sh"' \
+extract implement-claim '_SC="${SHELL_COMMON' '[ -r "$_HELPER" ] && . "$_HELPER"' \
     skills/implement/references/claim.md
 extract proceed-claim '_SC="${SHELL_COMMON' '```' \
+    skills/proceed/references/claim.md
+extract proceed-claim-head '_SC="${SHELL_COMMON' '[ -r "$_HELPER" ] && . "$_HELPER"' \
     skills/proceed/references/claim.md
 
 # 1. The gate grep: an explicitly-empty default spliced straight into a path is
@@ -109,6 +111,92 @@ for sh in sh bash zsh; do
         err=$(run "$sh" "$block" 2>&1)
         case "$err" in *' /lib/vendor'*|*'at /lib'*|*'under /lib'*) got=poisoned ;; *) got=clean ;; esac
         chk "$sh/$block never resolves under /" clean "$got"
+    done
+done
+
+# 5. The positive paths. Without these a block that always failed would pass
+#    every check above. `$ROOT` really does hold lib/vendor/shell-common, so
+#    tier 2 (CLAUDE_PLUGIN_ROOT set) and tier 4 (cwd is the checkout) must both
+#    resolve and exit 0.
+resolves() { # resolves <shell> <block> <cwd> <plugin-root-or-empty>
+    if [ -n "$4" ]; then
+        ( cd "$3" && env -u SHELL_COMMON -u DOTFILES_ROOT CLAUDE_PLUGIN_ROOT="$4" \
+            HOME="$HOME_EMPTY" "$1" "$TMP/$2.sh" ) >/dev/null 2>&1
+    else
+        ( cd "$3" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
+            HOME="$HOME_EMPTY" "$1" "$TMP/$2.sh" ) >/dev/null 2>&1
+    fi
+}
+
+# Did the block actually load the function? That, not the file's mode, is what
+# the sites now prove — so it is what this asserts.
+head_state() { # head_state <shell> <block> <cwd> <plugin-root-or-empty>
+    _probe='[ -n "${INHERIT-}" ] && eval "_gh_project_status_sync() { :; }"
+            . "$1"
+            command -v _gh_project_status_sync >/dev/null 2>&1 && printf loaded || printf not-loaded'
+    if [ -n "$4" ]; then
+        ( cd "$3" && env -u SHELL_COMMON -u DOTFILES_ROOT CLAUDE_PLUGIN_ROOT="$4" \
+            INHERIT="${INHERIT-}" HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/$2.sh" 2>/dev/null )
+    else
+        ( cd "$3" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
+            INHERIT="${INHERIT-}" HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/$2.sh" 2>/dev/null )
+    fi
+}
+
+# A directory where the helper should be: the case a bare `-r` would accept.
+DIRTRAP="$TMP/dirtrap"
+mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/gh_project_status.sh"
+mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/gh_discussion.sh"
+
+# An existing but unreadable helper must not count as resolved: `-f` alone
+# passes it, the source then fails, and an inherited function stays callable.
+UNREADABLE="$TMP/unreadable-root"
+mkdir -p "$UNREADABLE/lib/vendor/shell-common/functions"
+for _fn in gh_discussion.sh gh_project_status.sh; do
+    printf '#\n' > "$UNREADABLE/lib/vendor/shell-common/functions/$_fn"
+    chmod 000 "$UNREADABLE/lib/vendor/shell-common/functions/$_fn"
+done
+# Root ignores the permission bits, so the case is only meaningful unprivileged.
+if [ -r "$UNREADABLE/lib/vendor/shell-common/functions/gh_discussion.sh" ]; then
+    CAN_TEST_UNREADABLE=0
+else
+    CAN_TEST_UNREADABLE=1
+fi
+
+for sh in sh bash zsh; do
+    command -v "$sh" >/dev/null 2>&1 || continue
+
+    for block in create discussion-convert discussion-create; do
+        resolves "$sh" "$block" "$SANDBOX" "$ROOT"
+        chk "$sh/$block resolves via CLAUDE_PLUGIN_ROOT (tier 2)" 0 "$?"
+        resolves "$sh" "$block" "$ROOT" ""
+        chk "$sh/$block resolves via cwd (tier 4)" 0 "$?"
+
+        if [ "$CAN_TEST_UNREADABLE" -eq 1 ]; then
+            resolves "$sh" "$block" "$SANDBOX" "$UNREADABLE"
+            chk "$sh/$block rejects an unreadable helper" 1 "$(($? != 0))"
+        fi
+    done
+
+    # The board-transition prologues do not exit; the observable is whether
+    # _gh_project_status_sync is defined after they run.
+    for block in implement-claim proceed-claim-head; do
+        chk "$sh/$block loads via CLAUDE_PLUGIN_ROOT (tier 2)" loaded \
+            "$(head_state "$sh" "$block" "$SANDBOX" "$ROOT")"
+        chk "$sh/$block loads via cwd (tier 4)" loaded \
+            "$(head_state "$sh" "$block" "$ROOT" "")"
+        chk "$sh/$block reports not-loaded at tier 5" not-loaded \
+            "$(head_state "$sh" "$block" "$SANDBOX" "")"
+        if [ "$CAN_TEST_UNREADABLE" -eq 1 ]; then
+            chk "$sh/$block rejects an unreadable helper" not-loaded \
+                "$(head_state "$sh" "$block" "$SANDBOX" "$UNREADABLE")"
+        fi
+        # A directory at the probed path is the case `-r` alone would accept.
+        chk "$sh/$block rejects a directory at the helper path" not-loaded \
+            "$(head_state "$sh" "$block" "$SANDBOX" "$DIRTRAP")"
+        # And an inherited definition must not survive into the verdict.
+        chk "$sh/$block drops an inherited definition" not-loaded \
+            "$(INHERIT=1 head_state "$sh" "$block" "$SANDBOX" "")"
     done
 done
 
