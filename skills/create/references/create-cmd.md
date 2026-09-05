@@ -52,7 +52,7 @@ validation here.
 # helper not yet symlinked into shell-common/).
 _GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"
 [ -f "$_GD" ] || _GD="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common/functions/gh_discussion.sh"
-if [ ! -r "$_GD" ]; then
+if [ ! -f "$_GD" ]; then
     printf '[FAIL] gh-discussion helper not found at %s\n' "$_GD" >&2
     printf 'Next: install gh-discussion-create skill first; on any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir> before pasting this block.\n' >&2
     return 1 2>/dev/null || exit 1

@@ -199,7 +199,7 @@ if "GH_ISSUE_SKIP_BOARD_TRANSITION" set:
 _SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
 [ -f "$_SC/functions/gh_project_status.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
 _HELPER="$_SC/functions/gh_project_status.sh"
-if [ -r "$_HELPER" ]; then
+if [ -f "$_HELPER" ]; then
     # export only after the probe above proved $_SC — an unproven export
     # poisons every later ${SHELL_COMMON:-...} default in the same run.
     export SHELL_COMMON="$_SC"

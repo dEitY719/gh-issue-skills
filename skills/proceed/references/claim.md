@@ -72,16 +72,19 @@ if GH_ISSUE_SKIP_BOARD_TRANSITION set: return 0
 _SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
 [ -f "$_SC/functions/gh_project_status.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
 _HELPER="$_SC/functions/gh_project_status.sh"
-if [ -r "$_HELPER" ]; then
+if [ -f "$_HELPER" ]; then
     export SHELL_COMMON="$_SC"   # export only after the probe proved $_SC
     . "$_HELPER"
+    # Inside the proved branch: an inherited _gh_project_status_sync from an
+    # earlier source would otherwise still fire after resolution failed, and
+    # mutate a board while the else branch claims the step was skipped.
+    command -v _gh_project_status_sync >/dev/null 2>&1 \
+      && _gh_project_status_sync issue <N> "In progress" \
+           --only-from "Backlog,Ready" --repo "$TARGET_REPO"
 else
     printf '[gh-issue:proceed] gh_project_status.sh not found under %s — board transition skipped. On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
         "$_SC" >&2
 fi
-command -v _gh_project_status_sync >/dev/null 2>&1 \
-  && _gh_project_status_sync issue <N> "In progress" \
-       --only-from "Backlog,Ready" --repo "$TARGET_REPO"
 ```
 
 `--repo "$TARGET_REPO"` (Step 1) is explicit (dEitY719/dotfiles#1405) — the helper's
