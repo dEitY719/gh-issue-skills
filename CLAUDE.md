@@ -56,7 +56,7 @@ manifests under a `plugins/` directory.**
 
 ## Shared assets live elsewhere — link, never copy
 
-This repo owns none. Both belong to `dEitY719/harness-skills`:
+This repo owns none. All three belong to `dEitY719/harness-skills`:
 
 **1. Per-harness tool mappings** (`references/*-tools.md` there, dEitY719/dotfiles#1410
 F-5). Do not create a `references/` directory at this repo's root. If a doc here
@@ -72,6 +72,14 @@ D-10). This repo's `validate.yml` calls it with `plugin-name: gh-issue` and a
 short `allow-emoji-paths` list. Do not fork it into a standalone workflow — a
 check added upstream should apply here on the next run, which is the whole
 point.
+
+**3. The plugin-root resolution convention** (`references/plugin-root.md` there,
+`harness-skills#10`). Every site that composes a path from `$CLAUDE_PLUGIN_ROOT`
+follows it: a non-empty default (`${CLAUDE_PLUGIN_ROOT:-$PWD}`, never `:-}`), a
+second `[ -f ]` proving the tier the first probe picked, `export` only after that
+proof, and a loud stop naming the path when nothing resolves. `lib/resolve-target.sh`
+is the self-locating-file form; the `references/*.md` blocks are the pasted form,
+which gets no `$0`/`BASH_SOURCE` tier. Link the upstream doc, do not restate it.
 
 ## Rules for changing skills
 

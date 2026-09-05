@@ -196,9 +196,13 @@ on every projectV2 it belongs to.
 if "GH_ISSUE_SKIP_BOARD_TRANSITION" set:
     return 0
 
-_HELPER="${SHELL_COMMON:-$HOME/dotfiles/shell-common}/functions/gh_project_status.sh"
-[ -f "$_HELPER" ] || { _HELPER="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_project_status.sh"; export SHELL_COMMON="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"; }
+_SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
+[ -f "$_SC/functions/gh_project_status.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
+_HELPER="$_SC/functions/gh_project_status.sh"
 if [ -r "$_HELPER" ]; then
+    # export only after the probe above proved $_SC — an unproven export
+    # poisons every later ${SHELL_COMMON:-...} default in the same run.
+    export SHELL_COMMON="$_SC"
     . "$_HELPER"
     if ! command -v _gh_project_status_sync >/dev/null 2>&1; then
         # Defense-in-depth (dEitY719/dotfiles#724): sourceable but undefined → silent no-op
@@ -211,6 +215,9 @@ if [ -r "$_HELPER" ]; then
         # remote this run resolved.
         _gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO"
     fi
+else
+    printf '[gh-issue-implement] gh_project_status.sh not found under %s — board transition skipped. On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
+        "$_SC" >&2
 fi
 ```
 

@@ -19,9 +19,18 @@ Inputs bound by the caller:
 
 ```bash
 _GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"
-[ -f "$_GD" ] || _GD="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_discussion.sh"
+[ -f "$_GD" ] || _GD="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common/functions/gh_discussion.sh"
 _PS="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_project_status.sh"
-[ -f "$_PS" ] || _PS="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_project_status.sh"
+[ -f "$_PS" ] || _PS="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common/functions/gh_project_status.sh"
+# The second probe proves the tier the first one picked; without it a missing
+# helper is sourced as a wrong path instead of stopping.
+for _f in "$_GD" "$_PS"; do
+    [ -f "$_f" ] || {
+        printf '[gh-issue:discussion-convert] helper not found at %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+            "$_f" >&2
+        return 1 2>/dev/null || exit 1
+    }
+done
 # shellcheck disable=SC1091
 . "$_GD"
 # shellcheck disable=SC1091
