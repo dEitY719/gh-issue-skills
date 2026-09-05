@@ -12,7 +12,12 @@ against the repo's category list).
 
 ```bash
 _GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"
-[ -f "$_GD" ] || _GD="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_discussion.sh"
+[ -f "$_GD" ] || _GD="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common/functions/gh_discussion.sh"
+[ -f "$_GD" ] && [ -r "$_GD" ] || {
+    printf '[gh-issue:discussion-create] gh_discussion.sh not found at %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+        "$_GD" >&2
+    return 1 2>/dev/null || exit 1
+}
 # shellcheck disable=SC1091
 . "$_GD"
 

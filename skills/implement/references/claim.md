@@ -196,21 +196,35 @@ on every projectV2 it belongs to.
 if "GH_ISSUE_SKIP_BOARD_TRANSITION" set:
     return 0
 
-_HELPER="${SHELL_COMMON:-$HOME/dotfiles/shell-common}/functions/gh_project_status.sh"
-[ -f "$_HELPER" ] || { _HELPER="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_project_status.sh"; export SHELL_COMMON="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"; }
-if [ -r "$_HELPER" ]; then
-    . "$_HELPER"
-    if ! command -v _gh_project_status_sync >/dev/null 2>&1; then
-        # Defense-in-depth (dEitY719/dotfiles#724): sourceable but undefined → silent no-op
-        # without this guard. One-line stderr warning, never blocks.
-        printf '[gh-issue-implement] %s sourced but _gh_project_status_sync undefined — board transition skipped (dEitY719/dotfiles#724).\n' \
-            "$_HELPER" >&2
-    else
-        # --repo "$TARGET_REPO" (Step 1) is explicit (dEitY719/dotfiles#1405): the helper's
-        # `gh repo view` fallback answers `gh repo set-default`, not the
-        # remote this run resolved.
-        _gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO"
-    fi
+_SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
+[ -f "$_SC/functions/gh_project_status.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
+_HELPER="$_SC/functions/gh_project_status.sh"
+# Drop any inherited definition BEFORE sourcing, so the check below proves this
+# load defined the function rather than an earlier one. A file-mode test cannot:
+# -f passes an unreadable file, -r passes a directory, and neither notices a
+# helper that sources halfway.
+#
+# Every step here is errexit-safe: a pasted block inherits the caller's `set -e`,
+# and this transition is documented soft-fail — it must warn and skip, never
+# abort the run. `unset -f` on an undefined name, a bare `[ ... ] && cmd` whose
+# test fails, and a failed `.` are all non-zero, so each is neutralised.
+unset -f _gh_project_status_sync 2>/dev/null || :
+if [ -f "$_HELPER" ] && [ -r "$_HELPER" ]; then
+    . "$_HELPER" || :
+fi
+if ! command -v _gh_project_status_sync >/dev/null 2>&1; then
+    # Defense-in-depth (dEitY719/dotfiles#724): sourceable but undefined → silent no-op
+    # without this guard. One-line stderr warning, never blocks.
+    printf '[gh-issue-implement] _gh_project_status_sync did not load from %s — board transition skipped (dEitY719/dotfiles#724). On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
+        "$_HELPER" >&2
+else
+    # export only after the load is proved — an unproven export poisons every
+    # later ${SHELL_COMMON:-...} default in the same run.
+    export SHELL_COMMON="$_SC"
+    # --repo "$TARGET_REPO" (Step 1) is explicit (dEitY719/dotfiles#1405): the helper's
+    # `gh repo view` fallback answers `gh repo set-default`, not the
+    # remote this run resolved.
+    _gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO" || :
 fi
 ```
 
