@@ -1,57 +1,35 @@
-# gh-issue:proceed — Repo resolution
+# gh-issue:proceed — Repo + host resolution
 
-Detailed procedure for Step 1 remote validation and owner/repo extraction.
-SKILL.md keeps only the workflow; this file holds the substeps and
-error-message shape. (Same procedure as `/gh-issue:implement` — kept as a
-self-contained copy per the dotfiles per-skill references convention.)
+Detailed procedure for Step 1 remote validation and owner/repo **plus host**
+extraction. SKILL.md keeps only the workflow; this file holds the argument
+shape and the blast radius.
 
 ## Substeps
 
-1. `git rev-parse --show-toplevel` — confirm we're in a git repo.
-
-2. Determine the target remote:
-   - If the user passed an argument, use it as remote name.
+1. Determine the target remote:
+   - If the user passed the second positional (`<issue-number> [remote]`), use
+     it as the remote name.
    - Otherwise default to `origin`.
 
-3. Validate the remote and resolve owner/repo:
+2. Bind the target — one sourced line, so the exports survive into the caller:
 
    ```bash
-   git remote get-url <remote-name>
+   . "${CLAUDE_PLUGIN_ROOT:-.}/lib/resolve-target.sh" "${REMOTE:-origin}" || exit 1
    ```
 
-   If this fails, list available remotes (`git remote -v`) and stop with
-   an error like:
-
-   ```
-   Error: remote '<remote-name>' not found. Available remotes:
-   origin  https://github.com/user/repo.git (fetch)
-   upstream  https://github.com/org/repo.git (fetch)
-   ```
-
-4. Extract `owner/repo` **and the host** from the remote URL returned in
-   step 3. Both must come from that one URL — never from two sources:
-
-   ```bash
-   _SC="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
-   [ -f "$_SC/functions/gh_host.sh" ] || { _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"; export SHELL_COMMON="$_SC"; }
-   . "$_SC/functions/gh_host.sh"
-   REMOTE_URL=$(git remote get-url "${REMOTE:-origin}") || exit 1
-   TARGET_REPO=$(_gh_parse_owner_repo_url "$REMOTE_URL") || exit 1
-   TARGET_HOST=$(_gh_host_from_url "$REMOTE_URL") || TARGET_HOST=$(_gh_resolve_host)
-   export GH_HOST="$TARGET_HOST"
-   export TARGET_REPO TARGET_HOST
-   ```
+   [`lib/resolve-target.sh`](../../../lib/resolve-target.sh) is the SSOT for
+   this step across all six skills — it confirms we are in a git repo, reads
+   `git remote get-url "$REMOTE"`, sources `gh_host.sh` from `$DOTFILES_ROOT`
+   or the vendored copy under `$CLAUDE_PLUGIN_ROOT/lib/vendor/`, and exports
+   `TARGET_REPO`, `TARGET_HOST` and `GH_HOST` (plus `SHELL_COMMON` when the
+   vendored copy resolved). Repo and host are read from that **one** URL, so
+   they can never name different servers:
 
    - `https://github.com/<owner>/<repo>.git` → `github.com` + `<owner>/<repo>`
    - `git@github.samsungds.net:<owner>/<repo>.git` → `github.samsungds.net`
      + `<owner>/<repo>`
 
-   `gh_host.sh` is the host/URL mapping SSOT — do not copy a domain list or
-   regex into this file. `_gh_resolve_host` (setup-mode → host) is only the
-   fallback for when there is no remote URL to parse.
-
-Store the results as `TARGET_REPO` and `TARGET_HOST` for use in Step 2 of the
-main workflow.
+`TARGET_REPO` and `TARGET_HOST` are consumed by Step 2 of the main workflow.
 
 ## Host targeting rule (issues #1403 / #1407)
 
@@ -68,16 +46,14 @@ GH_HOST="$TARGET_HOST" gh <sub-command> ... --repo "$TARGET_REPO"
 server — an OPEN issue comes back "not found" (#1403), or worse, a
 directive's write (self-assign, comment, close) lands in the wrong repo.
 
-`export GH_HOST` in Step 1 also makes the sourced helpers
+`resolve-target.sh`'s `export GH_HOST` also makes the sourced helpers
 (`gh_project_status.sh`) inherit the same host; the reference files still
 spell the prefix out so every example stays copy-paste safe.
 
 ## Failure rule
 
-If the user-specified remote does not exist, fail immediately with the
-list of available remotes. **Do not** fall back to `origin` silently —
-that masks typos and proceeds against the wrong repo.
-
-If `_gh_host_from_url` fails (a remote that is not a github host), fall back
-to `_gh_resolve_host` — but never proceed with an empty `TARGET_HOST`, which
-is exactly the silent-misroute state #1403 described.
+`resolve-target.sh` fails (non-zero, `git remote -v` printed) rather than
+falling back to `origin` when the user-specified remote is missing, and
+refuses to continue with an empty `TARGET_HOST`. A silent fallback masks a
+typo and proceeds against the wrong repo; an empty `GH_HOST` is exactly the
+silent-misroute state #1403 described.

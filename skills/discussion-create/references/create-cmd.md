@@ -17,6 +17,10 @@ _GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"
 . "$_GD"
 
 BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
+# GH_HOST was exported in Step 1; the _gh_discussion_* GraphQL helpers below
+# read it from the environment. `gh api graphql` takes no --repo, so that
+# inherited GH_HOST is the only thing keeping the mutation on the host the
+# target remote points at (#1403).
 # ... write drafted body to "$BODY" ...
 if [ "${GH_DISABLE_AI_METRICS:-0}" = "1" ]; then
     : # ai-metrics footer skipped via GH_DISABLE_AI_METRICS

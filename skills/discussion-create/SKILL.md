@@ -37,9 +37,9 @@ Arguments (positional `[remote]`/`[category]`, `--force-discussion`,
 
 ## Step 1: Detect Repo Context
 
-Record `START_TS=$(date +%s)` for Step 4. Parse args, confirm a git repo,
-resolve `TARGET_REPO=<owner>/<repo>` via the remote — substeps in
-[`references/repo-resolution.md`](references/repo-resolution.md). No silent `origin` fallback on a missing remote.
+Record `START_TS=$(date +%s)` for Step 4. Parse args, confirm a git repo, then bind
+`TARGET_REPO` **and** `TARGET_HOST` from that one remote URL and `export GH_HOST="$TARGET_HOST"` — substeps in
+[`references/repo-resolution.md`](references/repo-resolution.md). Step 4's `gh api graphql` calls take no `--repo`, so that exported `GH_HOST` is their only host selector (#1403). No silent `origin` fallback on a missing remote.
 
 ## Step 2: Classify the Conversation
 

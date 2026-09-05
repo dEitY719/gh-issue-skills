@@ -2,55 +2,34 @@
 
 Detailed procedure for Step 1 "Detect Repo Context" — remote validation and
 owner/repo **plus host** extraction. SKILL.md keeps only the workflow; this
-file holds the substeps and error-message shape.
+file holds the argument shape and the blast radius.
 
 ## Substeps
 
-1. `git rev-parse --show-toplevel` — confirm we're in a git repo.
-
-2. Determine the target remote:
-   - If the user passed an argument, use it as remote name.
+1. Determine the target remote:
+   - If the user passed the `[remote]` positional, use it as the remote name.
    - Otherwise default to `origin`.
 
-3. Validate the remote and resolve owner/repo:
+2. Bind the target — one sourced line, so the exports survive into the caller:
 
    ```bash
-   git remote get-url <remote-name>
+   . "${CLAUDE_PLUGIN_ROOT:-.}/lib/resolve-target.sh" "${REMOTE:-origin}" || exit 1
    ```
 
-   If this fails, list available remotes (`git remote -v`) and stop with
-   an error like:
-
-   ```
-   Error: remote '<remote-name>' not found. Available remotes:
-   origin  https://github.com/user/repo.git (fetch)
-   upstream  https://github.com/org/repo.git (fetch)
-   ```
-
-4. Extract `owner/repo` **and the host** from the remote URL returned in
-   step 3. Both come from that one URL — never from two sources:
-
-   ```bash
-   _SC="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
-   [ -f "$_SC/functions/gh_host.sh" ] || { _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"; export SHELL_COMMON="$_SC"; }
-   . "$_SC/functions/gh_host.sh"
-   REMOTE_URL=$(git remote get-url <remote-name>) || exit 1
-   TARGET_REPO=$(_gh_parse_owner_repo_url "$REMOTE_URL") || exit 1
-   TARGET_HOST=$(_gh_host_from_url "$REMOTE_URL") || TARGET_HOST=$(_gh_resolve_host)
-   export GH_HOST="$TARGET_HOST"
-   export TARGET_REPO TARGET_HOST
-   ```
+   [`lib/resolve-target.sh`](../../../lib/resolve-target.sh) is the SSOT for
+   this step across all six skills — it confirms we are in a git repo, reads
+   `git remote get-url "$REMOTE"`, sources `gh_host.sh` from `$DOTFILES_ROOT`
+   or the vendored copy under `$CLAUDE_PLUGIN_ROOT/lib/vendor/`, and exports
+   `TARGET_REPO`, `TARGET_HOST` and `GH_HOST` (plus `SHELL_COMMON` when the
+   vendored copy resolved). Repo and host are read from that **one** URL, so
+   they can never name different servers:
 
    - `https://github.com/<owner>/<repo>.git` → `github.com` + `<owner>/<repo>`
    - `git@github.samsungds.net:<owner>/<repo>.git` → `github.samsungds.net`
      + `<owner>/<repo>`
 
-   `gh_host.sh` 가 host/URL 매핑의 SSOT 다 — 정규식이나 도메인 목록을 여기에
-   복제하지 않는다. `_gh_resolve_host` (setup-mode → host) 는 파싱할 remote
-   URL 이 없을 때만 쓰는 fallback 이다.
-
-Store the results as `TARGET_REPO` and `TARGET_HOST` for use in Step 2.5 /
-Step 4 of the main workflow.
+`TARGET_REPO` and `TARGET_HOST` are consumed by Step 2.5 / Step 4 of the main
+workflow.
 
 ## Host targeting rule (issue #1403)
 
@@ -67,15 +46,15 @@ GH_HOST="$TARGET_HOST" gh <sub-command> ... --repo "$TARGET_REPO"
 스킬인 이 스킬에서는 그 결과가 "이슈가 엉뚱한 repo 에 생성됨" 이고, 되돌리려면
 사람이 직접 지워야 한다 (#1403).
 
-`export GH_HOST` 는 Discussion 경로가 sourcing 하는
-`shell-common/functions/gh_discussion.sh` 의 GraphQL 호출까지 같은 host 로
-보낸다 — Issue 는 GHES 에, Discussion 은 github.com 에 생기는 어긋남을 막는다.
+`--as-discussion` 경로는 `--repo` 를 받지 않는 `gh api graphql` 을 쓴다 —
+`gh_discussion.sh` 의 GraphQL 호출에는 `resolve-target.sh` 가 export 한
+`GH_HOST` 만이 유일한 host 선택자다. Issue 는 GHES 에, Discussion 은
+github.com 에 생기는 어긋남을 막는 것이 정확히 그 export 다.
 
 ## Failure rule
 
-If the user-specified remote does not exist, fail immediately with the
-list of available remotes. **Do not** fall back to `origin` silently —
-that masks typos and creates issues in the wrong repo.
-
-`TARGET_HOST` 가 빈 채로 Step 4 에 진입하지 않는다 — 빈 `GH_HOST` 는 정확히
-#1403 의 조용한 오생성 상태다.
+`resolve-target.sh` fails (non-zero, `git remote -v` printed) rather than
+falling back to `origin` when the user-specified remote is missing, and
+refuses to continue with an empty `TARGET_HOST`. Both are load-bearing here:
+a silent fallback masks a typo and creates the issue in the wrong repo, and
+an empty `GH_HOST` is exactly the silent mis-creation state of #1403.
