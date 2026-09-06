@@ -220,7 +220,7 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
       <div class="step"><div class="step-n">3</div><div><h3>Step 3 — 이슈 fetch + claim</h3><p>3.1 fetch(CLOSED 는 거부) → 3.2 block-label 가드 → 3.3 self-assign → 3.3b 중복 PR 소프트 경고 → 3.4 보드 카드 이동(<code>Backlog</code>/<code>Ready</code> 에서만 <code>In progress</code> 로) → 3.5 <code>Depends on #M</code> 소프트 경고.</p><p>각 단계 뒤에 <code>[step:gh-issue-implement/&lt;marker&gt;] OK</code> 마커를 출력한다.</p></div></div>
       <div class="step"><div class="step-n">4</div><div><h3>Step 4 — 모드 디스패치</h3><p><code>direct</code> 는 바로 Step 5. <code>plan</code> 은 모호성 신호가 있으면 <code>brainstorming</code> 으로 승격, 아니면 <code>writing-plans</code>. <code>brainstorming</code> 은 설계 후 계획, 승인 뒤 Step 5.</p></div></div>
       <div class="step"><div class="step-n">5</div><div><h3>Step 5 — 구현 + 테스트</h3><p>공통 단계(fetch, 의도 추출, repo 스캔, <code>$TEST_CMD</code> 탐지, <strong>편집 전 baseline</strong> 캡처) 후 분기한다. 러너가 검출되고 superpowers 도 있으면 <strong>TDD 경로</strong>(시도 횟수 제한 없음, 판단으로 멈춤), 그 외에는 <strong>fallback 경로</strong>(편집 → 러너가 있으면 테스트 → 실패 루프 최대 3회).</p><p>러너가 없으면 baseline 과 테스트 단계를 건너뛰고 "No test runner detected, skipping tests." 로 보고한다.</p></div></div>
-      <div class="step"><div class="step-n">6</div><div><h3>Step 6 — 리포트</h3><p>변경 파일, 어떤 경로가 돌았는지(<code>tdd</code>/<code>fallback</code>), 테스트 결과, ai-metrics 라인, 그리고 <code>--no-next-hint</code> 가 없으면 <code>Next:</code> 힌트.</p></div></div>
+      <div class="step"><div class="step-n">6</div><div><h3>Step 6 — 리포트</h3><p>성공/실패를 각각 <code>[OK]</code>/<code>[FAIL]</code> 로 시작하고, 변경 파일, 어떤 경로가 돌았는지(<code>tdd</code>/<code>fallback</code>), 테스트 결과, ai-metrics 라인, 그리고 <code>--no-next-hint</code> 가 없으면 <code>Next:</code> 힌트가 뒤따른다.</p></div></div>
     </div>
   </div>
 </section>

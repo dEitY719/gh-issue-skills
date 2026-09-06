@@ -75,8 +75,9 @@
    **TDD 경로**(시도 횟수 제한 없음, 판단으로 멈춤), 그 외에는 **fallback 경로**
    (편집 → 러너가 있으면 테스트 → 실패 루프 최대 3회). 러너가 없으면 baseline 과 테스트
    단계를 건너뛰고 "No test runner detected, skipping tests." 로 보고한다.
-6. **Step 6 — 리포트.** 변경 파일, 어떤 경로가 돌았는지(`tdd`/`fallback`), 테스트 결과,
-   ai-metrics 라인, 그리고 `--no-next-hint` 가 없으면 `Next:` 힌트.
+6. **Step 6 — 리포트.** 성공/실패를 각각 `[OK]`/`[FAIL]` 로 시작하고, 변경 파일, 어떤
+   경로가 돌았는지(`tdd`/`fallback`), 테스트 결과, ai-metrics 라인, 그리고
+   `--no-next-hint` 가 없으면 `Next:` 힌트가 뒤따른다.
 
 ## 주의사항과 제약
 
