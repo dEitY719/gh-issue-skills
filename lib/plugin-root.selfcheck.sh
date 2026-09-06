@@ -51,7 +51,7 @@ extract() { # extract <name> <start-prefix> <end-line> <file>
 
 extract create '_GD="${DOTFILES_ROOT' 'fi' \
     skills/create/references/create-cmd.md
-extract discussion-convert '_GD="${DOTFILES_ROOT' 'done' \
+extract discussion-convert '_GD="${DOTFILES_ROOT' 'fi' \
     skills/discussion-convert/references/convert-cmd.md
 extract discussion-create '_GD="${DOTFILES_ROOT' '}' \
     skills/discussion-create/references/create-cmd.md
