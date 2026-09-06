@@ -21,7 +21,8 @@ file holds the argument shape and the blast radius.
    `git remote get-url "$REMOTE"`, sources `gh_host.sh` from `$DOTFILES_ROOT`
    or the vendored copy under `lib/vendor/` (located via `CLAUDE_PLUGIN_ROOT`,
    falling back to the helper's own directory when no harness exports it), and
-   exports `TARGET_REPO`, `TARGET_HOST`, `GH_HOST` and `SHELL_COMMON`. Repo and
+   exports `TARGET_REPO`, `TARGET_HOST`, `GH_HOST`, `SHELL_COMMON` and
+   `PLUGIN_ROOT` (this plugin's own root, for addressing `lib/` helpers). Repo and
    host are read from that **one** URL, so they can never name different
    servers:
 

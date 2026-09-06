@@ -4,8 +4,12 @@
 # SSOT for the footer's exact bytes. EXECUTE it, never source it — stdout is
 # the whole product:
 #
-#   bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
+#   bash "$PLUGIN_ROOT/lib/ai-metrics-footer.sh" \
 #       "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-issue-create >> "$BODY"
+#
+# $PLUGIN_ROOT is exported by lib/resolve-target.sh in every skill's Step 1 —
+# a proven root, never `${CLAUDE_PLUGIN_ROOT:-.}`, whose $PWD tier is the repo
+# under review (dEitY719/harness-skills#22).
 #
 # Reads  $1 tokens, $2 human hours, $3 elapsed minutes, $4 optional marker
 #        suffix — `gh-issue-create` yields `<!-- ai-metrics:gh-issue-create -->`,

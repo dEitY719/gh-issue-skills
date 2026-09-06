@@ -21,7 +21,9 @@ BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # The footer's bytes are single-sourced in lib/ai-metrics-footer.sh, which
 # also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here. The `||`
 # is metrics-helper.md's soft-fail rule: never block the create on the footer.
-bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
+# $PLUGIN_ROOT was exported by Step 1's resolve-target.sh — a proven root, not
+# `${CLAUDE_PLUGIN_ROOT:-.}`, whose $PWD tier is the repo under review.
+bash "$PLUGIN_ROOT/lib/ai-metrics-footer.sh" \
     "$TOKENS" "$HUMAN_H" "$ELAPSED" >> "$BODY" \
     || echo "[WARN] ai-metrics append failed — continuing." >&2
 GH_HOST="$TARGET_HOST" gh issue create --repo "$TARGET_REPO" \
@@ -70,7 +72,9 @@ BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # The footer's bytes are single-sourced in lib/ai-metrics-footer.sh, which
 # also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here. The `||`
 # is metrics-helper.md's soft-fail rule: never block the create on the footer.
-bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
+# $PLUGIN_ROOT was exported by Step 1's resolve-target.sh — a proven root, not
+# `${CLAUDE_PLUGIN_ROOT:-.}`, whose $PWD tier is the repo under review.
+bash "$PLUGIN_ROOT/lib/ai-metrics-footer.sh" \
     "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-issue-create >> "$BODY" \
     || echo "[WARN] ai-metrics append failed — continuing." >&2
 
