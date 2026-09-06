@@ -9,8 +9,8 @@ license: MIT
 allowed-tools: Bash, Read, Grep
 metadata:
   model_recommendation:
-    tier: haiku
-    reason: "discussion creation wrap; bounded GraphQL mutation with RFC body skeleton"
+    tier: sonnet
+    reason: "chat→RFC summarization with category classification + refusal-capable routing guard"
     claude: prefer
     non_claude: advisory-only
 ---
