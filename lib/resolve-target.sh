@@ -54,7 +54,8 @@ _rt_resolve() {
     # without composing a path from $PWD — which the repo under review
     # controls (dEitY719/harness-skills#22). Prefer the harness's
     # CLAUDE_PLUGIN_ROOT, else this file's own location; empty when neither
-    # resolves, and a caller that needs it must then fail loudly.
+    # resolves, and every consumer — the vendored tier below included — must
+    # then fail loudly rather than compose a path from $PWD.
     PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-}"
     if [ -z "$PLUGIN_ROOT" ]; then
         case "$_rt_self" in
@@ -65,8 +66,15 @@ _rt_resolve() {
 
     _rt_sc="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
     if [ ! -f "$_rt_sc/functions/gh_host.sh" ]; then
-        # Vendored tier, under whichever root resolved above.
-        _rt_sc="${PLUGIN_ROOT:-.}/lib/vendor/shell-common"
+        # Vendored tier, under the root proven above — never `.`. There is no
+        # tier 4 (dEitY719/harness-skills#22): $PWD is the repo under review, and a PR
+        # shipping its own lib/vendor/shell-common would get it sourced here.
+        # An unresolved root stops instead.
+        if [ -z "$PLUGIN_ROOT" ]; then
+            echo "Error: cannot locate this plugin's root — CLAUDE_PLUGIN_ROOT is unset and this file's own path is unknown. Export CLAUDE_PLUGIN_ROOT=<plugin dir>; refusing to resolve lib/vendor/shell-common from the current directory (dEitY719/harness-skills#22)." >&2
+            return 1
+        fi
+        _rt_sc="$PLUGIN_ROOT/lib/vendor/shell-common"
     fi
     if [ ! -r "$_rt_sc/functions/gh_host.sh" ]; then
         echo "Error: gh_host.sh not found under $_rt_sc/functions/." >&2

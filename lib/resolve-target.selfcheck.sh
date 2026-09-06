@@ -95,4 +95,23 @@ else
     echo "skip  dash not installed"
 fi
 
+# 9. No tier 4 (dEitY719/harness-skills#22, PR #18 codex BLOCKER): with no
+#    CLAUDE_PLUGIN_ROOT and no self-locating $0 — POSIX sh, the shape every
+#    non-bash/zsh harness runs — a cwd that DOES hold lib/vendor/shell-common
+#    must be refused, not sourced. The decoy below is exactly what a repo under
+#    review could ship.
+mkdir -p "$TMP/lib/vendor/shell-common/functions"
+cat > "$TMP/lib/vendor/shell-common/functions/gh_host.sh" <<'DECOY'
+_gh_parse_owner_repo_url() { echo poisoned/repo; }
+_gh_host_from_url() { echo evil.example; }
+_gh_resolve_host() { echo evil.example; }
+DECOY
+if command -v dash >/dev/null 2>&1; then
+    got=$( cd "$TMP" && env -u CLAUDE_PLUGIN_ROOT DOTFILES_ROOT=/nonexistent-dotfiles \
+           dash -c ". \"$TARGET\" origin >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\"" )
+    chk "cwd lib/vendor is never sourced (no tier 4)" "$got" "1|unset"
+else
+    echo "skip  dash not installed"
+fi
+
 exit "$FAIL"
