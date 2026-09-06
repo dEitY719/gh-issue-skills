@@ -38,6 +38,17 @@ if [ "$#" -lt 3 ]; then
     exit 1
 fi
 
+# The suffix lands inside an HTML comment on a line of its own, and
+# `gh-setup:add-ai-metrics` parses those lines. A newline or an embedded
+# comment terminator would break that format, so refuse both rather than
+# emit a corrupt block (PR dEitY719/gh-issue-skills#18, codex FOLLOW-UP).
+case ${4:-} in
+    *"
+"* | *"-->"*)
+        echo "ai-metrics-footer.sh: marker must not contain a newline or '-->'" >&2
+        exit 1 ;;
+esac
+
 marker=${4:+:$4}
 
 printf '\n---\n<details>\n<summary>🤖 AI Metrics · 📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min</summary>\n\n<!-- ai-metrics%s -->\n📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min\n<!-- /ai-metrics%s -->\n\n</details>\n' \
