@@ -163,9 +163,13 @@ else:
 `Path:` is printed for `direct` mode only — it names which branch of
 the direct-mode flow ran (`tdd` or `fallback`).
 
+Every form leads with a `[OK]` / `[FAIL]` verdict token so an unattended
+caller (`gh-flow:issue`, `gh-flow:autopilot`) can key on it without
+parsing prose.
+
 Success:
 ```
-gh-issue:implement #<N> complete
+[OK] gh-issue:implement #<N> complete
   Mode:     <direct|plan|brainstorming>
   Path:     <tdd|fallback>
   Changes:
@@ -177,7 +181,7 @@ gh-issue:implement #<N> complete
 
 Failure, fallback path (test loop exhausted):
 ```
-gh-issue:implement #<N> stopped after 3 test-fix attempts
+[FAIL] gh-issue:implement #<N> stopped after 3 test-fix attempts
   Mode:     <mode>
   Path:     fallback
   Changes:  <list>
@@ -193,7 +197,7 @@ gh-issue:implement #<N> stopped after 3 test-fix attempts
 
 Failure, TDD path (judged stuck):
 ```
-gh-issue:implement #<N> stopped — TDD cycle stuck
+[FAIL] gh-issue:implement #<N> stopped — TDD cycle stuck
   Mode:     direct
   Path:     tdd
   Changes:  <list>

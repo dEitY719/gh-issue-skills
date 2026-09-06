@@ -36,10 +36,6 @@ Positional args: `<issue-number> [mode] [remote]`; flag `--no-next-hint`.
   `export GH_HOST="$TARGET_HOST"`; missing remote → `git remote -v` + stop.
 - `--no-next-hint` — omit the final `Next:` line in Step 6.
 
-**Host targeting (dEitY719/dotfiles#1403)** — every `gh` call in this skill run is
-`GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"`; rationale + failure mode
-in `references/repo-resolution.md` → "Host targeting rule".
-
 Check preconditions in parallel per `references/implementation-flow.md`
 → "Preconditions" (git repo, not default branch, clean tree); fail-fast.
 
