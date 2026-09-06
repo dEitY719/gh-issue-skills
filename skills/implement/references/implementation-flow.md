@@ -163,7 +163,7 @@ else:
 `Path:` is printed for `direct` mode only — it names which branch of
 the direct-mode flow ran (`tdd` or `fallback`).
 
-Every form leads with a `[OK]` / `[FAIL]` verdict token so an unattended
+Every form leads with an `[OK]` / `[FAIL]` verdict line so an unattended
 caller (`gh-flow:issue`, `gh-flow:autopilot`) can key on it without
 parsing prose.
 
