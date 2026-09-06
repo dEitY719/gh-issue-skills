@@ -64,7 +64,7 @@ extract proceed-claim-head '_SC="${SHELL_COMMON' 'fi' \
 
 # 1. The gate grep: an explicitly-empty default spliced straight into a path is
 #    always the defect (it collapses to the filesystem root), and so is a `$PWD`
-#    default — the retired tier 4 (dEitY719/harness-skills#22).
+#    default — the retired tier 4 (see header).
 hits=$(cd "$ROOT" && git ls-files -z | xargs -0 grep -lE '\$\{[A-Za-z_][A-Za-z0-9_]*:?-(\$PWD)?\}/' 2>/dev/null | wc -l)
 chk "no empty-default or \$PWD path splices in tracked files" 0 "$((hits))"
 
@@ -126,12 +126,11 @@ for sh in sh bash zsh; do
     done
 done
 
-# 5. The positive path, plus the retired tier 4. Without a positive case a block
-#    that always failed would pass every check above, so tier 2
-#    (CLAUDE_PLUGIN_ROOT set) must resolve and exit 0. The same `$ROOT` really
-#    does hold lib/vendor/shell-common, which makes it the exact shape of the
-#    attack dEitY719/harness-skills#22 retired tier 4 over: running from that cwd
-#    with CLAUDE_PLUGIN_ROOT unset must still stop at tier 5.
+# 5. The positive path, plus the retired tier 4 (see header). Without a
+#    positive case a block that always failed would pass every check above, so
+#    tier 2 (CLAUDE_PLUGIN_ROOT set) must resolve and exit 0. `$ROOT` really
+#    does hold lib/vendor/shell-common, so running from that cwd with
+#    CLAUDE_PLUGIN_ROOT unset must still stop at tier 5.
 resolves() { # resolves <shell> <block> <cwd> <plugin-root-or-empty>
     if [ -n "$4" ]; then
         ( cd "$3" && env -u SHELL_COMMON -u DOTFILES_ROOT CLAUDE_PLUGIN_ROOT="$4" \
