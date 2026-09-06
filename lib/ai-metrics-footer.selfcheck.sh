@@ -63,6 +63,13 @@ doc=$(awk '/^### GitHub Issue \/ PR body footer$/ { on = 1 }
 chk "metrics-helper.md block matches the script" \
     "$doc" "$(bash "$TARGET" '{TOKENS}' '{HUMAN_H}' '{ELAPSED}' '<skill>' | sed '1d')"
 
+# 7b. A marker that would break the machine-parsed block is refused rather
+#     than emitted: both halves of the pair live on their own comment line.
+bash "$TARGET" 5000 4 12 "$(printf 'a\nb')" >/dev/null 2>&1
+chk "newline in marker returns non-zero" "$?" "1"
+bash "$TARGET" 5000 4 12 'x --> y <!--' >/dev/null 2>&1
+chk "comment terminator in marker returns non-zero" "$?" "1"
+
 # 8. POSIX sh, so the five non-Claude harnesses can run it too.
 if command -v dash >/dev/null 2>&1; then
     got=$(dash "$TARGET" 5000 4 12 | sed -n '6p')

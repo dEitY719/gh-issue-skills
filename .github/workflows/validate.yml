@@ -15,6 +15,12 @@ permissions:
 
 jobs:
   validate:
+    # No step of its own runs the repo's checks: the reusable workflow's
+    # "Repo self-checks pass (tests/)" step discovers every tracked
+    # `tests/*.sh` and runs it, which is how `tests/lib-selfchecks.sh` — and
+    # through it every `lib/*.selfcheck.sh` — is gated here. Wiring a second
+    # copy in this file is the "third branch" that workflow forbids; a new
+    # check is added by a one-line script under `tests/`.
     uses: dEitY719/harness-skills/.github/workflows/skill-check.yml@main
     with:
       plugin-name: gh-issue
