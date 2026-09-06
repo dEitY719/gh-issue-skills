@@ -78,7 +78,7 @@ title + body; for `Ideas`, size like `feat`).
 Source `shell-common/functions/gh_discussion.sh` and paste the full bash
 block in [`references/create-cmd.md`](references/create-cmd.md) verbatim — it
 handles the `mktemp` body file, the `GH_DISABLE_AI_METRICS=1` short-circuit
-(dEitY719/dotfiles#399 parity), the ai-metrics footer printf, and the three GraphQL calls.
+(dEitY719/dotfiles#399 parity), the ai-metrics footer call, and the three GraphQL calls.
 확인 질문하지 말고 즉시 실행.
 
 ## Step 5: Report

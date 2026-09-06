@@ -29,12 +29,10 @@ BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # inherited GH_HOST is the only thing keeping the mutation on the host the
 # target remote points at (dEitY719/dotfiles#1403).
 # ... write drafted body to "$BODY" ...
-if [ "${GH_DISABLE_AI_METRICS:-0}" = "1" ]; then
-    : # ai-metrics footer skipped via GH_DISABLE_AI_METRICS
-else
-    printf '\n---\n<details>\n<summary>🤖 AI Metrics · 📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min</summary>\n\n<!-- ai-metrics:gh-discussion-create -->\n📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min\n<!-- /ai-metrics:gh-discussion-create -->\n\n</details>\n' \
-      "$TOKENS" "$HUMAN_H" "$ELAPSED" "$TOKENS" "$HUMAN_H" "$ELAPSED" >> "$BODY"
-fi
+# The footer's bytes are single-sourced in lib/ai-metrics-footer.sh, which
+# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here.
+bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-discussion-create >> "$BODY"
 
 _owner="${TARGET_REPO%%/*}"
 _repo="${TARGET_REPO##*/}"
@@ -50,11 +48,11 @@ printf '%s\n' "$URL"
 
 ## ai-metrics footer note
 
-The four emoji glyphs in the printf above (`🤖 📊 👤`) are the
-ai-metrics footer exception defined in `CLAUDE.md`. The exception
-covers exactly this `<details>` wrapper plus the
-`<!-- ai-metrics:gh-discussion-create -->` block. The exception does
-not extend anywhere else in this skill or the helper.
+The footer's emoji glyphs live in `lib/ai-metrics-footer.sh` alone — the
+ai-metrics exception defined in `CLAUDE.md`, covering the `<details>`
+wrapper plus the `<!-- ai-metrics:gh-discussion-create -->` markers. This
+file quotes none of them, and the exception does not extend anywhere else
+in this skill or the helper.
 
 ## Why three calls instead of one mutation
 

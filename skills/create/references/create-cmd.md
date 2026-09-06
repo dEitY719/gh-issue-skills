@@ -18,12 +18,10 @@ Discussion branch ignores them.
 ```bash
 BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # ... write body to "$BODY" ...
-if [ "${GH_DISABLE_AI_METRICS:-0}" = "1" ]; then
-    : # ai-metrics footer skipped via GH_DISABLE_AI_METRICS
-else
-    printf '\n---\n<details>\n<summary>🤖 AI Metrics · 📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min</summary>\n\n<!-- ai-metrics -->\n📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min\n<!-- /ai-metrics -->\n\n</details>\n' \
-      "$TOKENS" "$HUMAN_H" "$ELAPSED" "$TOKENS" "$HUMAN_H" "$ELAPSED" >> "$BODY"
-fi
+# The footer's bytes are single-sourced in lib/ai-metrics-footer.sh, which
+# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here.
+bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" >> "$BODY"
 GH_HOST="$TARGET_HOST" gh issue create --repo "$TARGET_REPO" \
     --title "<title>" --body-file "$BODY" \
     "${LABEL_ARGS[@]}" "${MILESTONE_ARGS[@]}"
@@ -67,12 +65,10 @@ BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # below read it from the environment, so the Discussion lands on the same
 # host as the Issue path would have (dEitY719/dotfiles#1403).
 # ... write Open-Questions-forward body to "$BODY" (Step 3 sets shape) ...
-if [ "${GH_DISABLE_AI_METRICS:-0}" = "1" ]; then
-    : # ai-metrics footer skipped via GH_DISABLE_AI_METRICS
-else
-    printf '\n---\n<details>\n<summary>🤖 AI Metrics · 📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min</summary>\n\n<!-- ai-metrics:gh-issue-create -->\n📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min\n<!-- /ai-metrics:gh-issue-create -->\n\n</details>\n' \
-      "$TOKENS" "$HUMAN_H" "$ELAPSED" "$TOKENS" "$HUMAN_H" "$ELAPSED" >> "$BODY"
-fi
+# The footer's bytes are single-sourced in lib/ai-metrics-footer.sh, which
+# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here.
+bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-issue-create >> "$BODY"
 
 _owner="${TARGET_REPO%%/*}"
 _repo="${TARGET_REPO##*/}"
@@ -90,7 +86,7 @@ the helper ever changes signature, update both skills together.
 
 확인 질문하지 말고 즉시 실행.
 
-The four emoji glyphs in the printf above (`<U+1F916> <U+1F4CA> <U+1F464>`) are
-the ai-metrics footer exception defined in `CLAUDE.md` — the `<details>`
-wrapper + `<!-- ai-metrics -->` (or `<!-- ai-metrics:gh-issue-create -->`)
-block. The exception does not extend anywhere else in this skill.
+The footer's emoji glyphs live in `lib/ai-metrics-footer.sh` alone — the
+ai-metrics exception defined in `CLAUDE.md`, covering the `<details>` wrapper
+plus the `<!-- ai-metrics -->` markers. This file quotes none of them, and the
+exception does not extend anywhere else in this skill.

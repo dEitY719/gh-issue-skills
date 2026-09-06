@@ -83,17 +83,10 @@ Priority order — first available wins:
 
 ## Block Format
 
-Append after a `---` horizontal rule at the end of the body:
-
-    ---
-    <details>
-    <summary>🤖 AI Metrics · 📊 ~X tokens · 👤 ~M h · 🤖 ~L min</summary>
-
-    <!-- ai-metrics -->
-    📊 ~X tokens · 👤 ~M h · 🤖 ~L min
-    <!-- /ai-metrics -->
-
-    </details>
+Appended after a `---` horizontal rule at the end of the body by
+[`lib/ai-metrics-footer.sh`](../../../lib/ai-metrics-footer.sh), which is the
+SSOT for the exact bytes — see `references/metrics-helper.md` for the shape.
+Its three placeholders:
 
 - `X` — estimated tokens (see Token Estimation above)
 - `M` — human hours from the lookup table (e.g. `4 h`, `8 h`, `~1 d`)

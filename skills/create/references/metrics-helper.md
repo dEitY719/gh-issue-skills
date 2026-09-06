@@ -80,6 +80,10 @@ From `create/references/metrics-baseline.md` by issue type:
 
 ### GitHub Issue / PR body footer
 
+[`lib/ai-metrics-footer.sh`](../../../lib/ai-metrics-footer.sh) is the SSOT for
+these bytes — `gh-setup:add-ai-metrics` parses the `<details>` wrapper and the
+comment markers, so nothing may retype them. Its output looks like:
+
 ```
 ---
 <details>
@@ -92,16 +96,12 @@ From `create/references/metrics-baseline.md` by issue type:
 </details>
 ```
 
-Append via `printf` to a temp file before creating the artifact (skip
-entirely when `GH_DISABLE_AI_METRICS=1`):
+Append it to the temp file before creating the artifact. The script exits
+silently under `GH_DISABLE_AI_METRICS=1`, so the call needs no guard:
 
 ```bash
-if [ "${GH_DISABLE_AI_METRICS:-0}" = "1" ]; then
-    : # ai-metrics skipped via GH_DISABLE_AI_METRICS
-else
-    printf '\n---\n<details>\n<summary>🤖 AI Metrics · 📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min</summary>\n\n<!-- ai-metrics:%s -->\n📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min\n<!-- /ai-metrics:%s -->\n\n</details>\n' \
-      "$TOKENS" "$HUMAN_H" "$ELAPSED" "$SKILL" "$TOKENS" "$HUMAN_H" "$ELAPSED" "$SKILL" >> "$BODY"
-fi
+bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" "$SKILL" >> "$BODY"
 ```
 
 ### GitHub PR / Issue comment

@@ -5,7 +5,7 @@ verbatim:
 
 - **Issue path** (default, `DISCUSSION_MODE` unset) — `mktemp` body
   file, `GH_DISABLE_AI_METRICS=1` short-circuit (issue dEitY719/dotfiles#399),
-  ai-metrics footer printf, and `gh issue create` with `LABEL_ARGS` /
+  ai-metrics footer call, and `gh issue create` with `LABEL_ARGS` /
   `MILESTONE_ARGS` from Step 2.5.
 - **Discussion path** (`DISCUSSION_MODE=1`) — same body file +
   ai-metrics footer, then source `gh_discussion.sh` (resolved from
