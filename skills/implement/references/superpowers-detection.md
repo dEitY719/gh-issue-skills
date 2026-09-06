@@ -116,9 +116,7 @@ When in `plan` mode (plugin present):
    ```
    Context for writing-plans: implementing issue #<N> of <TARGET_REPO>.
    Issue body follows below. Save the plan wherever
-   `superpowers:writing-plans` defaults to in this repo —
-   `docs/feature/superpowers-plans/` was a `dEitY719/dotfiles` monorepo
-   path and does not exist here.
+   `superpowers:writing-plans` defaults to in this repo.
    ```
 2. Wait for the plan document to be committed.
 3. Then invoke `Skill(superpowers:executing-plans)` or proceed to
