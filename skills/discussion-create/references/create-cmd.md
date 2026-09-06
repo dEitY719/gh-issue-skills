@@ -11,9 +11,15 @@ against the repo's category list).
 `$TITLE` is drafted in Step 3.
 
 ```bash
-_GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"
-[ -f "$_GD" ] || _GD="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common/functions/gh_discussion.sh"
-[ -f "$_GD" ] && [ -r "$_GD" ] || {
+_GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"      # tier 1
+# Tier 2 is guarded, never defaulted into a path: there is no tier 4. `$PWD` is
+# caller-controlled and this family runs inside the repo under review, so a PR
+# that ships lib/vendor/shell-common/ would get it sourced
+# (dEitY719/harness-skills#22). With CLAUDE_PLUGIN_ROOT unset there is nothing
+# left to know, so the probe below stops at tier 5 naming the tier-1 path.
+[ -f "$_GD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
+    || _GD="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/gh_discussion.sh"  # tier 2
+[ -f "$_GD" ] && [ -r "$_GD" ] || {                                                # tier 5
     printf '[gh-issue:discussion-create] gh_discussion.sh not found at %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
         "$_GD" >&2
     return 1 2>/dev/null || exit 1

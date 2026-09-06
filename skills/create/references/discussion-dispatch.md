@@ -10,10 +10,10 @@ verbatim:
 - **Discussion path** (`DISCUSSION_MODE=1`) — same body file +
   ai-metrics footer, then source `gh_discussion.sh` (resolved from
   `$DOTFILES_ROOT/shell-common/functions/`, falling back to the plugin's
-  own `lib/vendor/shell-common/functions/` under `$CLAUDE_PLUGIN_ROOT` — or,
-  when no harness exports it, under `$PWD`, which only works if the cwd
-  happens to be the plugin checkout and is proved by a `[ -f ]` before use;
-  anything else stops with the export hint) and run
+  own `lib/vendor/shell-common/functions/` under `$CLAUDE_PLUGIN_ROOT` when a
+  harness exports it, proved by a `[ -f ]` before use; when none does there is
+  no further tier — no `$PWD` guess (dEitY719/harness-skills#22) — so it stops
+  with the export hint) and run
   the three lookups
   (`_gh_discussion_repo_id`, `_gh_discussion_category_id`,
   `_gh_discussion_create`). Print the Discussion URL instead of an

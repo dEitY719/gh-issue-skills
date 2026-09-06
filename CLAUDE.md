@@ -75,14 +75,19 @@ point.
 
 **3. The plugin-root resolution convention** (`references/plugin-root.md` there,
 `harness-skills#10`). Every site that composes a path from `$CLAUDE_PLUGIN_ROOT`
-follows it: a non-empty default (`${CLAUDE_PLUGIN_ROOT:-$PWD}`, never `:-}`), a
+follows it: never splice a defaulted `$CLAUDE_PLUGIN_ROOT` into a path — guard it
+(`[ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _X="$CLAUDE_PLUGIN_ROOT/..."`), then a
 second `[ -f ]` proving the tier the first probe picked, `export` only after that
-proof, and a loud stop naming the path when nothing resolves. `lib/resolve-target.sh`
+proof, and a loud stop naming the path when nothing resolves. **There is no tier
+4**: `${CLAUDE_PLUGIN_ROOT:-$PWD}` was retired by `harness-skills#22` because
+`$PWD` is caller-controlled and these skills run inside the repo under review, so
+a PR shipping `lib/vendor/shell-common/` would get it sourced. `lib/resolve-target.sh`
 is the self-locating-file form; the `references/*.md` blocks are the pasted form,
 which gets no `$0`/`BASH_SOURCE` tier. `lib/plugin-root.selfcheck.sh` asserts the
 pasted form by extracting the blocks from the shipped docs and running them with
-`CLAUDE_PLUGIN_ROOT` unset — run it after touching any of them. Link the upstream
-doc, do not restate it.
+`CLAUDE_PLUGIN_ROOT` unset — including from a cwd that *does* hold
+`lib/vendor/shell-common`, which must still stop at tier 5. Run it after touching
+any of them. Link the upstream doc, do not restate it.
 
 ## Rules for changing skills
 

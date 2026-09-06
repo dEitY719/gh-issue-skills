@@ -10,7 +10,15 @@
 # Sister of lib/resolve-target.selfcheck.sh, which covers the self-locating
 # *file* carrier. This one covers the *pasted-block* carrier: a fenced block an
 # agent copies into a shell, where $0 is the shell and nothing can self-locate,
-# so the blocks get tiers 1/2/4/5 and no $0/BASH_SOURCE tier.
+# so the blocks get tiers 1, 2, 5 and no $0/BASH_SOURCE tier.
+#
+# There is no tier 4. `${CLAUDE_PLUGIN_ROOT:-$PWD}` was retired by
+# dEitY719/harness-skills#22: $PWD is caller-controlled and these skills run
+# inside the repository under review, so a PR that ships
+# lib/vendor/shell-common/functions/*.sh hands the reviewer's own tooling the
+# file it was looking for. The "…must not resolve from the cwd" checks below are
+# that regression's test — they run with the cwd set to this checkout, which
+# genuinely does hold lib/vendor/shell-common, and require tier 5 anyway.
 #
 # The blocks are extracted from the shipped .md files rather than retyped, so a
 # drift between the docs and this test fails the test instead of hiding.
@@ -55,12 +63,14 @@ extract proceed-claim-head '_SC="${SHELL_COMMON' 'fi' \
     skills/proceed/references/claim.md
 
 # 1. The gate grep: an explicitly-empty default spliced straight into a path is
-#    always the defect (it collapses to the filesystem root).
-hits=$(cd "$ROOT" && git ls-files -z | xargs -0 grep -lE '\$\{[A-Za-z_][A-Za-z0-9_]*:?-\}/' 2>/dev/null | wc -l)
-chk "no empty-default path splices in tracked files" 0 "$((hits))"
+#    always the defect (it collapses to the filesystem root), and so is a `$PWD`
+#    default — the retired tier 4 (dEitY719/harness-skills#22).
+hits=$(cd "$ROOT" && git ls-files -z | xargs -0 grep -lE '\$\{[A-Za-z_][A-Za-z0-9_]*:?-(\$PWD)?\}/' 2>/dev/null | wc -l)
+chk "no empty-default or \$PWD path splices in tracked files" 0 "$((hits))"
 
-# Tier 5 conditions: no harness exported CLAUDE_PLUGIN_ROOT, no ~/dotfiles, and
-# a cwd that is not the checkout — so tiers 1, 2 and 4 all miss.
+# Tier 5 conditions: no harness exported CLAUDE_PLUGIN_ROOT and no ~/dotfiles —
+# so tiers 1 and 2 both miss. The cwd is irrelevant now that tier 4 is gone;
+# section 5 pins that separately by running the same blocks from $ROOT.
 run() { # run <shell> <block>  -> stderr on stdout, rc in $?
     # Braces, not `2>&1 >/dev/null`: same effect, but unambiguous to shellcheck
     # (SC2069) and to the next reader — only stderr is captured.
@@ -75,7 +85,9 @@ for sh in sh bash zsh; do
     for block in create discussion-convert discussion-create; do
         err=$(run "$sh" "$block"); rc=$?
         chk "$sh/$block stops" nonzero "$([ "$rc" -ne 0 ] && echo nonzero || echo "rc=$rc")"
-        case "$err" in *"$SANDBOX/lib/vendor/shell-common"*) got=named ;; *) got="$err" ;; esac
+        # The path tried is now the tier-1 one: with tier 4 retired there is no
+        # cwd-derived path left to name.
+        case "$err" in *"$HOME_EMPTY/dotfiles"*) got=named ;; *) got="$err" ;; esac
         chk "$sh/$block names the path it tried" named "$got"
         case "$err" in *CLAUDE_PLUGIN_ROOT*) got=hinted ;; *) got=no-hint ;; esac
         chk "$sh/$block names the way out" hinted "$got"
@@ -114,10 +126,12 @@ for sh in sh bash zsh; do
     done
 done
 
-# 5. The positive paths. Without these a block that always failed would pass
-#    every check above. `$ROOT` really does hold lib/vendor/shell-common, so
-#    tier 2 (CLAUDE_PLUGIN_ROOT set) and tier 4 (cwd is the checkout) must both
-#    resolve and exit 0.
+# 5. The positive path, plus the retired tier 4. Without a positive case a block
+#    that always failed would pass every check above, so tier 2
+#    (CLAUDE_PLUGIN_ROOT set) must resolve and exit 0. The same `$ROOT` really
+#    does hold lib/vendor/shell-common, which makes it the exact shape of the
+#    attack dEitY719/harness-skills#22 retired tier 4 over: running from that cwd
+#    with CLAUDE_PLUGIN_ROOT unset must still stop at tier 5.
 resolves() { # resolves <shell> <block> <cwd> <plugin-root-or-empty>
     if [ -n "$4" ]; then
         ( cd "$3" && env -u SHELL_COMMON -u DOTFILES_ROOT CLAUDE_PLUGIN_ROOT="$4" \
@@ -171,7 +185,7 @@ for sh in sh bash zsh; do
         resolves "$sh" "$block" "$SANDBOX" "$ROOT"
         chk "$sh/$block resolves via CLAUDE_PLUGIN_ROOT (tier 2)" 0 "$?"
         resolves "$sh" "$block" "$ROOT" ""
-        chk "$sh/$block resolves via cwd (tier 4)" 0 "$?"
+        chk "$sh/$block does NOT resolve from the cwd (no tier 4)" 1 "$(($? != 0))"
 
         if [ "$CAN_TEST_UNREADABLE" -eq 1 ]; then
             resolves "$sh" "$block" "$SANDBOX" "$UNREADABLE"
@@ -184,7 +198,7 @@ for sh in sh bash zsh; do
     for block in implement-claim proceed-claim-head; do
         chk "$sh/$block loads via CLAUDE_PLUGIN_ROOT (tier 2)" loaded \
             "$(head_state "$sh" "$block" "$SANDBOX" "$ROOT")"
-        chk "$sh/$block loads via cwd (tier 4)" loaded \
+        chk "$sh/$block does NOT load from the cwd (no tier 4)" not-loaded \
             "$(head_state "$sh" "$block" "$ROOT" "")"
         chk "$sh/$block reports not-loaded at tier 5" not-loaded \
             "$(head_state "$sh" "$block" "$SANDBOX" "")"
