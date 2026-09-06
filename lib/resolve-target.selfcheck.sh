@@ -53,6 +53,18 @@ got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" origin >/dev/null 2>&1 &&
        printf '%s' "$SHELL_COMMON" )
 chk "SHELL_COMMON exported" "$got" "$ROOT/lib/vendor/shell-common"
 
+# 3b. PLUGIN_ROOT is the proven plugin root skills address lib/ helpers with.
+got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" origin >/dev/null 2>&1 &&
+       printf '%s' "$PLUGIN_ROOT" )
+chk "PLUGIN_ROOT exported" "$got" "$ROOT"
+
+# 3c. Without CLAUDE_PLUGIN_ROOT it still resolves, from this file's own path.
+#     The cwd here is $TMP, not the plugin, so this also proves PLUGIN_ROOT is
+#     never the caller-controlled $PWD (dEitY719/harness-skills#22).
+got=$( unset CLAUDE_PLUGIN_ROOT; . "$TARGET" origin >/dev/null 2>&1;
+       printf '%s' "$PLUGIN_ROOT" )
+chk "PLUGIN_ROOT is proven, not \$PWD" "$got" "$ROOT"
+
 # 4. No CLAUDE_PLUGIN_ROOT (every non-Claude harness): the vendored tree is
 #    still found, via the sourced file's own path.
 got=$( unset CLAUDE_PLUGIN_ROOT; . "$TARGET" origin >/dev/null 2>&1 &&

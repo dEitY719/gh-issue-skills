@@ -101,7 +101,7 @@ silently under `GH_DISABLE_AI_METRICS=1`, so the call needs no `if`; the `||`
 is the Soft-fail Rule below, so a missing helper never blocks the write:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
+bash "$PLUGIN_ROOT/lib/ai-metrics-footer.sh" \
     "$TOKENS" "$HUMAN_H" "$ELAPSED" "$SKILL" >> "$BODY" \
     || echo "[WARN] ai-metrics append failed — continuing." >&2
 ```
