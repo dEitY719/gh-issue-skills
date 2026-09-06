@@ -32,7 +32,7 @@ All arguments, flags, and env vars are in `references/options.md` (Option | Desc
 
 ## Step 1: Detect Repo Context
 
-Record `START_TS=$(date +%s)` for Step 3.5. Parse the positional remote arg + flags. Confirm a git repo (`git rev-parse --show-toplevel`) and resolve **both** `TARGET_REPO=<owner>/<repo>` and `TARGET_HOST` from that remote's URL, then `export GH_HOST="$TARGET_HOST"` (substeps in `references/repo-resolution.md`). Never silently fall back to `origin` when the user-supplied remote is missing. 이후 모든 `gh` 호출은 `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"` 형태로 host 와 repo 를 명시한다 — 생략하면 gh CLI 가 자기 `gh repo set-default` 를 따라가 dual-host 로그인에서 조용히 엉뚱한 서버에 이슈를 만든다 (dEitY719/dotfiles#1403). When `--as-discussion <category>` is present, follow `references/discussion-mode.md` to bind `DISCUSSION_MODE` / `CATEGORY` and validate the category (exit 3 on mismatch).
+Record `START_TS=$(date +%s)` for Step 3.5. Parse the positional remote arg + flags. Confirm a git repo (`git rev-parse --show-toplevel`) and resolve **both** `TARGET_REPO=<owner>/<repo>` and `TARGET_HOST` from that remote's URL, then `export GH_HOST="$TARGET_HOST"` (substeps in `references/repo-resolution.md`). Never silently fall back to `origin` when the user-supplied remote is missing. 이후 모든 `gh` 호출은 host 와 repo 를 둘 다 명시한다 — 형태와 근거는 같은 파일의 "Host targeting rule". When `--as-discussion <category>` is present, follow `references/discussion-mode.md` to bind `DISCUSSION_MODE` / `CATEGORY` and validate the category (exit 3 on mismatch).
 
 ## Step 2: Classify the Conversation
 

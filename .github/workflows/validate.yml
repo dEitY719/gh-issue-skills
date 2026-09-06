@@ -21,14 +21,15 @@ jobs:
       # Two narrow exemptions from the repo-wide emoji ban, both for text the
       # skills quote rather than decorate with:
       #   1. the ai-metrics footer, whose chart / person / robot glyphs are the
-      #      wire format itself (dEitY719/dotfiles#317 F-2, PR dEitY719/dotfiles#320) — `create` writes
-      #      it and `discussion-create` mirrors it;
+      #      wire format itself (dEitY719/dotfiles#317 F-2, PR dEitY719/dotfiles#320).
+      #      `lib/ai-metrics-footer.sh` is the only writer; metrics-helper.md
+      #      shows the shape it emits;
       #   2. the pause-glyph `Postpone` block label, a real GitHub label name that
       #      `implement` and `proceed` refuse to start on.
       # Everywhere else the ban still applies.
       allow-emoji-paths: |
-        skills/create/references/
-        skills/discussion-create/references/create-cmd.md
+        lib/ai-metrics-footer.sh
+        skills/create/references/metrics-helper.md
         skills/implement/references/claim.md
         skills/proceed/references/claim.md
         skills/proceed/references/help.md

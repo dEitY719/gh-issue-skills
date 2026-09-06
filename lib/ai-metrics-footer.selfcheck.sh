@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Self-check for lib/ai-metrics-footer.sh. No framework, no fixtures:
+#
+#   bash lib/ai-metrics-footer.selfcheck.sh
+#
+# The footer is machine-parsed by `gh-setup:add-ai-metrics`, so the assertions
+# below are about exact bytes, not about the block "looking right".
+set -u
+
+ROOT=$(cd -- "$(dirname -- "$0")/.." && pwd)
+TARGET="$ROOT/lib/ai-metrics-footer.sh"
+FAIL=0
+
+chk() { # chk <label> <got> <want>
+    if [ "$2" = "$3" ]; then
+        echo "ok    $1"
+    else
+        echo "FAIL  $1: got '$2' want '$3'"
+        FAIL=1
+    fi
+}
+
+# 1. Bare form: no marker argument -> `<!-- ai-metrics -->`.
+got=$(bash "$TARGET" 5000 4 12 | sed -n '6p;8p')
+chk "bare marker pair" "$got" "<!-- ai-metrics -->
+<!-- /ai-metrics -->"
+
+# 2. Named form: the suffix lands on both markers.
+got=$(bash "$TARGET" 5000 4 12 gh-issue-create | sed -n '6p;8p')
+chk "named marker pair" "$got" "<!-- ai-metrics:gh-issue-create -->
+<!-- /ai-metrics:gh-issue-create -->"
+
+# 3. Full block shape: leading blank line, rule, collapsed <details>.
+got=$(bash "$TARGET" 5000 4 12 | sed -n '1p;2p;3p;10p')
+chk "block skeleton" "$got" "
+---
+<details>
+</details>"
+
+# 4. The three values reach both the summary and the body line.
+got=$(bash "$TARGET" 5000 4 12 | grep -c '~5000 tokens')
+chk "values on summary and body" "$got" "2"
+
+# 5. GH_DISABLE_AI_METRICS=1 prints nothing and still succeeds, so callers can
+#    append unconditionally.
+got=$(GH_DISABLE_AI_METRICS=1 bash "$TARGET" 5000 4 12 gh-issue-create; printf '|%s' "$?")
+chk "GH_DISABLE_AI_METRICS silences it" "$got" "|0"
+
+# 6. Missing arguments fail loudly rather than emitting a half-filled footer.
+bash "$TARGET" 5000 4 >/dev/null 2>&1
+chk "too few args returns non-zero" "$?" "1"
+
+# 7. POSIX sh, so the five non-Claude harnesses can run it too.
+if command -v dash >/dev/null 2>&1; then
+    got=$(dash "$TARGET" 5000 4 12 | sed -n '6p')
+    chk "runs under dash" "$got" "<!-- ai-metrics -->"
+else
+    echo "skip  dash not installed"
+fi
+
+exit "$FAIL"
