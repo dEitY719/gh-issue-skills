@@ -34,10 +34,7 @@ if [ "$#" -lt 3 ]; then
     exit 1
 fi
 
-_amf_marker=""
-if [ -n "${4:-}" ]; then
-    _amf_marker=":$4"
-fi
+marker=${4:+:$4}
 
 printf '\n---\n<details>\n<summary>🤖 AI Metrics · 📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min</summary>\n\n<!-- ai-metrics%s -->\n📊 ~%s tokens · 👤 ~%s h · 🤖 ~%s min\n<!-- /ai-metrics%s -->\n\n</details>\n' \
-    "$1" "$2" "$3" "$_amf_marker" "$1" "$2" "$3" "$_amf_marker"
+    "$1" "$2" "$3" "$marker" "$1" "$2" "$3" "$marker"

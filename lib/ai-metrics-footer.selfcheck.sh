@@ -50,7 +50,20 @@ chk "GH_DISABLE_AI_METRICS silences it" "$got" "|0"
 bash "$TARGET" 5000 4 >/dev/null 2>&1
 chk "too few args returns non-zero" "$?" "1"
 
-# 7. POSIX sh, so the five non-Claude harnesses can run it too.
+# 7. `metrics-helper.md` shows the shape callers copy from, and it is the one
+#    other file `allow-emoji-paths` still lets carry these glyphs. Slice its
+#    block out of the shipped doc instead of retyping it, so a drift between
+#    the doc and this script fails here rather than hiding (same trick as
+#    lib/plugin-root.selfcheck.sh's `extract`). The placeholders are just
+#    strings, so they can be passed straight in as the three values.
+doc=$(awk '/^### GitHub Issue \/ PR body footer$/ { on = 1 }
+           on && /^```$/ { n++; if (n == 1) next; exit }
+           on && n == 1' \
+    "$ROOT/skills/create/references/metrics-helper.md")
+chk "metrics-helper.md block matches the script" \
+    "$doc" "$(bash "$TARGET" '{TOKENS}' '{HUMAN_H}' '{ELAPSED}' '<skill>' | sed '1d')"
+
+# 8. POSIX sh, so the five non-Claude harnesses can run it too.
 if command -v dash >/dev/null 2>&1; then
     got=$(dash "$TARGET" 5000 4 12 | sed -n '6p')
     chk "runs under dash" "$got" "<!-- ai-metrics -->"

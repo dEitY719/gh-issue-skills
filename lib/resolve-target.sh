@@ -7,8 +7,9 @@
 #   . "${CLAUDE_PLUGIN_ROOT:-.}/lib/resolve-target.sh" "${REMOTE:-origin}" || exit 1
 #
 # Reads   $1 (remote name, default `origin`), DOTFILES_ROOT, CLAUDE_PLUGIN_ROOT.
-# Exports TARGET_REPO, TARGET_HOST, GH_HOST, and SHELL_COMMON (whichever
-#         shell-common tree actually resolved).
+# Exports TARGET_REPO, TARGET_HOST, GH_HOST, SHELL_COMMON (whichever
+#         shell-common tree actually resolved), and PLUGIN_ROOT (this plugin's
+#         own root, for addressing lib/ helpers without a $PWD fallback).
 #
 # Why GH_HOST and not just `--repo` (dEitY719/dotfiles#1403): `gh api graphql` — the Discussion
 # read and write path — accepts no `--repo`, so an inherited GH_HOST is its
@@ -49,18 +50,23 @@ _rt_resolve() {
         return 1
     fi
 
+    # Plugin root, so a skill can address this plugin's own lib/ helpers
+    # without composing a path from $PWD — which the repo under review
+    # controls (dEitY719/harness-skills#22). Prefer the harness's
+    # CLAUDE_PLUGIN_ROOT, else this file's own location; empty when neither
+    # resolves, and a caller that needs it must then fail loudly.
+    PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-}"
+    if [ -z "$PLUGIN_ROOT" ]; then
+        case "$_rt_self" in
+            */lib/resolve-target.sh) PLUGIN_ROOT="${_rt_self%/lib/resolve-target.sh}" ;;
+        esac
+    fi
+    export PLUGIN_ROOT
+
     _rt_sc="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
     if [ ! -f "$_rt_sc/functions/gh_host.sh" ]; then
-        # Vendored tier. Prefer CLAUDE_PLUGIN_ROOT, fall back to this file's
-        # own directory so the plugin still works when no harness exports it.
-        _rt_root="${CLAUDE_PLUGIN_ROOT:-}"
-        if [ -z "$_rt_root" ]; then
-            case "$_rt_self" in
-                */lib/resolve-target.sh) _rt_root="${_rt_self%/lib/resolve-target.sh}" ;;
-                *)                       _rt_root="." ;;
-            esac
-        fi
-        _rt_sc="$_rt_root/lib/vendor/shell-common"
+        # Vendored tier, under whichever root resolved above.
+        _rt_sc="${PLUGIN_ROOT:-.}/lib/vendor/shell-common"
     fi
     if [ ! -r "$_rt_sc/functions/gh_host.sh" ]; then
         echo "Error: gh_host.sh not found under $_rt_sc/functions/." >&2

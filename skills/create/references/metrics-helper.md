@@ -97,11 +97,13 @@ comment markers, so nothing may retype them. Its output looks like:
 ```
 
 Append it to the temp file before creating the artifact. The script exits
-silently under `GH_DISABLE_AI_METRICS=1`, so the call needs no guard:
+silently under `GH_DISABLE_AI_METRICS=1`, so the call needs no `if`; the `||`
+is the Soft-fail Rule below, so a missing helper never blocks the write:
 
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
-    "$TOKENS" "$HUMAN_H" "$ELAPSED" "$SKILL" >> "$BODY"
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" "$SKILL" >> "$BODY" \
+    || echo "[WARN] ai-metrics append failed — continuing." >&2
 ```
 
 ### GitHub PR / Issue comment
