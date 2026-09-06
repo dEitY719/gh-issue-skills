@@ -69,14 +69,10 @@ whichever repo `gh repo set-default` picked (dEitY719/dotfiles#1403 / dEitY719/d
 
 ```
 if GH_ISSUE_SKIP_BOARD_TRANSITION set: return 0
-_SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"                        # tier 1
-# Tier 2 is guarded, never defaulted into a path: there is no tier 4. `$PWD` is
-# caller-controlled and this family runs inside the repo under review, so a PR
-# that ships lib/vendor/shell-common/ would get it sourced
-# (dEitY719/harness-skills#22). With CLAUDE_PLUGIN_ROOT unset nothing is left to
-# know, so `$_SC` keeps the tier-1 path and the proof below warns naming it.
+_SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}" # tier 1
+# No tier 4 (dEitY719/harness-skills#22): $PWD is caller-controlled here.
 [ -f "$_SC/functions/gh_project_status.sh" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
-    || _SC="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common"                  # tier 2
+    || _SC="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common" # tier 2
 _HELPER="$_SC/functions/gh_project_status.sh"
 # Drop any inherited definition BEFORE sourcing, so the check below proves this
 # load defined the function rather than an earlier one. A file-mode test cannot:

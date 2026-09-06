@@ -50,15 +50,11 @@ validation here.
 ```bash
 # Fail fast if the helper file is missing (skill installed but
 # helper not yet symlinked into shell-common/).
-_GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh"      # tier 1
-# Tier 2 is guarded, never defaulted into a path: there is no tier 4. `$PWD` is
-# caller-controlled and this family runs inside the repo under review, so a PR
-# that ships lib/vendor/shell-common/ would get it sourced
-# (dEitY719/harness-skills#22). With CLAUDE_PLUGIN_ROOT unset there is nothing
-# left to know, so the probe below stops at tier 5 naming the tier-1 path.
+_GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
+# No tier 4 (dEitY719/harness-skills#22): $PWD is caller-controlled here.
 [ -f "$_GD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
-    || _GD="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/gh_discussion.sh"  # tier 2
-if [ ! -f "$_GD" ] || [ ! -r "$_GD" ]; then                                        # tier 5
+    || _GD="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/gh_discussion.sh" # tier 2
+if [ ! -f "$_GD" ] || [ ! -r "$_GD" ]; then
     printf '[FAIL] gh-discussion helper not found at %s\n' "$_GD" >&2
     printf 'Next: install gh-discussion-create skill first; on any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir> before pasting this block.\n' >&2
     return 1 2>/dev/null || exit 1
