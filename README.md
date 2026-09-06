@@ -207,7 +207,7 @@ jobs:
     with:
       plugin-name: gh-issue
       allow-emoji-paths: |
-        skills/create/references/
+        lib/ai-metrics-footer.sh
         ...
 ```
 

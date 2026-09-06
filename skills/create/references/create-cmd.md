@@ -19,9 +19,11 @@ Discussion branch ignores them.
 BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # ... write body to "$BODY" ...
 # The footer's bytes are single-sourced in lib/ai-metrics-footer.sh, which
-# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here.
+# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here. The `||`
+# is metrics-helper.md's soft-fail rule: never block the create on the footer.
 bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
-    "$TOKENS" "$HUMAN_H" "$ELAPSED" >> "$BODY"
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" >> "$BODY" \
+    || echo "[WARN] ai-metrics append failed — continuing." >&2
 GH_HOST="$TARGET_HOST" gh issue create --repo "$TARGET_REPO" \
     --title "<title>" --body-file "$BODY" \
     "${LABEL_ARGS[@]}" "${MILESTONE_ARGS[@]}"
@@ -66,9 +68,11 @@ BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # host as the Issue path would have (dEitY719/dotfiles#1403).
 # ... write Open-Questions-forward body to "$BODY" (Step 3 sets shape) ...
 # The footer's bytes are single-sourced in lib/ai-metrics-footer.sh, which
-# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here.
+# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here. The `||`
+# is metrics-helper.md's soft-fail rule: never block the create on the footer.
 bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
-    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-issue-create >> "$BODY"
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-issue-create >> "$BODY" \
+    || echo "[WARN] ai-metrics append failed — continuing." >&2
 
 _owner="${TARGET_REPO%%/*}"
 _repo="${TARGET_REPO##*/}"
@@ -86,7 +90,6 @@ the helper ever changes signature, update both skills together.
 
 확인 질문하지 말고 즉시 실행.
 
-The footer's emoji glyphs live in `lib/ai-metrics-footer.sh` alone — the
-ai-metrics exception defined in `CLAUDE.md`, covering the `<details>` wrapper
-plus the `<!-- ai-metrics -->` markers. This file quotes none of them, and the
-exception does not extend anywhere else in this skill.
+The footer's emoji glyphs live in `lib/ai-metrics-footer.sh` alone; this file
+quotes none of them. `CLAUDE.md`'s ai-metrics exception covers that script and
+nothing else in this skill.

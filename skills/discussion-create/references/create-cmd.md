@@ -30,9 +30,11 @@ BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # target remote points at (dEitY719/dotfiles#1403).
 # ... write drafted body to "$BODY" ...
 # The footer's bytes are single-sourced in lib/ai-metrics-footer.sh, which
-# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here.
+# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here. The `||`
+# is metrics-helper.md's soft-fail rule: never block the create on the footer.
 bash "${CLAUDE_PLUGIN_ROOT:-.}/lib/ai-metrics-footer.sh" \
-    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-discussion-create >> "$BODY"
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-discussion-create >> "$BODY" \
+    || echo "[WARN] ai-metrics append failed — continuing." >&2
 
 _owner="${TARGET_REPO%%/*}"
 _repo="${TARGET_REPO##*/}"
@@ -48,11 +50,9 @@ printf '%s\n' "$URL"
 
 ## ai-metrics footer note
 
-The footer's emoji glyphs live in `lib/ai-metrics-footer.sh` alone — the
-ai-metrics exception defined in `CLAUDE.md`, covering the `<details>`
-wrapper plus the `<!-- ai-metrics:gh-discussion-create -->` markers. This
-file quotes none of them, and the exception does not extend anywhere else
-in this skill or the helper.
+The footer's emoji glyphs live in `lib/ai-metrics-footer.sh` alone; this
+file quotes none of them. `CLAUDE.md`'s ai-metrics exception covers that
+script and nothing else in this skill or the helper.
 
 ## Why three calls instead of one mutation
 
