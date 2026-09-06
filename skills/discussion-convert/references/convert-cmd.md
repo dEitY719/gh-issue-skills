@@ -19,27 +19,22 @@ Inputs bound by the caller:
 
 ```bash
 _GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
-_PS="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_project_status.sh" # tier 1
 # No tier 4 (dEitY719/harness-skills#22): $PWD is caller-controlled here.
 [ -f "$_GD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
     || _GD="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/gh_discussion.sh" # tier 2
-[ -f "$_PS" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
-    || _PS="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/gh_project_status.sh" # tier 2
 # The second probe proves the tier the first one picked; without it a missing
 # helper is sourced as a wrong path instead of stopping. -f and -r both: -r
 # alone passes a directory, -f alone passes an unreadable file whose source
 # then fails silently.
-for _f in "$_GD" "$_PS"; do
-    [ -f "$_f" ] && [ -r "$_f" ] || {
-        printf '[gh-issue:discussion-convert] helper not found at %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
-            "$_f" >&2
-        return 1 2>/dev/null || exit 1
-    }
-done
+if [ ! -f "$_GD" ] || [ ! -r "$_GD" ]; then
+    printf '[gh-issue:discussion-convert] helper not found at %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+        "$_GD" >&2
+    return 1 2>/dev/null || exit 1
+fi
 # shellcheck disable=SC1091
 . "$_GD"
-# shellcheck disable=SC1091
-. "$_PS"
+# gh_project_status.sh is NOT sourced here: Steps 6-8 moved into
+# lib/discussion-post-convert.sh, which resolves and sources it itself.
 
 DISC_ID=$(jq -r '.id'     "$DISC_JSON")
 DTITLE=$(jq -r '.title'   "$DISC_JSON")
@@ -61,12 +56,13 @@ if [ -n "$EXISTING" ]; then
     exit 0
 fi
 
-# Step 5 — create the issue with the backlink prepended. The trap
-# registered up front covers both ISSUE_BODY and the later CBODY (set
-# only when --no-comment is off) so neither temp file leaks if a
-# subsequent step exits early or the process is interrupted.
+# Step 5 — create the issue with the backlink prepended. The trap is
+# registered before the file is written so it cannot leak if a later
+# step exits early or the process is interrupted. (The comment body's
+# temp file now lives inside lib/discussion-post-convert.sh, under that
+# script's own trap.)
 ISSUE_BODY=$(mktemp)
-trap 'rm -f "$ISSUE_BODY" "${CBODY:-}"' EXIT
+trap 'rm -f "$ISSUE_BODY"' EXIT INT HUP TERM
 printf 'Originated from discussion #%s\n\n' "$N" >"$ISSUE_BODY"
 jq -r '.body' "$DISC_JSON" >>"$ISSUE_BODY"
 
@@ -81,39 +77,21 @@ if [ -z "$ISSUE_URL" ]; then
 fi
 ISSUE_NUMBER="${ISSUE_URL##*/}"
 
-# Step 6 — board sync (best-effort).
-if [ "${OPT_NO_BOARD_SYNC:-0}" != "1" ]; then
-    # --repo "$TARGET_REPO" (Step 1) is explicit (dEitY719/dotfiles#1405): the helper's
-    # `gh repo view` fallback answers `gh repo set-default`, not the
-    # remote this run resolved. The host half rides along via the
-    # exported GH_HOST from Step 1 (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407) -- --repo names a
-    # repo but no server.
-    _gh_project_status_sync issue "$ISSUE_NUMBER" "In progress" \
-        --only-from "Backlog,Ready" --repo "$TARGET_REPO" || true
-fi
+# Steps 6-8 — board sync, backlink comment, close + lock. One call:
+# lib/discussion-post-convert.sh owns the order, the skip flags and the
+# best-effort contract, and prints the report's `steps:` line. It always
+# exits 0 — a failed mutation shows up as a `fail` token plus a [WARN],
+# never as an abort, because Step 5's Issue already satisfies the SSOT
+# invariant. DCLOSED/DLOCKED come from the Step 2 fetch, so an
+# already-closed Discussion reports `skip` instead of re-mutating.
+export TARGET_REPO DCLOSED DLOCKED
+STEPS=$(bash "${PLUGIN_ROOT:?run lib/resolve-target.sh first}/lib/discussion-post-convert.sh" \
+    "$DISC_ID" "$ISSUE_NUMBER" \
+    "${OPT_NO_COMMENT:-0}" "${OPT_NO_LOCK:-0}" \
+    "${OPT_NO_CLOSE:-0}" "${OPT_NO_BOARD_SYNC:-0}")
 
-# Step 7 — backlink comment on the discussion (best-effort).
-# CBODY is cleaned up by the EXIT trap registered at Step 5.
-if [ "${OPT_NO_COMMENT:-0}" != "1" ]; then
-    CBODY=$(mktemp)
-    printf 'Linked to issue #%s -- decision tracked there.\n' \
-        "$ISSUE_NUMBER" >"$CBODY"
-    _gh_discussion_comment "$DISC_ID" "$CBODY" >/dev/null \
-        || printf '[WARN] discussion comment failed -- continuing\n' >&2
-fi
-
-# Step 8 — close + lock (best-effort, conditional on current state).
-if [ "${OPT_NO_CLOSE:-0}" != "1" ] && [ "$DCLOSED" != "true" ]; then
-    _gh_discussion_close "$DISC_ID" RESOLVED >/dev/null \
-        || printf '[WARN] discussion close failed -- continuing\n' >&2
-fi
-if [ "${OPT_NO_LOCK:-0}" != "1" ] && [ "$DLOCKED" != "true" ]; then
-    _gh_discussion_lock "$DISC_ID" >/dev/null \
-        || printf '[WARN] discussion lock failed -- continuing\n' >&2
-fi
-
-printf '[OK] Discussion #%s -> Issue #%s: %s\n' \
-    "$N" "$ISSUE_NUMBER" "$ISSUE_URL"
+printf '[OK] Discussion #%s -> Issue #%s: %s\n%s\n' \
+    "$N" "$ISSUE_NUMBER" "$ISSUE_URL" "$STEPS"
 ```
 
 확인 질문하지 말고 즉시 실행.

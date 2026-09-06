@@ -78,9 +78,9 @@ capturing `<M>` — detail in
 
 ## Steps 6-8: Post-Create Mutations
 
-Board sync (Step 6), backlink comment (Step 7), close + lock (Step 8) —
-all best-effort, all after the Issue exists. Detail and skip-flag logic in
-[`references/post-create-mutations.md`](references/post-create-mutations.md).
+Board sync (6), backlink comment (7), close + lock (8) are one best-effort
+`lib/discussion-post-convert.sh` call — always exits 0, prints Step 9's `steps:`
+line. Call shape + skip flags: [`references/post-create-mutations.md`](references/post-create-mutations.md).
 
 ## Step 9: Report
 
