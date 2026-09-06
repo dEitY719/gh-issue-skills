@@ -96,14 +96,18 @@ fi
 # Step 7 — the reverse half of the bidirectional backlink. The forward half
 # (Issue body -> Discussion) is already on the Issue from Step 5.
 if [ "$NO_COMMENT" != "1" ]; then
-    CBODY=$(mktemp) || exit 1
-    trap 'rm -f "$CBODY"' EXIT INT HUP TERM
-    printf 'Linked to issue #%s -- decision tracked there.\n' "$ISSUE_NUMBER" >"$CBODY"
-    if _gh_discussion_comment "$DISC_ID" "$CBODY" >/dev/null; then
-        S_COMMENT=on
+    if CBODY=$(mktemp); then
+        trap 'rm -f "$CBODY"' EXIT INT HUP TERM
+        printf 'Linked to issue #%s -- decision tracked there.\n' "$ISSUE_NUMBER" >"$CBODY"
+        if _gh_discussion_comment "$DISC_ID" "$CBODY" >/dev/null; then
+            S_COMMENT=on
+        else
+            S_COMMENT=fail
+            printf '[WARN] discussion comment failed -- continuing\n' >&2
+        fi
     else
         S_COMMENT=fail
-        printf '[WARN] discussion comment failed -- continuing\n' >&2
+        printf '[WARN] mktemp failed -- skipping discussion comment, continuing\n' >&2
     fi
 fi
 

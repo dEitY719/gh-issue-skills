@@ -106,6 +106,23 @@ got=$(RC_BOARD=1 run D_kwDO 42)
 chk "board failure does not stop 7/8" "$got" \
     "  steps: comment=on, lock=on, close=on, board=failed"
 
+# 5c. A mktemp failure degrades like every other Step 7/8 failure --
+#     comment=fail, and Step 8 (close/lock) plus the steps: line still run.
+#     Before PR #19's fix this was a bare `exit 1` that skipped close/lock
+#     and the required steps: line entirely (PR #19 review, codex BLOCKER).
+FAKEBIN="$TMP/fakebin"
+mkdir -p "$FAKEBIN"
+printf '#!/bin/sh\nexit 1\n' > "$FAKEBIN/mktemp"
+chmod +x "$FAKEBIN/mktemp"
+: > "$CALLS"
+got=$(CLAUDE_PLUGIN_ROOT="$FAKE" PATH="$FAKEBIN:$PATH" \
+    RC_BOARD=0 RC_COMMENT=0 RC_CLOSE=0 RC_LOCK=0 DCLOSED=false DLOCKED=false \
+    bash "$TARGET" D_kwDO 42 2>/dev/null); rc=$?
+chk "mktemp failure: still exit 0" "$rc" "0"
+chk "mktemp failure: comment=fail, steps 8 still ran" "$got" \
+    "  steps: comment=fail, lock=on, close=on, board=synced"
+chk "mktemp failure: no comment call fired" "$(grep -c '^comment ' "$CALLS")" "0"
+
 # 6. Missing arguments are a usage error (exit 2), not a half-run.
 CLAUDE_PLUGIN_ROOT="$FAKE" bash "$TARGET" >/dev/null 2>&1
 chk "no args exits 2" "$?" "2"
