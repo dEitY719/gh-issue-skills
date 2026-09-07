@@ -73,9 +73,6 @@ GH_HOST="$TARGET_HOST" gh issue view <N> --repo "$TARGET_REPO" --json \
   number,title,body,author,labels,state,comments,assignees,createdAt,updatedAt,url
 ```
 
-`GH_HOST` + `--repo` are both mandatory — see `references/repo-resolution.md`
-→ "Host targeting rule" (dEitY719/dotfiles#1403).
-
 `comments` items: `{author, body, createdAt}`.
 `labels` items: `{name}`.
 `author`, `assignees` items: `{login}`.

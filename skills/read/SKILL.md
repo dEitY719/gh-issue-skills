@@ -32,30 +32,23 @@ feeds downstream skills (like `gh-issue:implement`).
 
 Record `START_TS=$(date +%s)` immediately for elapsed-time tracking in Step 4.
 
-Positional args: `<issue-number> [remote]`.
-
-| Arg | Description | Default | Required |
-|-----|-------------|---------|----------|
-| `<issue-number>` | GitHub issue number to fetch | — | Yes |
-| `[remote]` | Git remote name whose repo owns the issue | `origin` | No |
+Positional args: `<issue-number> [remote]` — full table in `references/help.md`
+→ "Arguments".
 
 - Missing/invalid `issue-number` → print `Run /gh-issue:read -h for usage.`, stop.
-- From `git remote get-url <remote>` resolve **both** `TARGET_REPO=<owner>/<repo>`
-  and `TARGET_HOST` (`shell-common/functions/gh_host.sh`), then
-  `export GH_HOST="$TARGET_HOST"`. Missing remote → `git remote -v` + stop.
+- Bind **both** `TARGET_REPO=<owner>/<repo>` and `TARGET_HOST` from that one
+  remote's URL via `lib/resolve-target.sh`, then `export GH_HOST="$TARGET_HOST"` —
+  every `gh` call below runs as
+  `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"` (dEitY719/dotfiles#1403).
+  Missing remote → `git remote -v` + stop.
 
-Substeps and error templates in `references/repo-resolution.md`.
-
-**Host targeting (dEitY719/dotfiles#1403)** — every `gh` call below is
-`GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"`; rationale + failure mode in
-`references/repo-resolution.md` → "Host targeting rule".
+Substeps, error templates, and the host-targeting rationale in
+`references/repo-resolution.md`.
 
 ## Step 2: Fetch Issue
 
-```bash
-GH_HOST="$TARGET_HOST" gh issue view <N> --repo "$TARGET_REPO" --json \
-  number,title,body,author,labels,state,comments,assignees,createdAt,updatedAt,url
-```
+Run the `gh issue view --json` fetch in `references/output-format.md` →
+"JSON fields to fetch".
 
 On error (issue not found, auth failure), print `gh` stderr verbatim and stop —
 do not attempt fallback. A CLOSED issue needs one extra REST read for the Header
@@ -75,9 +68,9 @@ Header → Summary → Body → Discussion → Meta → Checklist.
 
 ## Step 4: Report
 
-Print the formatted output directly — no preamble ("Here's the issue..."), no
-trailing summary ("Let me know if you want..."). The output IS the deliverable.
-Then append the ai-metrics line (stdout only — this skill never mutates GitHub):
+Print the formatted output directly — no preamble, no trailing summary.
+The output IS the deliverable. Then append the ai-metrics line (stdout only —
+this skill never mutates GitHub):
 
 ```
 [ai-metrics:gh-issue-read] ~{ELAPSED} min (read-only — not written to GitHub)
@@ -85,13 +78,19 @@ Then append the ai-metrics line (stdout only — this skill never mutates GitHub
 
 Compute `ELAPSED=$(( ($(date +%s) - START_TS) / 60 ))` just before printing.
 
+Then one `Next:` line, keyed off what Step 2 already fetched — omit it entirely
+for a CLOSED issue, which has no follow-up:
+
+```
+Next: /gh-issue:implement <N>      # OPEN, code-change issue
+Next: /gh-issue:proceed <N>        # OPEN, body carries an execution protocol
+```
+
 ## Constraints
 
 - Read-only — never call `gh issue edit`, `close`, or `comment`.
 - Never call `gh` without both `GH_HOST` and `--repo` (dEitY719/dotfiles#1403).
 - Never fall back to `origin` when a non-existent remote is passed.
-- Never truncate or paraphrase body/comments — the point is preservation.
-- Never assume English — issue language for content, chat language for headers.
 
 ## Related Skills
 
