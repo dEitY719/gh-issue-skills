@@ -228,6 +228,59 @@ for sh in sh bash zsh; do
     done
 done
 
+# 6. The repo-resolution bootstrap line (dEitY719/harness-skills#24): the block
+#    that locates lib/resolve-target.sh ITSELF, one step before that file's own
+#    tiers (lib/resolve-target.selfcheck.sh check 9) ever get a chance to run.
+#    Byte-identical across all six repo-resolution.md copies plus this file's
+#    own docstring, per the issue — extracted from one copy so a drift between
+#    the six fails this check instead of hiding.
+dedent_block() { # dedent_block <file> -> stdout, dedented, fenced ```bash block
+    awk '
+        /^   ```bash$/ && !on { on = 1; next }
+        on && /^   ```$/ { exit }
+        on { sub(/^   /, ""); print }
+    ' "$ROOT/$1"
+}
+dedent_block skills/create/references/repo-resolution.md > "$TMP/repo-resolution.sh"
+[ -s "$TMP/repo-resolution.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from skills/create\n'; fails=$((fails + 1)); }
+for f in skills/discussion-convert/references/repo-resolution.md \
+         skills/discussion-create/references/repo-resolution.md \
+         skills/implement/references/repo-resolution.md \
+         skills/proceed/references/repo-resolution.md \
+         skills/read/references/repo-resolution.md; do
+    dedent_block "$f" > "$TMP/repo-resolution-cmp.sh"
+    cmp -s "$TMP/repo-resolution.sh" "$TMP/repo-resolution-cmp.sh" \
+        || { printf 'FAIL  repo-resolution: %s drifted from skills/create copy\n' "$f"; fails=$((fails + 1)); }
+done
+
+if command -v dash >/dev/null 2>&1; then
+    # Decoy: exactly what a PR checkout under review could ship — its own
+    # lib/resolve-target.sh at $PWD, poisoning TARGET_REPO if ever sourced.
+    DECOY_RT="$TMP/decoy-rt"
+    mkdir -p "$DECOY_RT/lib"
+    cat > "$DECOY_RT/lib/resolve-target.sh" <<'DECOY'
+#!/bin/sh
+export TARGET_REPO="poisoned/repo"
+DECOY
+    RRBLOCK="$TMP/repo-resolution.sh"
+    got=$( cd "$DECOY_RT" && env -u CLAUDE_PLUGIN_ROOT dash -c \
+        ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\"" )
+    chk "repo-resolution bootstrap never sources cwd's own resolve-target.sh (no tier 4)" \
+        "1|unset" "$got"
+
+    # Positive path: CLAUDE_PLUGIN_ROOT pointing at the real plugin root still
+    # resolves — run from $ROOT itself so the real resolve-target.sh finds a
+    # git repo with an `origin` remote to read. The path is interpolated into
+    # the -c script text, not forwarded as a positional: a positional would
+    # become $1 inside the sourced block too, ahead of its own
+    # `"${REMOTE:-origin}"` default.
+    got=$( cd "$ROOT" && env -u CLAUDE_PLUGIN_ROOT CLAUDE_PLUGIN_ROOT="$ROOT" dash -c \
+        ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s' \"\$?\"" )
+    chk "repo-resolution bootstrap resolves via CLAUDE_PLUGIN_ROOT (tier 1)" 0 "$got"
+else
+    echo "skip  dash not installed"
+fi
+
 printf '\n'
 if [ "$fails" -eq 0 ]; then printf 'ok    all checks passed\n'; else printf 'FAIL  %s check(s)\n' "$fails"; fi
 exit "$((fails > 0))"

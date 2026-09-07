@@ -11,10 +11,21 @@ file holds the argument shape and the blast radius.
      use it as the remote name.
    - Otherwise default to `origin`.
 
-2. Bind the target — one sourced line, so the exports survive into the caller:
+2. Bind the target — sourced, so the exports survive into the caller. No cwd
+   fallback (dEitY719/harness-skills#24): `$PWD` is caller-controlled — a PR
+   checkout under review — and a defaulted splice here would source THAT
+   CHECKOUT'S OWN `resolve-target.sh` before its own fail-closed logic (#22)
+   ever runs:
 
    ```bash
-   . "${CLAUDE_PLUGIN_ROOT:-.}/lib/resolve-target.sh" "${REMOTE:-origin}" || exit 1
+   _RT="" # no cwd fallback (dEitY719/harness-skills#24)
+   [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RT="$CLAUDE_PLUGIN_ROOT/lib/resolve-target.sh" # tier 1
+   if [ -z "$_RT" ] || [ ! -f "$_RT" ] || [ ! -r "$_RT" ]; then
+       printf '[FAIL] resolve-target.sh not found — export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' >&2
+       return 1 2>/dev/null || exit 1
+   fi
+   # shellcheck disable=SC1091
+   . "$_RT" "${REMOTE:-origin}" || exit 1
    ```
 
    [`lib/resolve-target.sh`](../../../lib/resolve-target.sh) is the SSOT for
