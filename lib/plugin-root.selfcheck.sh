@@ -289,7 +289,14 @@ DECOY
     # `"${REMOTE:-origin}"` default. Asserts more than rc=0 (PR #27 review,
     # codex FOLLOW-UP): a broken block could still exit 0 without ever
     # exporting TARGET_REPO, so the real remote's owner/repo must show up too.
-    EXPECT_REPO=$(cd "$ROOT" && git remote get-url origin | sed -E 's#.*[:/]([^/]+/[^/]+)\.git$#\1#')
+    # Reuse the same parser resolve-target.sh itself relies on (PR #27 review,
+    # agy FOLLOW-UP: an ad-hoc regex here would be a second, driftable copy).
+    # 2>/dev/null: sourcing the vendored copy directly (not via $SHELL_COMMON)
+    # trips its own advisory "foreign checkout" warning (#1454) on a machine
+    # that also has ~/dotfiles — harmless here, just noisy test output.
+    # shellcheck disable=SC1091
+    . "$ROOT/lib/vendor/shell-common/functions/gh_host.sh" 2>/dev/null
+    EXPECT_REPO=$(_gh_parse_owner_repo_url "$(cd "$ROOT" && git remote get-url origin)")
     got=$( cd "$ROOT" && env CLAUDE_PLUGIN_ROOT="$ROOT" dash -c \
         ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\"" )
     chk "repo-resolution bootstrap resolves via CLAUDE_PLUGIN_ROOT (tier 1)" "0|$EXPECT_REPO" "$got"
