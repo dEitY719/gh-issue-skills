@@ -20,7 +20,7 @@ file holds the argument shape and the blast radius.
    ```bash
    _RT="" # no cwd fallback (dEitY719/harness-skills#24)
    [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RT="$CLAUDE_PLUGIN_ROOT/lib/resolve-target.sh" # tier 1
-   if [ -z "$_RT" ] || [ ! -f "$_RT" ] || [ ! -r "$_RT" ]; then
+   if [ ! -f "$_RT" ] || [ ! -r "$_RT" ]; then
        printf '[FAIL] resolve-target.sh not found — export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' >&2
        return 1 2>/dev/null || exit 1
    fi

@@ -249,6 +249,7 @@ for f in skills/discussion-convert/references/repo-resolution.md \
          skills/proceed/references/repo-resolution.md \
          skills/read/references/repo-resolution.md; do
     dedent_block "$f" > "$TMP/repo-resolution-cmp.sh"
+    [ -s "$TMP/repo-resolution-cmp.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from %s\n' "$f"; fails=$((fails + 1)); }
     cmp -s "$TMP/repo-resolution.sh" "$TMP/repo-resolution-cmp.sh" \
         || { printf 'FAIL  repo-resolution: %s drifted from skills/create copy\n' "$f"; fails=$((fails + 1)); }
 done
@@ -274,7 +275,7 @@ DECOY
     # the -c script text, not forwarded as a positional: a positional would
     # become $1 inside the sourced block too, ahead of its own
     # `"${REMOTE:-origin}"` default.
-    got=$( cd "$ROOT" && env -u CLAUDE_PLUGIN_ROOT CLAUDE_PLUGIN_ROOT="$ROOT" dash -c \
+    got=$( cd "$ROOT" && env CLAUDE_PLUGIN_ROOT="$ROOT" dash -c \
         ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s' \"\$?\"" )
     chk "repo-resolution bootstrap resolves via CLAUDE_PLUGIN_ROOT (tier 1)" 0 "$got"
 else
