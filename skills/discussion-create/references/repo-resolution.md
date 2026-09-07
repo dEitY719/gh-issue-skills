@@ -26,7 +26,7 @@ file holds the argument shape and the blast radius.
        return 1 2>/dev/null || exit 1
    fi
    # shellcheck disable=SC1091
-   . "$_RT" "${REMOTE:-origin}" || exit 1
+   GH_RESOLVE_TARGET_REMOTE="${REMOTE:-origin}" . "$_RT" || exit 1
    ```
 
    [`lib/resolve-target.sh`](../../../lib/resolve-target.sh) is the SSOT for
