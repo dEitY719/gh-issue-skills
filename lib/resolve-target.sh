@@ -2,9 +2,19 @@
 # lib/resolve-target.sh — bind one skill run's GitHub target (repo + host).
 #
 # SSOT for Step 1 "Detect Repo Context" across all six skills in this plugin.
-# SOURCE it, never execute it — the exports are the whole product:
+# SOURCE it, never execute it — the exports are the whole product. No cwd
+# fallback (dEitY719/harness-skills#24): $PWD is caller-controlled — a PR
+# checkout under review — and a defaulted splice here would source THAT
+# CHECKOUT'S OWN copy of this file before its fail-closed logic (#22) ever runs:
 #
-#   . "${CLAUDE_PLUGIN_ROOT:-.}/lib/resolve-target.sh" "${REMOTE:-origin}" || exit 1
+#   _RT="" # no cwd fallback (dEitY719/harness-skills#24)
+#   [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RT="$CLAUDE_PLUGIN_ROOT/lib/resolve-target.sh" # tier 1
+#   if [ -z "$_RT" ] || [ ! -f "$_RT" ] || [ ! -r "$_RT" ]; then
+#       printf '[FAIL] resolve-target.sh not found — export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' >&2
+#       return 1 2>/dev/null || exit 1
+#   fi
+#   # shellcheck disable=SC1091
+#   . "$_RT" "${REMOTE:-origin}" || exit 1
 #
 # Reads   $1 (remote name, default `origin`), DOTFILES_ROOT, CLAUDE_PLUGIN_ROOT.
 # Exports TARGET_REPO, TARGET_HOST, GH_HOST, SHELL_COMMON (whichever
