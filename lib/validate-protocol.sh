@@ -22,9 +22,7 @@
 
 set -u
 
-BODY=$(cat)
-
-RESULT=$(printf '%s\n' "$BODY" | awk '
+RESULT=$(awk '
 BEGIN {
     n_keys = split("goal preconditions execution_protocol decision_rules deliverables done_criteria out_of_scope safety", order, " ")
     alias["goal"] = "goal|목표"

@@ -86,8 +86,8 @@ chk "matrix-mode execution_protocol passes" "$rc" "0"
 
 # 3. Missing a required section (goal) fails and names it.
 missing=$(printf '%s' "$VALID_BODY" | sed '/^## Goal$/,/^## Preconditions$/{/^## Preconditions$/!d}')
-out=$(printf '%s' "$missing" | bash "$TARGET" 2>&1 >/dev/null)
-rc=$(printf '%s' "$missing" | bash "$TARGET" >/dev/null 2>&1; echo $?)
+out=$(printf '%s' "$missing" | bash "$TARGET" 2>&1)
+rc=$?
 chk "missing goal: exit code" "$rc" "1"
 case $out in
     *"Missing required sections:"*"- goal"*) got=match ;;
@@ -97,8 +97,8 @@ chk "missing goal: names it" "$got" "match"
 
 # 4. A required section present but under 50 chars fails as empty.
 empty=$(printf '%s' "$VALID_BODY" | sed 's/^This is a sufficiently long preconditions.*/short/')
-rc=$(printf '%s' "$empty" | bash "$TARGET" >/dev/null 2>&1; echo $?)
-out=$(printf '%s' "$empty" | bash "$TARGET" 2>&1 >/dev/null)
+out=$(printf '%s' "$empty" | bash "$TARGET" 2>&1)
+rc=$?
 chk "empty preconditions: exit code" "$rc" "1"
 case $out in
     *"Empty required sections:"*"- preconditions"*) got=match ;;
@@ -131,8 +131,8 @@ This is a sufficiently long out of scope text that exceeds fifty characters easi
 
 ## Safety
 This is a sufficiently long safety text that exceeds fifty characters easily."
-rc=$(printf '%s' "$prose_ep" | bash "$TARGET" >/dev/null 2>&1; echo $?)
-out=$(printf '%s' "$prose_ep" | bash "$TARGET" 2>&1 >/dev/null)
+out=$(printf '%s' "$prose_ep" | bash "$TARGET" 2>&1)
+rc=$?
 chk "unparseable execution_protocol: exit code" "$rc" "1"
 case $out in
     *"Unparseable sections:"*"- execution_protocol"*) got=match ;;
@@ -144,8 +144,8 @@ chk "unparseable execution_protocol: names it" "$got" "match"
 no_checklist=$(printf '%s' "$VALID_BODY" | sed \
     -e 's/^- \[ \] First criterion met$/Just prose here, no checklist markers present at all in this section./' \
     -e '/^- \[ \] Second criterion met$/d')
-rc=$(printf '%s' "$no_checklist" | bash "$TARGET" >/dev/null 2>&1; echo $?)
-out=$(printf '%s' "$no_checklist" | bash "$TARGET" 2>&1 >/dev/null)
+out=$(printf '%s' "$no_checklist" | bash "$TARGET" 2>&1)
+rc=$?
 chk "done_criteria without checklist: exit code" "$rc" "1"
 case $out in
     *"Empty required sections:"*"- done_criteria"*"checklist item"*) got=match ;;
