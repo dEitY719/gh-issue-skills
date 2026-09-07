@@ -5,12 +5,19 @@
 # EXECUTE it, feeding the issue body on stdin — stdout/exit code are the
 # whole product, mirroring lib/ai-metrics-footer.sh's contract:
 #
-#   bash "$PLUGIN_ROOT/lib/validate-protocol.sh" <<<"$BODY" || exit 1
+#   bash "$PLUGIN_ROOT/lib/validate-protocol.sh" "$N" <<<"$BODY" || exit 1
+#
+# $1 (optional): issue number, for the failure block's "#<N>" line and its
+# Next: hint. Omit it (or pass nothing) and both print the literal "<N>".
 #
 # Exit 0: schema satisfied, nothing printed.
 # Exit 1: the exact §4 failure block (protocol-schema.md) on stderr, ready
 #         to print verbatim — no comment is posted on the issue (schema
 #         failure is caller-side).
+#
+# Always invoked via `bash`, never executed directly off its own shebang —
+# same convention as lib/ai-metrics-footer.sh (also #!/bin/sh, also called
+# as `bash "$PLUGIN_ROOT/lib/....sh"` in every SKILL.md that uses it).
 #
 # ponytail: length() below is byte-based (POSIX awk), so a Korean section's
 # character count is undercounted vs. its byte count — makes the 50-char
@@ -22,7 +29,9 @@
 
 set -u
 
-RESULT=$(awk '
+N=${1:-<N>}
+
+BODY_MSG=$(awk '
 BEGIN {
     n_keys = split("goal preconditions execution_protocol decision_rules deliverables done_criteria out_of_scope safety", order, " ")
     alias["goal"] = "goal|목표"
@@ -52,13 +61,21 @@ END {
         }
     }
 
+    # A bare single-word alias ("steps", "output", "abort", ...) must equal
+    # the WHOLE heading, not just appear inside it -- otherwise a heading
+    # like "## Next Steps" or "## Output Formats" (neither a required
+    # section) would false-positive-claim execution_protocol/deliverables.
+    # A multi-word alias ("execution protocol", "decision matrix", ...) is
+    # specific enough to keep substring matching, per protocol-schema.md.
     for (k = 1; k <= n_keys; k++) {
         key = order[k]
         na = split(alias[key], al, "|")
         for (h = 1; h <= hn && found[key] == 0; h++) {
             if (assigned[h] != "") continue
             for (a = 1; a <= na; a++) {
-                if (index(htext[h], al[a]) > 0) {
+                is_multi_word = (index(al[a], " ") > 0)
+                hit = is_multi_word ? (index(htext[h], al[a]) > 0) : (htext[h] == al[a])
+                if (hit) {
                     found[key] = h
                     assigned[h] = key
                     break
@@ -84,7 +101,9 @@ END {
 
         strippedLen = 0
         hasChecklist = 0
-        hasMatrix = 0
+        hasHeaderRow = 0
+        pipeRows = 0
+        sepRows = 0
         hasNumbered = 0
         for (i = startL; i <= endL; i++) {
             l = lines[i]
@@ -93,14 +112,20 @@ END {
             if (l ~ /^-[ \t]+\[[ xX]\]/) hasChecklist = 1
             if (l ~ /^[0-9]+\./ || l ~ /^#{2,3}[ \t]+[0-9]+\./) hasNumbered = 1
             low = tolower(l)
-            if (index(low, "|") > 0 && index(low, "#") > 0 && \
-                (index(low, "workflow") > 0 || index(low, "step") > 0) && \
-                (index(low, "command") > 0 || index(l, "명령") > 0)) hasMatrix = 1
+            if (index(low, "|") > 0) {
+                pipeRows++
+                if (l ~ /^[|:>< -]+$/) sepRows++  # the "|---|---|" divider row
+                if (index(low, "#") > 0 && \
+                    (index(low, "workflow") > 0 || index(low, "step") > 0) && \
+                    (index(low, "command") > 0 || index(low, "명령") > 0)) hasHeaderRow = 1
+            }
             stripped = l
             sub(/^[-*][ \t]+/, "", stripped)
             sub(/^[0-9]+\.[ \t]+/, "", stripped)
             strippedLen += length(stripped)
         }
+        # header row + divider row + at least one real data row.
+        hasMatrix = hasHeaderRow && (pipeRows - sepRows - 1 >= 1)
 
         if (key == "done_criteria") {
             if (!hasChecklist) empty[key] = 1
@@ -111,47 +136,44 @@ END {
         }
     }
 
-    out = ""
-    for (k = 1; k <= n_keys; k++) if (missing[order[k]]) out = out "M:" order[k] " "
-    for (k = 1; k <= n_keys; k++) if (empty[order[k]]) out = out "E:" order[k] " "
-    for (k = 1; k <= n_keys; k++) if (unparseable[order[k]]) out = out "U:" order[k] " "
-    print out
+    mtxt = ""; etxt = ""; utxt = ""
+    for (k = 1; k <= n_keys; k++) {
+        key = order[k]
+        if (missing[key]) {
+            tried = alias[key]
+            gsub(/\|/, ", ", tried)
+            mtxt = mtxt "    - " key "  (aliases tried: " tried ")\n"
+        }
+        if (empty[key]) {
+            if (key == "done_criteria")
+                etxt = etxt "    - done_criteria  (heading present, no - [ ] / - [x] checklist item)\n"
+            else
+                etxt = etxt "    - " key "  (heading present, content < 50 chars)\n"
+        }
+        if (unparseable[key])
+            utxt = utxt "    - " key "  (no matrix table and no numbered steps found)\n"
+    }
+
+    if (mtxt != "" || etxt != "" || utxt != "") {
+        body = ""
+        if (mtxt != "") body = body "  Missing required sections:\n" mtxt
+        if (etxt != "") body = body "  Empty required sections:\n" etxt
+        if (utxt != "") body = body "  Unparseable sections:\n" utxt
+        printf "%s", body
+    }
 }
 ')
 
-if [ -z "$(printf '%s' "$RESULT" | tr -d '[:space:]')" ]; then
+if [ -z "$BODY_MSG" ]; then
     exit 0
 fi
 
-MISSING=""
-EMPTY=""
-UNPARSEABLE=""
-for tok in $RESULT; do
-    case $tok in
-        M:*) MISSING="$MISSING\n    - ${tok#M:}" ;;
-        E:done_criteria) EMPTY="$EMPTY\n    - done_criteria  (heading present, no - [ ] / - [x] checklist item)" ;;
-        E:*) EMPTY="$EMPTY\n    - ${tok#E:}  (heading present, content < 50 chars)" ;;
-        U:*) UNPARSEABLE="$UNPARSEABLE\n    - ${tok#U:}  (no matrix table and no numbered steps found)" ;;
-    esac
-done
-
 {
-    echo "gh-issue:proceed schema validation failed"
-    if [ -n "$MISSING" ]; then
-        echo "  Missing required sections:"
-        printf '%b\n' "$MISSING"
-    fi
-    if [ -n "$EMPTY" ]; then
-        echo "  Empty required sections:"
-        printf '%b\n' "$EMPTY"
-    fi
-    if [ -n "$UNPARSEABLE" ]; then
-        echo "  Unparseable sections:"
-        printf '%b\n' "$UNPARSEABLE"
-    fi
+    echo "gh-issue:proceed #$N schema validation failed"
+    printf '%s\n' "$BODY_MSG"
     echo "  Fix the issue body to satisfy the directive schema, then retry."
     echo "  Reference: skills/proceed/references/protocol-schema.md §3"
-    echo "  Next: /gh-issue:read <N>"
+    echo "  Next: /gh-issue:read $N"
 } >&2
 
 exit 1

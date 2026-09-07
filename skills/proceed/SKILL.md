@@ -51,7 +51,7 @@ transition → depends-on). CLOSED-issue refusal precedes schema
 (`references/fetch-issue.md`).
 
 2.2 **Schema validation** (`schema-valid` marker) — run
-`bash "$PLUGIN_ROOT/lib/validate-protocol.sh" <<<"$BODY"` against the strict
+`bash "$PLUGIN_ROOT/lib/validate-protocol.sh" "$N" <<<"$BODY"` against the strict
 8-section schema (`references/protocol-schema.md`). Exit 0 → continue. Exit
 1 → its stderr is already the §4 failure block; print it verbatim and STOP —
 **no comment on the issue** (schema failure is caller-side).
