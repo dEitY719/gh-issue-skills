@@ -254,6 +254,18 @@ for f in skills/discussion-convert/references/repo-resolution.md \
         || { printf 'FAIL  repo-resolution: %s drifted from skills/create copy\n' "$f"; fails=$((fails + 1)); }
 done
 
+# The docstring in lib/resolve-target.sh's own header pastes the same block
+# behind `# ` comment markers (PR #27 review, agy+codex FOLLOW-UP: nothing
+# above caught a drift between it and the six .md copies).
+awk '
+    /^#   _RT="" # no cwd fallback/ && !on { on = 1 }
+    on { line = $0; sub(/^#   /, "", line); print line }
+    on && /^#   \. "\$_RT"/ { exit }
+' "$ROOT/lib/resolve-target.sh" > "$TMP/repo-resolution-docstring.sh"
+[ -s "$TMP/repo-resolution-docstring.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from lib/resolve-target.sh docstring\n'; fails=$((fails + 1)); }
+chk "repo-resolution: lib/resolve-target.sh docstring matches skills/create copy" \
+    "$(cat "$TMP/repo-resolution.sh")" "$(cat "$TMP/repo-resolution-docstring.sh")"
+
 if command -v dash >/dev/null 2>&1; then
     # Decoy: exactly what a PR checkout under review could ship — its own
     # lib/resolve-target.sh at $PWD, poisoning TARGET_REPO if ever sourced.
@@ -274,10 +286,13 @@ DECOY
     # git repo with an `origin` remote to read. The path is interpolated into
     # the -c script text, not forwarded as a positional: a positional would
     # become $1 inside the sourced block too, ahead of its own
-    # `"${REMOTE:-origin}"` default.
+    # `"${REMOTE:-origin}"` default. Asserts more than rc=0 (PR #27 review,
+    # codex FOLLOW-UP): a broken block could still exit 0 without ever
+    # exporting TARGET_REPO, so the real remote's owner/repo must show up too.
+    EXPECT_REPO=$(cd "$ROOT" && git remote get-url origin | sed -E 's#.*[:/]([^/]+/[^/]+)\.git$#\1#')
     got=$( cd "$ROOT" && env CLAUDE_PLUGIN_ROOT="$ROOT" dash -c \
-        ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s' \"\$?\"" )
-    chk "repo-resolution bootstrap resolves via CLAUDE_PLUGIN_ROOT (tier 1)" 0 "$got"
+        ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\"" )
+    chk "repo-resolution bootstrap resolves via CLAUDE_PLUGIN_ROOT (tier 1)" "0|$EXPECT_REPO" "$got"
 else
     echo "skip  dash not installed"
 fi
