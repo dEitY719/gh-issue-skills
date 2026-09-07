@@ -22,7 +22,7 @@ end-to-end WITHOUT human intervention: validate the schema, execute each step pe
 body's `decision_rules`, apply the authorized write actions (commit / PR / comment /
 close / file follow-up). Same shell as `/gh-issue:implement` minus superpowers
 detection and mode dispatch — a directive issue is pre-designed, so mode is always
-`direct`. SSOT: `docs/feature/gh-issue-proceed-skill/design.md`. On each step's success
+`direct`. SSOT for the protocol schema: `references/protocol-schema.md` + `lib/validate-protocol.sh`. On each step's success
 emit `printf '[step:gh-issue-proceed/<id>] OK\n'` (`fetch-issue`, `schema-valid`,
 `execute`, `report`).
 
@@ -50,10 +50,11 @@ in `references/claim.md` (fetch → block-label guard → self-assign → board
 transition → depends-on). CLOSED-issue refusal precedes schema
 (`references/fetch-issue.md`).
 
-2.2 **Schema validation** (`schema-valid` marker) — validate the body
-against the strict 8-section schema in `references/protocol-schema.md`. Any
-missing / empty / unparseable required section → print the §3.4 failure
-block and STOP — **no comment on the issue** (schema failure is caller-side).
+2.2 **Schema validation** (`schema-valid` marker) — run
+`bash "$PLUGIN_ROOT/lib/validate-protocol.sh" <<<"$BODY"` against the strict
+8-section schema (`references/protocol-schema.md`). Exit 0 → continue. Exit
+1 → its stderr is already the §4 failure block; print it verbatim and STOP —
+**no comment on the issue** (schema failure is caller-side).
 
 2.3 **Precondition class** — classify per `references/preconditions.md`
 (read-only / mutation-required / mixed / verify-only); log it.
@@ -88,10 +89,6 @@ reconciliation, outcome), then append the ai-metrics line defined there. Compute
 Gate rules are absolute; see `references/safety-gates.md` for full layers:
 
 - **Never** force-push the default branch, leak a secret to GitHub output, mutate another worktree, or `gh pr merge` — Layer-1, body cannot override.
-- **Never** invent a result class or action verb — fail-closed vs `decision_rules` and the fixed verb registry.
-- **Never** apply a conditional permission (bulk / force-with-lease / cross-repo / net) without its §safety `allow:` token.
-- **Never** run `mutation-required` on the default branch or a dirty tree.
-- **Never** comment on schema-validation failure (caller-side).
 - Mode is always `direct`; no plan / brainstorming dispatch.
 
 ## Related Skills

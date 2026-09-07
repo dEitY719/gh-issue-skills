@@ -5,7 +5,9 @@ H2 or H3 heading whose normalized text matches one of the listed aliases
 (case-insensitive substring; alias list per row is OR). SSOT for the
 schema validator; the bats fixture
 `dEitY719/dotfiles/tests/bats/skills/_fixtures/gh_issue_proceed_schema.sh` mirrors this and
-the suite `gh_issue_proceed_schema.bats` exercises five variants.
+the suite `gh_issue_proceed_schema.bats` exercises five variants. `lib/validate-protocol.sh`
+is this spec as code (self-check: `lib/validate-protocol.selfcheck.sh`) — Step 2.2 executes
+it rather than re-deriving §§1-3 by hand each run.
 
 ## 1. Required sections
 
@@ -54,7 +56,8 @@ gh-issue:proceed #<N> schema validation failed
   Unparseable sections:
     - execution_protocol  (no matrix table and no numbered steps found)
   Fix the issue body to satisfy the directive schema, then retry.
-  Reference: <repo>/docs/feature/gh-issue-proceed-skill/design.md §3
+  Reference: skills/proceed/references/protocol-schema.md §3
+  Next: /gh-issue:read <N>
 ```
 
 No comment is posted on the issue itself — schema failure is a caller-side
