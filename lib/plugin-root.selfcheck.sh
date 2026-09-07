@@ -260,7 +260,7 @@ done
 awk '
     /^#   _RT="" # no cwd fallback/ && !on { on = 1 }
     on { line = $0; sub(/^#   /, "", line); print line }
-    on && /^#   \. "\$_RT"/ { exit }
+    on && /\. "\$_RT" \|\| exit 1$/ { exit }
 ' "$ROOT/lib/resolve-target.sh" > "$TMP/repo-resolution-docstring.sh"
 [ -s "$TMP/repo-resolution-docstring.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from lib/resolve-target.sh docstring\n'; fails=$((fails + 1)); }
 chk "repo-resolution: lib/resolve-target.sh docstring matches skills/create copy" \
