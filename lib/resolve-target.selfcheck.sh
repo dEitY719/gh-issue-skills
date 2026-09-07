@@ -102,6 +102,20 @@ else
     echo "skip  dash not installed"
 fi
 
+# 8b. Under dash, a prefix assignment on a special builtin's command line
+#     (`VAR=val . file`) persists in the calling shell after it returns —
+#     unlike a normal command, where the same prefix is scoped to that one
+#     command. Left un-unset, a stale GH_RESOLVE_TARGET_REMOTE would leak
+#     into a later, unrelated sourcing in the same shell and silently win
+#     over `origin` (PR dEitY719/gh-issue-skills#29 review, agy FOLLOW-UP).
+if command -v dash >/dev/null 2>&1; then
+    got=$( cd "$TMP" && CLAUDE_PLUGIN_ROOT="$ROOT" DOTFILES_ROOT=/nonexistent-dotfiles \
+           dash -c "GH_RESOLVE_TARGET_REMOTE=ghes . \"$TARGET\" >/dev/null 2>&1; printf '%s' \"\${GH_RESOLVE_TARGET_REMOTE:-unset}\"" )
+    chk "GH_RESOLVE_TARGET_REMOTE does not leak past sourcing" "$got" "unset"
+else
+    echo "skip  dash not installed"
+fi
+
 # 9. No tier 4 (dEitY719/harness-skills#22, PR #18 codex BLOCKER): with no
 #    CLAUDE_PLUGIN_ROOT and no self-locating $0 — POSIX sh, the shape every
 #    non-bash/zsh harness runs — a cwd that DOES hold lib/vendor/shell-common

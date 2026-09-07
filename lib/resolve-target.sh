@@ -56,6 +56,14 @@ fi
 
 _rt_resolve() {
     _rt_remote="${GH_RESOLVE_TARGET_REMOTE:-origin}"
+    # Consume it immediately: `.` is a POSIX special builtin, so a prefix
+    # assignment on the sourcing line (`VAR=val . file`) persists in the
+    # *calling* shell under dash after this returns — unlike a normal
+    # command, where the same prefix would be scoped to that command alone
+    # (PR dEitY719/gh-issue-skills#29 review, agy FOLLOW-UP). Left unset, a
+    # stale value would silently win over `origin` on the next unrelated
+    # sourcing in the same shell.
+    unset GH_RESOLVE_TARGET_REMOTE
 
     if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
         echo "Not in a git repo. cd into one first." >&2
