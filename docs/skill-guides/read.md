@@ -69,8 +69,11 @@ SKILL.md 의 Step 구조는 4단계다.
    Checklist 는 본문과 코멘트에서 `- [ ]` / `- [x]` 라인을 전부 긁어 모은다.
    섹션 제목은 대화 언어를 따르되 내용은 원문 언어를 유지한다.
 4. **Step 4 — 리포트.** 서두("이슈 내용은 다음과 같습니다")나 맺음말 없이 출력만
-   찍고, 마지막에 `[ai-metrics:gh-issue-read] ~{ELAPSED} min (read-only — not
-   written to GitHub)` 한 줄을 붙인다.
+   찍고, `[ai-metrics:gh-issue-read] ~{ELAPSED} min (read-only — not
+   written to GitHub)` 한 줄을 붙인다. OPEN 이슈면 그 뒤에 `Next:` 한 줄이 더
+   붙는다 — 본문이 `proceed` 의 8개 필수 섹션을 모두 갖췄으면
+   `/gh-issue:proceed <N>`, 아니면 `/gh-issue:implement <N>`. CLOSED 이슈에는
+   붙이지 않는다.
 
 ## 주의사항과 제약
 

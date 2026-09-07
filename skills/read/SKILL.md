@@ -78,13 +78,12 @@ this skill never mutates GitHub):
 
 Compute `ELAPSED=$(( ($(date +%s) - START_TS) / 60 ))` just before printing.
 
-Then one `Next:` line, keyed off what Step 2 already fetched — omit it entirely
-for a CLOSED issue, which has no follow-up:
+Then one `Next:` line, decided from what Step 2 already fetched — no extra call:
 
-```
-Next: /gh-issue:implement <N>      # OPEN, code-change issue
-Next: /gh-issue:proceed <N>        # OPEN, body carries an execution protocol
-```
+- `state` is `CLOSED` → omit the line entirely; there is no follow-up.
+- the body carries all 8 required sections of
+  `skills/proceed/references/protocol-schema.md` → `Next: /gh-issue:proceed <N>`.
+- any other OPEN issue → `Next: /gh-issue:implement <N>`.
 
 ## Constraints
 
