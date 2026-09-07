@@ -47,7 +47,7 @@ item lists the reason (`step skipped: SKIP-NET`, `ambiguous match`, etc.).
 
 Keyed to the outcome row above:
 
-- Fully met, closed — `Next: gh pr list --repo "$TARGET_REPO"` to review
+- Fully met, closed — `Next: GH_HOST="$TARGET_HOST" gh pr list --repo "$TARGET_REPO"` to review
   whatever the protocol filed, or nothing if no write actions ran.
 - Partial — `Next: /gh-issue:proceed <N>` after resolving the unmet criteria
   named in the reconciliation table.

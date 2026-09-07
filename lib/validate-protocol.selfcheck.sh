@@ -159,5 +159,38 @@ chk "done_criteria without checklist: names it" "$got" "match"
 rc=$(printf '%s' "$VALID_BODY" | bash "$TARGET" >/dev/null 2>&1; echo $?)
 chk "numbered ### sub-steps do not truncate the section" "$rc" "0"
 
+# 8. A matrix header row with no data rows is unparseable, not valid
+#    (codex review BLOCKER on PR #23: a header-only table let a malformed
+#    directive through).
+header_only=$(printf '%s' "$matrix_body" | sed '/^| 1 | stock list | stock list 1 10 | pass |$/d')
+rc=$(printf '%s' "$header_only" | bash "$TARGET" >/dev/null 2>&1; echo $?)
+chk "matrix header with no data rows fails" "$rc" "1"
+
+# 9. A single-word alias ("steps") must match the WHOLE heading, not just
+#    appear inside an unrelated one -- otherwise "## Next Steps" would
+#    hijack execution_protocol before the real "## Execution Protocol"
+#    heading is ever seen (agy review BLOCKER on PR #23).
+hijack_attempt=$(printf '%s' "$VALID_BODY" | sed '/^## Execution Protocol$/i\
+## Next Steps\
+Unrelated notes that happen to contain the word steps in the heading.\
+')
+rc=$(printf '%s' "$hijack_attempt" | bash "$TARGET" >/dev/null 2>&1; echo $?)
+chk "ambiguous 'Next Steps' heading does not hijack execution_protocol" "$rc" "0"
+
+# 10. The failure block carries the issue number passed as $1, and a
+#     missing section's message names the aliases that were tried
+#     (codex review BLOCKER on PR #23: the block dropped both).
+out=$(printf '%s' "$missing" | bash "$TARGET" 99 2>&1)
+case $out in
+    "gh-issue:proceed #99 schema validation failed"*) got=match ;;
+    *) got="no-match: $out" ;;
+esac
+chk "failure block carries the passed issue number" "$got" "match"
+case $out in
+    *"- goal  (aliases tried: goal, 목표)"*) got=match ;;
+    *) got="no-match: $out" ;;
+esac
+chk "failure block names the aliases tried" "$got" "match"
+
 [ "$FAIL" = "0" ] && echo "All checks passed." || echo "SOME CHECKS FAILED."
 exit "$FAIL"
