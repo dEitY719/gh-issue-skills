@@ -38,59 +38,66 @@ export DOTFILES_ROOT=/nonexistent-dotfiles
 cd "$TMP" || exit 1
 
 # 1. github.com remote: repo and host both read from that one URL.
-got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" origin >/dev/null 2>&1 &&
+got=$( CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=origin . "$TARGET" >/dev/null 2>&1 &&
        printf '%s|%s|%s' "$TARGET_REPO" "$TARGET_HOST" "$GH_HOST" )
 chk "github.com remote" "$got" "acme/widget|github.com|github.com"
 
 # 2. GHES remote: the host follows the URL, not the PC's setup mode. This is
 #    the dEitY719/dotfiles#1403 case the whole helper exists for.
-got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" ghes >/dev/null 2>&1 &&
+got=$( CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=ghes . "$TARGET" >/dev/null 2>&1 &&
        printf '%s|%s' "$TARGET_REPO" "$GH_HOST" )
 chk "GHES remote picks its own host" "$got" "acme/widget|github.samsungds.net"
 
 # 3. SHELL_COMMON names whichever tree resolved.
-got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" origin >/dev/null 2>&1 &&
+got=$( CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=origin . "$TARGET" >/dev/null 2>&1 &&
        printf '%s' "$SHELL_COMMON" )
 chk "SHELL_COMMON exported" "$got" "$ROOT/lib/vendor/shell-common"
 
 # 3b. PLUGIN_ROOT is the proven plugin root skills address lib/ helpers with.
-got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" origin >/dev/null 2>&1 &&
+got=$( CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=origin . "$TARGET" >/dev/null 2>&1 &&
        printf '%s' "$PLUGIN_ROOT" )
 chk "PLUGIN_ROOT exported" "$got" "$ROOT"
 
 # 3c. Without CLAUDE_PLUGIN_ROOT it still resolves, from this file's own path.
 #     The cwd here is $TMP, not the plugin, so this also proves PLUGIN_ROOT is
 #     never the caller-controlled $PWD (dEitY719/harness-skills#22).
-got=$( unset CLAUDE_PLUGIN_ROOT; . "$TARGET" origin >/dev/null 2>&1;
+got=$( unset CLAUDE_PLUGIN_ROOT; GH_RESOLVE_TARGET_REMOTE=origin . "$TARGET" >/dev/null 2>&1;
        printf '%s' "$PLUGIN_ROOT" )
 chk "PLUGIN_ROOT is proven, not \$PWD" "$got" "$ROOT"
 
 # 4. No CLAUDE_PLUGIN_ROOT (every non-Claude harness): the vendored tree is
 #    still found, via the sourced file's own path.
-got=$( unset CLAUDE_PLUGIN_ROOT; . "$TARGET" origin >/dev/null 2>&1 &&
+got=$( unset CLAUDE_PLUGIN_ROOT; GH_RESOLVE_TARGET_REMOTE=origin . "$TARGET" >/dev/null 2>&1 &&
        printf '%s' "$GH_HOST" )
 chk "resolves without CLAUDE_PLUGIN_ROOT" "$got" "github.com"
 
 # 5. Unknown remote fails instead of silently falling back to origin.
-( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" nosuchremote ) >/dev/null 2>&1
+( CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=nosuchremote . "$TARGET" ) >/dev/null 2>&1
 chk "unknown remote returns non-zero" "$?" "1"
 
 # 6. Outside a git repo, fail rather than guess.
-( cd / && CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" origin ) >/dev/null 2>&1
+( cd / && CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=origin . "$TARGET" ) >/dev/null 2>&1
 chk "outside a git repo returns non-zero" "$?" "1"
 
 # 7. A non-github remote is refused outright rather than half-resolved: the
 #    caller must never proceed with an empty GH_HOST, which is precisely the
 #    silent wrong-server state of dEitY719/dotfiles#1403.
 git -C "$TMP" remote add other https://gitlab.com/acme/widget.git
-got=$( CLAUDE_PLUGIN_ROOT="$ROOT" . "$TARGET" other >/dev/null 2>&1; printf '%s|%s' "$?" "${GH_HOST:-unset}" )
+got=$( CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=other . "$TARGET" >/dev/null 2>&1; printf '%s|%s' "$?" "${GH_HOST:-unset}" )
 chk "non-github remote refused, GH_HOST untouched" "$got" "1|unset"
 
-# 8. POSIX sh must be able to source it with an argument.
-got=$( cd "$TMP" && CLAUDE_PLUGIN_ROOT="$ROOT" DOTFILES_ROOT=/nonexistent-dotfiles \
-       dash -c ". \"$TARGET\" origin >/dev/null 2>&1 && printf '%s' \"\$GH_HOST\"" 2>/dev/null )
+# 8. POSIX sh must be able to source it with a non-default remote — via
+#    GH_RESOLVE_TARGET_REMOTE, never a positional arg to `.`, which is a
+#    bash/zsh extension dash silently drops. Uses ghes, not origin: a
+#    dropped remote falls back to origin's host, and origin's host here is
+#    ALSO github.com, so a same-as-default check can't tell "the remote was
+#    honoured" from "the remote was silently ignored"
+#    (dEitY719/gh-issue-skills#28).
 if command -v dash >/dev/null 2>&1; then
-    chk "sourced under dash" "$got" "github.com"
+    got=$( cd "$TMP" && CLAUDE_PLUGIN_ROOT="$ROOT" DOTFILES_ROOT=/nonexistent-dotfiles \
+           GH_RESOLVE_TARGET_REMOTE=ghes \
+           dash -c ". \"$TARGET\" >/dev/null 2>&1 && printf '%s' \"\$GH_HOST\"" 2>/dev/null )
+    chk "sourced under dash, non-default remote" "$got" "github.samsungds.net"
 else
     echo "skip  dash not installed"
 fi
@@ -108,7 +115,7 @@ _gh_resolve_host() { echo evil.example; }
 DECOY
 if command -v dash >/dev/null 2>&1; then
     got=$( cd "$TMP" && env -u CLAUDE_PLUGIN_ROOT DOTFILES_ROOT=/nonexistent-dotfiles \
-           dash -c ". \"$TARGET\" origin >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\"" )
+           dash -c ". \"$TARGET\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\"" )
     chk "cwd lib/vendor is never sourced (no tier 4)" "$got" "1|unset"
 else
     echo "skip  dash not installed"

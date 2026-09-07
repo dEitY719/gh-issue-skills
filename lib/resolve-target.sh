@@ -5,7 +5,9 @@
 # SOURCE it, never execute it — the exports are the whole product. No cwd
 # fallback (dEitY719/harness-skills#24): $PWD is caller-controlled — a PR
 # checkout under review — and a defaulted splice here would source THAT
-# CHECKOUT'S OWN copy of this file before its fail-closed logic (#22) ever runs:
+# CHECKOUT'S OWN copy of this file before its fail-closed logic (#22) ever
+# runs. Set GH_RESOLVE_TARGET_REMOTE first, in the same shell — not a
+# positional arg to `.` (see below) — then source:
 #
 #   _RT="" # no cwd fallback (dEitY719/harness-skills#24)
 #   [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RT="$CLAUDE_PLUGIN_ROOT/lib/resolve-target.sh" # tier 1
@@ -14,9 +16,17 @@
 #       return 1 2>/dev/null || exit 1
 #   fi
 #   # shellcheck disable=SC1091
-#   . "$_RT" "${REMOTE:-origin}" || exit 1
+#   GH_RESOLVE_TARGET_REMOTE="${REMOTE:-origin}" . "$_RT" || exit 1
 #
-# Reads   $1 (remote name, default `origin`), DOTFILES_ROOT, CLAUDE_PLUGIN_ROOT.
+# Deliberately not a positional arg to `.` — that is a bash/zsh extension
+# POSIX does not require, and dash silently drops it (confirmed: `. file
+# ghes` under dash resolves as if `ghes` were never passed, defaulting to
+# `origin` — dEitY719/gh-issue-skills#28). An env var assigned immediately
+# before the `.` call works identically everywhere and is exactly as fresh
+# per call.
+#
+# Reads   GH_RESOLVE_TARGET_REMOTE (remote name, default `origin`),
+#         DOTFILES_ROOT, CLAUDE_PLUGIN_ROOT.
 # Exports TARGET_REPO, TARGET_HOST, GH_HOST, SHELL_COMMON (whichever
 #         shell-common tree actually resolved), and PLUGIN_ROOT (this plugin's
 #         own root, for addressing lib/ helpers without a $PWD fallback).
@@ -45,7 +55,7 @@ else
 fi
 
 _rt_resolve() {
-    _rt_remote="${1:-origin}"
+    _rt_remote="${GH_RESOLVE_TARGET_REMOTE:-origin}"
 
     if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
         echo "Not in a git repo. cd into one first." >&2
@@ -110,4 +120,4 @@ _rt_resolve() {
 }
 
 # The call's status becomes the sourcing skill's status.
-_rt_resolve "$@"
+_rt_resolve
