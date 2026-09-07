@@ -276,7 +276,10 @@ if command -v dash >/dev/null 2>&1; then
 export TARGET_REPO="poisoned/repo"
 DECOY
     RRBLOCK="$TMP/repo-resolution.sh"
-    got=$( cd "$DECOY_RT" && env -u CLAUDE_PLUGIN_ROOT dash -c \
+    # -u TARGET_REPO (PR #27 review, codex FOLLOW-UP): an already-exported
+    # TARGET_REPO in the calling shell would leak into the child and read back
+    # as itself instead of "unset" even when the decoy correctly never ran.
+    got=$( cd "$DECOY_RT" && env -u CLAUDE_PLUGIN_ROOT -u TARGET_REPO dash -c \
         ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\"" )
     chk "repo-resolution bootstrap never sources cwd's own resolve-target.sh (no tier 4)" \
         "1|unset" "$got"
@@ -297,7 +300,12 @@ DECOY
     # shellcheck disable=SC1091
     . "$ROOT/lib/vendor/shell-common/functions/gh_host.sh" 2>/dev/null
     EXPECT_REPO=$(_gh_parse_owner_repo_url "$(cd "$ROOT" && git remote get-url origin)")
-    got=$( cd "$ROOT" && env CLAUDE_PLUGIN_ROOT="$ROOT" dash -c \
+    # -u DOTFILES_ROOT -u SHELL_COMMON, HOME=$HOME_EMPTY (PR #27 review, codex
+    # FOLLOW-UP): matches the isolation `resolves()` above already uses — an
+    # inherited ~/dotfiles could let resolve-target.sh source a DIFFERENT
+    # gh_host.sh than the vendored one EXPECT_REPO was computed from.
+    got=$( cd "$ROOT" && env -u TARGET_REPO -u DOTFILES_ROOT -u SHELL_COMMON \
+        CLAUDE_PLUGIN_ROOT="$ROOT" HOME="$HOME_EMPTY" dash -c \
         ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\"" )
     chk "repo-resolution bootstrap resolves via CLAUDE_PLUGIN_ROOT (tier 1)" "0|$EXPECT_REPO" "$got"
 else
