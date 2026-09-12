@@ -36,7 +36,7 @@
 ## 호출 형식과 인자
 
 ```
-/gh-issue:create [remote] [flags]
+/gh-issue:issue-create [remote] [flags]
 ```
 
 `references/help.md` 기준 — 인자:
@@ -58,9 +58,9 @@
 이 밖에 `--label`, `--assignee @me`, 환경변수 `GH_DISABLE_AI_METRICS=1` 이 있다
 (전체 목록은 `references/options.md`).
 
-사용 예: `/gh-issue:create`, `/gh-issue:create upstream`,
-`/gh-issue:create --no-auto-labels`, `/gh-issue:create --as-discussion Ideas`,
-`/gh-issue:create -h`.
+사용 예: `/gh-issue:issue-create`, `/gh-issue:issue-create upstream`,
+`/gh-issue:issue-create --no-auto-labels`, `/gh-issue:issue-create --as-discussion Ideas`,
+`/gh-issue:issue-create -h`.
 
 ## 동작 단계 요약
 

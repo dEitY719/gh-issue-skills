@@ -27,7 +27,7 @@
 
 Discussion 은 Issue 로 추적하기에 **너무 이르거나(RFC) 너무 늦은(공지·학습)** 항목을
 담는 자리다. 그래서 Step 2.1 의 라우팅 가드가 "결정된 to-do" 신호를 감지하면 뮤테이션을
-호출하지 않고 `/gh-issue:create` 로 되돌려 보낸다.
+호출하지 않고 `/gh-issue:issue-create` 로 되돌려 보낸다.
 
 반대 방향의 다리는 `discussion-convert` 다. 열린 질문이 나중에 결정되면 그 Discussion 을
 Issue 로 승격시켜 트래커로 되돌린다.

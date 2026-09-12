@@ -20,13 +20,13 @@ no shared assets — it links out for the
 | Skill | Invoke | What it does |
 |-------|--------|--------------|
 | `read` | `/gh-issue:read <N> [remote]` | Fetches one issue and prints a structured, **verbatim** summary — body and comments unaltered. Read-only; it mutates nothing. |
-| `create` | `/gh-issue:create [options]` | Saves the current conversation as an Issue, classified by conventional-commit prefix, with auto-labels, a dependency scan, and an ai-metrics footer. Stops and asks rather than inventing requirements the chat never decided. |
+| `issue-create` | `/gh-issue:issue-create [options]` | Saves the current conversation as an Issue, classified by conventional-commit prefix, with auto-labels, a dependency scan, and an ai-metrics footer. Stops and asks rather than inventing requirements the chat never decided. |
 | `implement` | `/gh-issue:implement <N> [mode] [remote]` | Claims the issue, moves its board card to `In progress`, captures a pre-edit test baseline, then edits and tests. **Never commits and never opens a PR.** |
 | `proceed` | `/gh-issue:proceed <N> [remote]` | Executes the 8-section protocol a *directive* issue embeds, unattended — strict schema validation, a safety gate per write step. Not a code implementer. |
-| `discussion-create` | `/gh-issue:discussion-create [category]` | Saves a pre-decision chat as an RFC-shaped Discussion (default `Ideas`). Refuses a decided to-do and routes it to `create`. |
+| `discussion-create` | `/gh-issue:discussion-create [category]` | Saves a pre-decision chat as an RFC-shaped Discussion (default `Ideas`). Refuses a decided to-do and routes it to `issue-create`. |
 | `discussion-convert` | `/gh-issue:discussion-convert <N>` | Promotes a decided `Ideas` Discussion into a backlinked Issue, then locks and closes it. Idempotent. |
 
-`create` and `discussion-create` are a pair split by *decidedness*: a converged
+`issue-create` and `discussion-create` are a pair split by *decidedness*: a converged
 to-do becomes an Issue, an open question becomes a Discussion.
 `discussion-convert` is the bridge back once the question is settled.
 
@@ -36,7 +36,7 @@ one safe to point at someone else's repo.
 ### Visual guides and worked examples (GitHub Pages)
 
 - `read` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/read.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/read-usage.html) (issue number to verbatim terminal summary)
-- `create` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/create.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/create-usage.html) (conversation to GitHub Issue)
+- `issue-create` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/create.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/create-usage.html) (conversation to GitHub Issue)
 - `implement` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/implement.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/implement-usage.html) (issue to file edits and test run)
 - `proceed` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/proceed.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/proceed-usage.html) (directive issue to executed protocol)
 - `discussion-create` — [visual guide](https://deity719.github.io/gh-issue-skills/skill-guides/discussion-create.html) · [usage example](https://deity719.github.io/gh-issue-skills/skill-output/discussion-create-usage.html) (conversation to RFC Discussion)
@@ -50,7 +50,7 @@ Each page is generated from a Markdown source under
 | Skill | Needs |
 |-------|-------|
 | `read` | An authenticated `gh` CLI with read access. Host and repo both resolve from one remote URL and are passed explicitly on every call. |
-| `create` | `gh` with write access to issues. Discussion routing additionally needs the discussion scopes. |
+| `issue-create` | `gh` with write access to issues. Discussion routing additionally needs the discussion scopes. |
 | `implement` | `gh` with write access, plus a **clean working tree on a feature branch** — it refuses to run on the default branch and never creates a worktree for you. A test runner is detected if present; without one the test steps are skipped, not faked. |
 | `proceed` | `gh` with write access, same branch preconditions as `implement`, plus whatever the individual protocol's steps require. |
 | `discussion-create`, `discussion-convert` | `gh` with the GraphQL discussion scopes. `discussion-convert` also needs permission to lock and close. |
@@ -58,7 +58,7 @@ Each page is generated from a Markdown source under
 Every skill carries `GH_HOST` **and** `--repo` on every `gh` call, both resolved
 from the same remote URL. `--repo` alone names no server: on a dual-host login
 (github.com plus a GHES instance) a bare call silently queries the wrong one and
-reports an OPEN issue as "not found" (dEitY719/dotfiles#1403).
+reports an OPEN issue as "not found" (dEitY719/dotfiles#1403). Never drop either.
 
 ## Install
 
@@ -101,17 +101,14 @@ Antigravity (`agy`) shares `~/.gemini`, so it inherits the install.
 
 ## Harness support
 
-These are `gh` CLI calls and file writes, so they port cleanly with one
-exception — `implement`'s TDD path calls `superpowers:test-driven-development`
-through Claude Code's `Skill()` tool. Every gap and its workaround is documented
-per harness in
-[`harness-skills/references/`](https://github.com/dEitY719/harness-skills/tree/main/references);
-read the one file for the harness you are on.
+Every skill runs across all six harnesses with the same behaviour. Manifests
+at the repo root route each harness to the same `./skills/` directory without
+symlinks or code duplication:
 
 | Skill | Claude Code | Codex | Kimi | Gemini / Antigravity | Hermes | OpenCode |
 |-------|:-----------:|:-----:|:----:|:--------------------:|:------:|:--------:|
 | `read` | full | full | full | full | full | full |
-| `create` | full | full, confirm in chat | full | full on Gemini, confirm in chat on Antigravity | full, confirm in chat | full, confirm in chat |
+| `issue-create` | full | full, confirm in chat | full | full on Gemini, confirm in chat on Antigravity | full, confirm in chat | full, confirm in chat |
 | `implement` | full | fallback path | fallback path | fallback path | fallback path | fallback path |
 | `proceed` | full | full | full | full | full | full |
 | `discussion-create` | full | full, confirm in chat | full | full on Gemini, confirm in chat on Antigravity | full, confirm in chat | full, confirm in chat |
@@ -123,7 +120,7 @@ detected; otherwise it runs the built-in path (pre-edit baseline, edits, test ru
 bounded 3-attempt failure loop, full report), as harnesses without a `Skill()`
 equivalent always do. Same finish line — the skill never requires the plugin.
 
-*confirm in chat* — two steps need a real answer: `create`'s clarification guard
+*confirm in chat* — two steps need a real answer: `issue-create`'s clarification guard
 (conversation has not converged) and `discussion-create`'s category selection.
 Kimi (`AskUserQuestion`) and Gemini CLI (`ask_user`) have a structured question
 tool; Codex, Hermes, Antigravity, and OpenCode do not, so ask and wait for a real
@@ -151,7 +148,7 @@ Manifests live at the repo root and all point at one flat `skills/` directory:
 
 ```
 .
-├── skills/{read,create,implement,proceed,discussion-create,discussion-convert}/
+├── skills/{read,issue-create,implement,proceed,discussion-create,discussion-convert}/
 │   ├── SKILL.md
 │   └── references/
 ├── .claude-plugin/{marketplace,plugin}.json     Claude Code
@@ -181,7 +178,7 @@ the sibling does not exist yet (dEitY719/dotfiles#1676 §2):
 
 | Old | New | Lives in |
 |-----|-----|----------|
-| `gh:issue-read` / `-create` / `-implement` / `-proceed` | `gh-issue:read` / `:create` / `:implement` / `:proceed` | this repo |
+| `gh:issue-read` / `-create` / `-implement` / `-proceed` | `gh-issue:read` / `:issue-create` / `:implement` / `:proceed` | this repo |
 | `gh:discussion-create` / `-convert` | `gh-issue:discussion-create` / `:discussion-convert` | this repo |
 | `gh:commit` | `gh-pr:commit` | `gh-pr-skills` |
 | `gh:pr` | `gh-pr:create` | `gh-pr-skills` |

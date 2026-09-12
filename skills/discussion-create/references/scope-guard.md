@@ -48,7 +48,7 @@ clarification before calling the mutation. Mirrors
   - <second signal if any>
 
 권장:
-  /gh-issue:create
+  /gh-issue:issue-create
 
 그래도 Discussion 으로 등록하려면:
   /gh-issue:discussion-create --force-discussion

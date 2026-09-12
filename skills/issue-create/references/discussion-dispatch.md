@@ -1,4 +1,4 @@
-# gh-issue:create — Create dispatch (Step 4)
+# gh-issue:issue-create — Create dispatch (Step 4)
 
 Read `references/create-cmd.md` and paste the matching bash block
 verbatim:

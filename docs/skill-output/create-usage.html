@@ -128,7 +128,7 @@ footer{border-top:1px solid var(--border);padding:32px 0 52px;color:var(--text-s
     <div class="flow animate delay-4" style="margin-top:28px">
       <span class="flow-node">현재 대화 + remote</span>
       <span class="flow-arrow">──▶</span>
-      <span class="flow-node hi">/gh-issue:create</span>
+      <span class="flow-node hi">/gh-issue:issue-create</span>
       <span class="flow-arrow">──▶</span>
       <span class="flow-node dim">GitHub Issue 1건 (#N + URL)</span>
     </div>
@@ -142,11 +142,11 @@ footer{border-top:1px solid var(--border);padding:32px 0 52px;color:var(--text-s
     <h2 data-reveal style="margin:8px 0 6px">범용 형식과 실제 호출</h2>
     <div class="term" data-reveal>
       <div class="term-bar"><span class="term-dot" style="background:#f43f5e"></span><span class="term-dot" style="background:#f59e0b"></span><span class="term-dot" style="background:#10b981"></span><span class="term-title">범용 형식</span></div>
-      <pre><span class="pr">$</span> /gh-issue:create [remote] [flags]</pre>
+      <pre><span class="pr">$</span> /gh-issue:issue-create [remote] [flags]</pre>
     </div>
     <div class="term" data-reveal>
       <div class="term-bar"><span class="term-dot" style="background:#f43f5e"></span><span class="term-dot" style="background:#f59e0b"></span><span class="term-dot" style="background:#10b981"></span><span class="term-title">실제 실행</span></div>
-      <pre><span class="pr">$</span> /gh-issue:create --help</pre>
+      <pre><span class="pr">$</span> /gh-issue:issue-create --help</pre>
     </div>
   </div>
 </section>

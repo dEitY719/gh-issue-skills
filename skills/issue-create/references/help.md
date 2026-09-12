@@ -1,4 +1,4 @@
-# gh-issue:create — Help
+# gh-issue:issue-create — Help
 
 ## Arguments
 
@@ -18,15 +18,15 @@
 
 ## Usage
 
-- `/gh-issue:create` — create issue on `origin`'s repo (the most common case)
-- `/gh-issue:create upstream` — create issue on the `upstream` remote's repo
-- `/gh-issue:create --no-auto-labels` — skip the SSOT auto-label step
-- `/gh-issue:create --no-auto-deps` — skip 선행-이슈 (blockedBy) auto-detection
-- `/gh-issue:create --auto-label-debug` — verbose label-dispatch trace
-- `/gh-issue:create --no-ask` — 미결을 사용자에게 묻지 않고 보수적으로 자율 결정 (무인 호출용)
-- `/gh-issue:create --as-discussion Ideas` — route the same conversation to [[gh-issue:discussion-create]] (RFC body, Ideas category)
-- `/gh-issue:create upstream --as-discussion Q&A` — Q&A Discussion on the `upstream` remote's repo
-- `/gh-issue:create -h` / `--help` / `help` — print this help
+- `/gh-issue:issue-create` — create issue on `origin`'s repo (the most common case)
+- `/gh-issue:issue-create upstream` — create issue on the `upstream` remote's repo
+- `/gh-issue:issue-create --no-auto-labels` — skip the SSOT auto-label step
+- `/gh-issue:issue-create --no-auto-deps` — skip 선행-이슈 (blockedBy) auto-detection
+- `/gh-issue:issue-create --auto-label-debug` — verbose label-dispatch trace
+- `/gh-issue:issue-create --no-ask` — 미결을 사용자에게 묻지 않고 보수적으로 자율 결정 (무인 호출용)
+- `/gh-issue:issue-create --as-discussion Ideas` — route the same conversation to [[gh-issue:discussion-create]] (RFC body, Ideas category)
+- `/gh-issue:issue-create upstream --as-discussion Q&A` — Q&A Discussion on the `upstream` remote's repo
+- `/gh-issue:issue-create -h` / `--help` / `help` — print this help
 
 ## What the skill does
 

@@ -36,4 +36,4 @@ Step 2.1 라우팅 가드 실측: decided-to-do 신호 2개가 매치되었습�
 
 따라서 거부 경로로 진입해 뮤테이션을 호출하지 않았고 Step 3~5 를 건너뛰었습니다.
 출력은 `references/scope-guard.md` 의 "Refusal format" 그대로이며, 권장 대체 명령으로
-`/gh-issue:create` 를, 우회 수단으로 `--force-discussion` 을 안내합니다.
+`/gh-issue:issue-create` 를, 우회 수단으로 `--force-discussion` 을 안내합니다.

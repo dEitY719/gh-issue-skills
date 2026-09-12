@@ -1,4 +1,4 @@
-# gh-issue:create — Report (Step 5)
+# gh-issue:issue-create — Report (Step 5)
 
 Issue 경로 성공 시:
 

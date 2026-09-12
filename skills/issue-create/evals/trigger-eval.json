@@ -32,7 +32,7 @@
     "should_trigger": true
   },
   {
-    "query": "/gh-issue:create upstream 으로 등록해줘",
+    "query": "/gh-issue:issue-create upstream 으로 등록해줘",
     "should_trigger": true,
     "note": "slash-literal: update if the skill is renamed (#1410)"
   },

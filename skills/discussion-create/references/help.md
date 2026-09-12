@@ -25,7 +25,7 @@ Examples:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `GH_DISABLE_AI_METRICS=1` | off | Skip the ai-metrics footer in the Discussion body. Mirrors the same env var honoured by `gh-issue:create` and the rest of the gh-* skill family (issue dEitY719/dotfiles#399). |
+| `GH_DISABLE_AI_METRICS=1` | off | Skip the ai-metrics footer in the Discussion body. Mirrors the same env var honoured by `gh-issue:issue-create` and the rest of the gh-* skill family (issue dEitY719/dotfiles#399). |
 
 ## What the skill does
 
@@ -34,7 +34,7 @@ Examples:
    the remote does not exist.
 2. Picks a Discussion **category** — defaults to `Ideas` (RFC).
 3. Runs the **routing guard**: refuses when the chat looks like a
-   decided to-do (suggests `/gh-issue:create` instead). Override with
+   decided to-do (suggests `/gh-issue:issue-create` instead). Override with
    `--force-discussion`.
 4. Drafts an RFC-shaped body (TL;DR + Why + Goals/Non-Goals + Options
    + Alternatives + Open Questions). Q&A / Announcements / Lessons
@@ -52,7 +52,7 @@ phrased as the question itself. `Announcements` titles start with
 
 ## Detail preservation
 
-Same contract as `gh-issue:create`: do NOT over-compress. The
+Same contract as `gh-issue:issue-create`: do NOT over-compress. The
 Discussion is reused later by `gh-issue:discussion-convert` to seed an
 issue body, by future-self search, and by `docs/guide/learnings/` promotion
 (Lessons category). Preserve:
@@ -78,8 +78,8 @@ A 200-line Discussion body is fine if the conversation warranted it.
 
 ## Related skills
 
-- [[gh-issue:create]] — sister skill for to-do Issues.
+- [[gh-issue:issue-create]] — sister skill for to-do Issues.
 - [[gh-issue:discussion-convert]] — Discussion -> Issue conversion + back-link.
-- [[gh-issue:create --as-discussion]] — `--as-discussion` routing flag on
+- [[gh-issue:issue-create --as-discussion]] — `--as-discussion` routing flag on
   the issue-create entry point (separate issue).
 - SSOT: `dEitY719/dotfiles/docs/.ssot/discussions-policy.md` (issue dEitY719/dotfiles#612).

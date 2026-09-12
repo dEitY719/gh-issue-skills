@@ -3,7 +3,7 @@ name: discussion-create
 description: >-
   Save the current chat as an RFC-shaped GitHub Discussion (default `Ideas`).
   Use for /gh-issue:discussion-create, "이 대화 RFC 로 등록",
-  "깃허브 디스커션으로 남겨". Refuses a decided to-do — that is gh-issue:create.
+  "깃허브 디스커션으로 남겨". Refuses a decided to-do — that is gh-issue:issue-create.
   Options: references/options.md.
 license: MIT
 allowed-tools: Bash, Read, Grep
@@ -53,9 +53,9 @@ guard — body shape changes, not the check.
 
 Per the SSOT routing tree (principle #1 "Issue is default"), apply the trigger
 signals in [`references/scope-guard.md`](references/scope-guard.md): a **decided
-to-do** -> stop with that file's "Refusal format" (destination `/gh-issue:create`;
+to-do** -> stop with that file's "Refusal format" (destination `/gh-issue:issue-create`;
 override with `--force-discussion`); ambiguous-noun-list / ≥3-component-mix ->
-emit the same 1~2 line clarification as `gh-issue:create` and wait. Load-bearing
+emit the same 1~2 line clarification as `gh-issue:issue-create` and wait. Load-bearing
 requirement F-3 + F-4 (issue dEitY719/dotfiles#617) — never disable without a SSOT update.
 
 ## Step 3: Draft the Discussion Body
@@ -68,8 +68,8 @@ fine). For non-`Ideas` categories, swap per that file's "Category variants".
 
 ## Step 3.5: Compute AI Metrics
 
-Read `gh-issue-create`'s
-[`references/metrics-baseline.md`](../create/references/metrics-baseline.md)
+Read `gh-issue:issue-create`'s
+[`references/metrics-baseline.md`](../issue-create/references/metrics-baseline.md)
 and bind `TOKENS`, `HUMAN_H`, `ELAPSED` for Step 4 (inputs: `START_TS`, category,
 title + body; for `Ideas`, size like `feat`).
 
@@ -96,5 +96,5 @@ bypass-only, no confirmation prompt, no category-ID cache) live in
 
 ## Related Skills
 
-`gh-issue:create` — same capture, different lifecycle: a decided to-do belongs
+`gh-issue:issue-create` — same capture, different lifecycle: a decided to-do belongs
 there (it can also route in here via `--as-discussion <category>`).

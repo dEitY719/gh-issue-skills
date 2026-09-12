@@ -1,4 +1,4 @@
-# gh-issue:create — Options
+# gh-issue:issue-create — Options
 
 | Argument | Description | Default |
 |----------|-------------|---------|

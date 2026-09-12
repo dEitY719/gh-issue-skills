@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Self-check for the vendored lib/vendor/shell-common/functions/parse_yaml_defaults.sh
-# and the contract `skills/create/references/auto-labels.md` Step 2.5 relies on:
+# and the contract `skills/issue-create/references/auto-labels.md` Step 2.5 relies on:
 #
 #   bash lib/parse-yaml-defaults.selfcheck.sh
 #

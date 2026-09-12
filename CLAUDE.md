@@ -13,7 +13,7 @@ before a branch exists, and the one skill that turns a card into edits:
 | Skill | Artifact it produces | Role |
 |-------|----------------------|------|
 | `read` | terminal output | Fetches one issue and prints it verbatim. Mutates nothing. |
-| `create` | a GitHub Issue | Classifies the current chat by conventional-commit prefix and files it, with auto-labels and a dependency scan. |
+| `issue-create` | a GitHub Issue | Classifies the current chat by conventional-commit prefix and files it, with auto-labels and a dependency scan. |
 | `implement` | file edits | Claims the issue, moves its board card, captures a pre-edit test baseline, edits and tests. No commit, no PR. |
 | `proceed` | whatever the protocol says | Executes the 8-section protocol a *directive* issue embeds, unattended, with a safety gate per step. |
 | `discussion-create` | a GitHub Discussion | Saves a pre-decision chat as an RFC-shaped Discussion. Refuses a decided to-do. |
@@ -101,7 +101,7 @@ any of them. Link the upstream doc, do not restate it.
   migration dropped them (dEitY719/dotfiles#1410 F-4). Do not reintroduce them, and do not
   shorten the remaining names further — `discussion-create`, not `discuss`.
 - **Invocation form in prose is namespaced.** Body text referring to a skill as
-  a command writes `/gh-issue:create`. The old colon form (`gh:issue-create`)
+  a command writes `/gh-issue:issue-create`. The old colon form (`gh:issue-create`)
   and the dash-form aliases (`/gh-issue-create`) were both dropped in the
   migration — do not reintroduce either.
 - **Cross-repo references use the *new* namespace, not the old one.** Unlike the
@@ -140,7 +140,7 @@ These are acceptance criteria carried over from dotfiles, not advice:
   remotes — verify the host first.
 - **`read` mutates nothing and prints verbatim.** No summarising the body away,
   no reformatting comments. The verbatim record is the product.
-- **`create` never invents requirements the chat did not decide.** When the
+- **`issue-create` never invents requirements the chat did not decide.** When the
   conversation has not converged it stops and asks. A pre-decision RFC is routed
   to `discussion-create`, not filed as an issue with a plausible-looking spec.
 - **`implement` never commits, never opens a PR, never creates a worktree, and
@@ -170,7 +170,7 @@ takes its built-in fallback path, which is a complete flow (baseline, edits,
 tests, bounded failure loop, full report) rather than a degraded one. Nothing
 here requires superpowers.
 
-The other harness-shaped gap is confirmation prompts: `create`'s clarification
+The other harness-shaped gap is confirmation prompts: `issue-create`'s clarification
 guard and `discussion-create`'s category selection need a real answer. Harnesses
 without a structured question tool must ask in the conversation and wait. If you
 add a step that depends on a Claude-Code-only capability, say so in

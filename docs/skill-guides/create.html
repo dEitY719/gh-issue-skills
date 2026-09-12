@@ -122,7 +122,7 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
     <h1 class="animate delay-1"><span class="mono">create</span></h1>
     <p class="lede animate delay-2">지금까지의 대화를 conventional-commit prefix 로 분류해 <strong>GitHub Issue 1건</strong>을 만든다. 산출물은 실제로 생성된 이슈이며, 출력은 <code>Issue #N created: &lt;url&gt;</code> 한 줄이다.</p>
     <div class="badge-row animate delay-3">
-      <span class="badge">호출 <code>/gh-issue:create [remote] [flags]</code></span>
+      <span class="badge">호출 <code>/gh-issue:issue-create [remote] [flags]</code></span>
       <span class="badge">Step 8단계</span>
       <span class="badge warn">쓰기 있음</span>
     </div>
@@ -137,7 +137,7 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
     <div class="flow" data-reveal>
       <span class="flow-node">지금까지의 대화 + remote</span>
       <span class="flow-arrow">──▶</span>
-      <span class="flow-node hi">/gh-issue:create</span>
+      <span class="flow-node hi">/gh-issue:issue-create</span>
       <span class="flow-arrow">──▶</span>
       <span class="flow-node">GitHub Issue 1건 (라벨 · 마일스톤 · 선행 링크 포함)</span>
     </div>
@@ -215,11 +215,11 @@ footer{border-top:1px solid var(--border);padding:34px 0 56px;color:var(--text-s
         <caption class="text-secondary" style="text-align:left;padding:14px 18px 0;font-size:.86rem">사용 예</caption>
         <thead><tr><th>명령</th></tr></thead>
         <tbody>
-          <tr><td><code>/gh-issue:create</code></td></tr>
-          <tr><td><code>/gh-issue:create upstream</code></td></tr>
-          <tr><td><code>/gh-issue:create --no-auto-labels</code></td></tr>
-          <tr><td><code>/gh-issue:create --as-discussion Ideas</code></td></tr>
-          <tr><td><code>/gh-issue:create -h</code></td></tr>
+          <tr><td><code>/gh-issue:issue-create</code></td></tr>
+          <tr><td><code>/gh-issue:issue-create upstream</code></td></tr>
+          <tr><td><code>/gh-issue:issue-create --no-auto-labels</code></td></tr>
+          <tr><td><code>/gh-issue:issue-create --as-discussion Ideas</code></td></tr>
+          <tr><td><code>/gh-issue:issue-create -h</code></td></tr>
         </tbody>
       </table>
     </div>
