@@ -1,4 +1,4 @@
-# gh-issue:create — Constraints
+# gh-issue:issue-create — Constraints
 
 - `--assignee @me` 는 사용자 요청이 있을 때만 추가.
 - 라벨/마일스톤 은 (a) 사용자 명시 또는 (b) Step 2.5 의 SSOT 기반

@@ -1,8 +1,8 @@
 ---
-name: create
+name: issue-create
 description: >-
   Save the current conversation as a GitHub issue, classified by
-  conventional-commit prefix. Use for /gh-issue:create,
+  conventional-commit prefix. Use for /gh-issue:issue-create,
   "이 대화 이슈로 등록", "기록용 이슈 만들어". A pre-decision RFC goes to
   gh-issue:discussion-create instead. Flags: references/help.md.
 license: MIT
@@ -15,7 +15,7 @@ metadata:
     non_claude: advisory-only
 ---
 
-# gh-issue:create — Conversation → GitHub Issue
+# gh-issue:issue-create — Conversation → GitHub Issue
 
 Convert the current chat into a well-structured issue on the target repo (본문은 대화 언어로), execute immediately, and print only the issue number + URL.
 

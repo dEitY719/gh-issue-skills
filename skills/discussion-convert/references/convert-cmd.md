@@ -115,7 +115,7 @@ default assignee, and milestone handling — all of which `gh issue
 create` resolves from `owner/repo` automatically and prints a stable
 URL we can scrape for the issue number. A raw `createIssue` GraphQL
 call would force this skill to re-implement that resolution chain,
-duplicating logic that already lives in `gh-issue:create` /
+duplicating logic that already lives in `gh-issue:issue-create` /
 `gh-issue:implement`.
 
 ## Why best-effort on Steps 6 / 7 / 8

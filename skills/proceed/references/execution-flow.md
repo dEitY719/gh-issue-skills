@@ -50,7 +50,7 @@ parse time** (before any step runs).
 | Verb | Implementation |
 |---|---|
 | `continue` | proceed to next step |
-| `file_issue: <template-key>` | `Skill(gh-issue:create, "--no-ask …")`. Template source: §decision_rules may define named inline templates; `<template-key>` references one by name. No match → minimal default `{title:"<auto>", body:"Filed by /gh-issue:proceed from #<N> step <s>", labels:[]}` |
+| `file_issue: <template-key>` | `Skill(gh-issue:issue-create, "--no-ask …")`. Template source: §decision_rules may define named inline templates; `<template-key>` references one by name. No match → minimal default `{title:"<auto>", body:"Filed by /gh-issue:proceed from #<N> step <s>", labels:[]}` |
 | `queue_doc_patch: <file>` | accumulate; flushed as a single commit + PR at end of loop |
 | `comment_on_self: <body>` | `gh issue comment <PROCEED_N>` |
 | `comment_on_other: <N> <body>` | `gh issue comment <N>` |
@@ -66,7 +66,7 @@ When the skill calls another skill, the payload is **always structured**
 (no free-form prompt):
 
 ```
-Skill(gh-issue:create, "--no-ask", prompt=<<STRUCTURED
+Skill(gh-issue:issue-create, "--no-ask", prompt=<<STRUCTURED
 TITLE: <...>
 BODY: <markdown>
 LABELS: <comma-list>
@@ -76,7 +76,7 @@ STRUCTURED)
 
 Callees that see `NO_INTERACTIVE: true` skip confirmation prompts.
 
-**`gh-issue:create` 는 예외 — `--no-ask` 가 정본이다 (dEitY719/dotfiles#1460).** 이 경계에서
+**`gh-issue:issue-create` 는 예외 — `--no-ask` 가 정본이다 (dEitY719/dotfiles#1460).** 이 경계에서
 무인성의 근거는 `NO_INTERACTIVE` 필드가 아니라 `--no-ask` 플래그다. 수신측이
 실제로 구현·문서화·테스트한 규약이 그쪽이기 때문이다 (dEitY719/dotfiles#1446 / PR dEitY719/dotfiles#1455).
 플래그 없이 STRUCTURED 필드만 넘기면 Step 3.1 미결 게이트가 응답할 사람이

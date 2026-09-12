@@ -1,4 +1,4 @@
-# gh-issue:create — Step 4 Create Command
+# gh-issue:issue-create — Step 4 Create Command
 
 Detail companion to SKILL.md Step 4. Writes the drafted body to a temp
 file, appends the ai-metrics footer (unless `GH_DISABLE_AI_METRICS=1`),

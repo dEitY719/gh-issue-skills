@@ -1,4 +1,4 @@
-# gh-issue:create — Dependency Auto-detect (Step 2.6 + Step 4.5)
+# gh-issue:issue-create — Dependency Auto-detect (Step 2.6 + Step 4.5)
 
 Detail companion to SKILL.md Step 2.6 (detect) and Step 4.5 (link).
 The skill scans the conversation for an explicit *선행 이슈* statement and,

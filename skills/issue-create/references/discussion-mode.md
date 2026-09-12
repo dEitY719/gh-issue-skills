@@ -1,4 +1,4 @@
-# gh-issue:create — `--as-discussion` parse (Step 1.1)
+# gh-issue:issue-create — `--as-discussion` parse (Step 1.1)
 
 If `--as-discussion <category>` is present, bind `DISCUSSION_MODE=1` and
 `CATEGORY=<value>`. Validate `<value>` against the allow-list

@@ -3,7 +3,7 @@
 > **한 줄 요약** — 현재 대화를 받아 conventional-commit prefix 로 분류된 GitHub Issue 1건을 생성합니다.
 
 ```
-현재 대화 + remote  ──▶  /gh-issue:create  ──▶  GitHub Issue 1건 (#N + URL)
+현재 대화 + remote  ──▶  /gh-issue:issue-create  ──▶  GitHub Issue 1건 (#N + URL)
 ```
 
 GitHub 쓰기 0건 — 이번에는 비변경 경로(`--help`)만 실행했습니다.
@@ -11,8 +11,8 @@ GitHub 쓰기 0건 — 이번에는 비변경 경로(`--help`)만 실행했습�
 ## 1. 실행한 명령
 
 ```
-/gh-issue:create [remote] [flags]
-/gh-issue:create --help
+/gh-issue:issue-create [remote] [flags]
+/gh-issue:issue-create --help
 ```
 
 ## 2. 입력

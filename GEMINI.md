@@ -8,7 +8,7 @@ Do not load all six.
 | Skill | Read | Use when |
 |-------|------|----------|
 | `read` | `@./skills/read/SKILL.md` | Fetching one issue and printing it verbatim. Read-only — it never mutates. |
-| `create` | `@./skills/create/SKILL.md` | Saving the current conversation as an issue, classified by conventional-commit prefix. A pre-decision RFC goes to `discussion-create` instead. |
+| `issue-create` | `@./skills/issue-create/SKILL.md` | Saving the current conversation as an issue, classified by conventional-commit prefix. A pre-decision RFC goes to `discussion-create` instead. |
 | `implement` | `@./skills/implement/SKILL.md` | Turning an issue into file edits plus a test run. Never commits, never opens a PR. |
 | `proceed` | `@./skills/proceed/SKILL.md` | Executing the 8-section protocol a *directive* issue embeds, unattended. Not a code implementer — that is `implement`. |
 | `discussion-create` | `@./skills/discussion-create/SKILL.md` | Saving a pre-decision chat as an RFC-shaped Discussion. Refuses a decided to-do. |
@@ -24,7 +24,7 @@ Each skill's `references/` directory holds the detail it loads on demand.
   plus a GHES instance) a bare call silently queries the wrong one and reports an
   OPEN issue as "not found" (dEitY719/dotfiles#1403).
 - **`read`** — read scope only. It is the one skill here that mutates nothing.
-- **`create`, `discussion-create`, `discussion-convert`** — write access to
+- **`issue-create`, `discussion-create`, `discussion-convert`** — write access to
   issues and discussions. `discussion-*` use the GraphQL API, which needs the
   discussion scopes on the token.
 - **`implement`, `proceed`** — write access plus a clean working tree on a
@@ -57,7 +57,7 @@ On Antigravity read `antigravity-tools.md` in that same directory instead —
   edits, tests, a bounded 3-attempt failure loop, full report. That path is a
   complete flow, not a degraded one, and the skill is written to never require
   the plugin.
-- **Confirmation prompts.** `create` runs a clarification guard and
+- **Confirmation prompts.** `issue-create` runs a clarification guard and
   `discussion-create` picks a category; both need a real answer. Use `ask_user`.
   On Antigravity `ask_user` does not exist — ask in the conversation and wait for
   a real reply. An auto-approve session setting is not the user's answer.
@@ -68,7 +68,7 @@ On Antigravity read `antigravity-tools.md` in that same directory instead —
 - **`read` never mutates**, and prints the body and comments verbatim. Do not
   summarise the body away or reformat comments — a verbatim record is the
   product.
-- **`create` never invents requirements the chat did not decide.** When the
+- **`issue-create` never invents requirements the chat did not decide.** When the
   conversation has not converged, it stops and asks rather than filling the
   template with plausible text. A pre-decision RFC belongs in
   `discussion-create`.

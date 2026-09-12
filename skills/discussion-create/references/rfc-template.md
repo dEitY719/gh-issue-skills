@@ -126,4 +126,4 @@ Lessons 는 Discussion-first 다. 짧은 단편 노트는 파일 없이 Discussi
 ## Detail-preservation contract
 
 본문 골격은 **틀**일 뿐이다. 실제 본문은 대화 detail 을 잃지 않도록
-풀어쓴다 — 200 줄 RFC 도 정상이다. `gh-issue:create` 와 동일한 정책.
+풀어쓴다 — 200 줄 RFC 도 정상이다. `gh-issue:issue-create` 와 동일한 정책.

@@ -1,4 +1,4 @@
-# gh-issue:create — Prefix Decision Table
+# gh-issue:issue-create — Prefix Decision Table
 
 Step 2 picks exactly one conventional-commit prefix as the dominant
 intent. Each prefix has a body template under

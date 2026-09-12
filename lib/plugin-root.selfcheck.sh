@@ -50,7 +50,7 @@ extract() { # extract <name> <start-prefix> <end-line> <file>
 }
 
 extract create '_GD="${DOTFILES_ROOT' 'fi' \
-    skills/create/references/create-cmd.md
+    skills/issue-create/references/create-cmd.md
 extract discussion-convert '_GD="${DOTFILES_ROOT' 'fi' \
     skills/discussion-convert/references/convert-cmd.md
 extract discussion-create '_GD="${DOTFILES_ROOT' '}' \
@@ -241,8 +241,8 @@ dedent_block() { # dedent_block <file> -> stdout, dedented, fenced ```bash block
         on { sub(/^   /, ""); print }
     ' "$ROOT/$1"
 }
-dedent_block skills/create/references/repo-resolution.md > "$TMP/repo-resolution.sh"
-[ -s "$TMP/repo-resolution.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from skills/create\n'; fails=$((fails + 1)); }
+dedent_block skills/issue-create/references/repo-resolution.md > "$TMP/repo-resolution.sh"
+[ -s "$TMP/repo-resolution.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from skills/issue-create\n'; fails=$((fails + 1)); }
 for f in skills/discussion-convert/references/repo-resolution.md \
          skills/discussion-create/references/repo-resolution.md \
          skills/implement/references/repo-resolution.md \
@@ -251,7 +251,7 @@ for f in skills/discussion-convert/references/repo-resolution.md \
     dedent_block "$f" > "$TMP/repo-resolution-cmp.sh"
     [ -s "$TMP/repo-resolution-cmp.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from %s\n' "$f"; fails=$((fails + 1)); }
     cmp -s "$TMP/repo-resolution.sh" "$TMP/repo-resolution-cmp.sh" \
-        || { printf 'FAIL  repo-resolution: %s drifted from skills/create copy\n' "$f"; fails=$((fails + 1)); }
+        || { printf 'FAIL  repo-resolution: %s drifted from skills/issue-create copy\n' "$f"; fails=$((fails + 1)); }
 done
 
 # The docstring in lib/resolve-target.sh's own header pastes the same block
@@ -263,7 +263,7 @@ awk '
     on && /\. "\$_RT" \|\| exit 1$/ { exit }
 ' "$ROOT/lib/resolve-target.sh" > "$TMP/repo-resolution-docstring.sh"
 [ -s "$TMP/repo-resolution-docstring.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from lib/resolve-target.sh docstring\n'; fails=$((fails + 1)); }
-chk "repo-resolution: lib/resolve-target.sh docstring matches skills/create copy" \
+chk "repo-resolution: lib/resolve-target.sh docstring matches skills/issue-create copy" \
     "$(cat "$TMP/repo-resolution.sh")" "$(cat "$TMP/repo-resolution-docstring.sh")"
 
 if command -v dash >/dev/null 2>&1; then

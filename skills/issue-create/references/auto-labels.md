@@ -1,4 +1,4 @@
-# gh-issue:create — Auto-labels (Step 2.5)
+# gh-issue:issue-create — Auto-labels (Step 2.5)
 
 Detail companion to SKILL.md Step 2.5. Step 2.5 attaches default labels
 and a milestone to a freshly drafted issue **only when the target repo

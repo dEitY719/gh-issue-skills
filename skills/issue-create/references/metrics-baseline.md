@@ -1,7 +1,7 @@
 # AI Metrics Baseline
 
 Maps conventional-commit issue types to estimated junior-developer hours.
-Used by `gh-issue:create` and `gh-flow:issue` to populate `<!-- ai-metrics -->` footer blocks.
+Used by `gh-issue:issue-create` and `gh-flow:issue` to populate `<!-- ai-metrics -->` footer blocks.
 
 ## Human Time Lookup Table
 

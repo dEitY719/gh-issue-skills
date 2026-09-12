@@ -59,7 +59,7 @@ chk "too few args returns non-zero" "$?" "1"
 doc=$(awk '/^### GitHub Issue \/ PR body footer$/ { on = 1 }
            on && /^```$/ { n++; if (n == 1) next; exit }
            on && n == 1' \
-    "$ROOT/skills/create/references/metrics-helper.md")
+    "$ROOT/skills/issue-create/references/metrics-helper.md")
 chk "metrics-helper.md block matches the script" \
     "$doc" "$(bash "$TARGET" '{TOKENS}' '{HUMAN_H}' '{ELAPSED}' '<skill>' | sed '1d')"
 

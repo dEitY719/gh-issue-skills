@@ -89,6 +89,6 @@ This skill enforces that contract mechanically:
 
 - [[gh-issue:discussion-create]] — sister skill that creates the Discussion
   in the first place. Same helper module (`gh_discussion.sh`).
-- [[gh-issue:create]] — default destination for to-do items; preferred
+- [[gh-issue:issue-create]] — default destination for to-do items; preferred
   over Discussion when the chat is already a decided to-do.
 - SSOT: `dEitY719/dotfiles/docs/.ssot/discussions-policy.md` (dEitY719/dotfiles#612).

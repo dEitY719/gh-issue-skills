@@ -41,7 +41,7 @@ Step 2 와 Step 2.5 사이에서 호출되는 "이슈 본문 작성 직전" 안�
 - `y` / "한 이슈" / 묵시적 동의 → 그대로 한 이슈로 생성. 이때 본문
   Goals 에 분리안을 보존해 둔다 ("이후 PR 단위로 쪼갤 수 있음").
 - `n` / "분리" → 가장 큰 범위 한 건만 이번에 만들고, 나머지는 사용자가
-  /gh-issue:create 를 다시 호출하도록 안내. 자동 다중 생성 금지.
+  /gh-issue:issue-create 를 다시 호출하도록 안내. 자동 다중 생성 금지.
 
 ### 모호함 해소 — 형식
 
@@ -65,7 +65,7 @@ prefix 에 가장 자주 매치된다. `fix` / `docs` / `test` 는 보통 트리
 
 - REQ-ID 시스템 (`REQ-B-Access-1` 등) 도입하지 않음 — 프로젝트 특화
   포맷이라 범용 이슈 생성과 미스매치.
-- multi-agent peer review (v1/v2) 도입하지 않음 — `gh-issue:create` 의
+- multi-agent peer review (v1/v2) 도입하지 않음 — `gh-issue:issue-create` 의
   단일-호출 계약과 충돌.
 
 ## 미결 게이트 (Step 3.1)

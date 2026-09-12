@@ -35,7 +35,7 @@ jobs:
       # Everywhere else the ban still applies.
       allow-emoji-paths: |
         lib/ai-metrics-footer.sh
-        skills/create/references/metrics-helper.md
+        skills/issue-create/references/metrics-helper.md
         skills/implement/references/claim.md
         skills/proceed/references/claim.md
         skills/proceed/references/help.md

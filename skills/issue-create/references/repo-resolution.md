@@ -1,4 +1,4 @@
-# gh-issue:create — Repo + host resolution
+# gh-issue:issue-create — Repo + host resolution
 
 Detailed procedure for Step 1 "Detect Repo Context" — remote validation and
 owner/repo **plus host** extraction. SKILL.md keeps only the workflow; this
