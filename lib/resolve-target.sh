@@ -104,15 +104,39 @@ _rt_resolve() {
         fi
         _rt_sc="$PLUGIN_ROOT/lib/vendor/shell-common"
     fi
-    if [ ! -r "$_rt_sc/functions/gh_host.sh" ]; then
+    # -f and -r both: -r alone passes a directory, -f alone passes an
+    # unreadable file whose source then fails silently.
+    if [ ! -f "$_rt_sc/functions/gh_host.sh" ] || [ ! -r "$_rt_sc/functions/gh_host.sh" ]; then
         echo "Error: gh_host.sh not found under $_rt_sc/functions/." >&2
         return 1
     fi
+    # Clear both names before the load so the proof below is about THIS load:
+    # `command -v` answers "is this name runnable", so a PATH executable or a
+    # function inherited from the caller would otherwise certify a tree that
+    # defined nothing (dEitY719/harness-skills#36), and a live alias outranks
+    # the function the load just defined in sh/dash/zsh.
+    unset -f _gh_resolve_host 2>/dev/null || :
+    unalias _gh_resolve_host 2>/dev/null || :
     # Export whichever tree resolved, so helpers sourced later by the calling
-    # skill (gh_project_status.sh, gh_discussion.sh) read the same one.
+    # skill (gh_project_status.sh, gh_discussion.sh) read the same one — and
+    # export it BEFORE the load, not after: gh_host.sh resolves dotfiles_root.sh
+    # through ${SHELL_COMMON:-$HOME/dotfiles/shell-common} while it is sourcing,
+    # so a later export is too late for its only consumer and the #1454 guard
+    # is silently skipped on a plugin-only install (dEitY719/harness-skills#37).
     export SHELL_COMMON="$_rt_sc"
     # shellcheck disable=SC1090,SC1091  # path is resolved at runtime
     . "$_rt_sc/functions/gh_host.sh"
+    # Compare command -v's OUTPUT to the bare name: POSIX prints the bare name
+    # for a function or builtin, a pathname for an external command, and an
+    # `alias ...` string for an alias, so one `=` separates them without
+    # `type -t` / `declare -F`, which dash does not have. The failure arm
+    # unsets SHELL_COMMON, or a tree that failed the proof would outrank every
+    # later ${SHELL_COMMON:-...} default — gh-resolve-skills#8's poisoning.
+    if [ "$(command -v _gh_resolve_host 2>/dev/null)" != _gh_resolve_host ]; then
+        unset SHELL_COMMON
+        echo "Error: $_rt_sc/functions/gh_host.sh did not define _gh_resolve_host." >&2
+        return 1
+    fi
 
     # Repo and host both come from that one URL, so they can never name
     # different servers.

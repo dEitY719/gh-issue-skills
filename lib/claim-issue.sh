@@ -179,16 +179,28 @@ if [ -z "${GH_ISSUE_SKIP_BOARD_TRANSITION:-}" ]; then
     # Drop any inherited definition BEFORE sourcing, so the check below proves
     # this load defined the function rather than an earlier one. A file-mode
     # test cannot: -f passes an unreadable file, -r passes a directory, and
-    # neither notices a helper that sources halfway.
+    # neither notices a helper that sources halfway. `unalias` too: a live
+    # alias outranks the function the load just defined in sh/dash/zsh
+    # (dEitY719/harness-skills#36).
     unset -f _gh_project_status_sync 2>/dev/null || :
+    unalias _gh_project_status_sync 2>/dev/null || :
+    # Export BEFORE the load, not after (dEitY719/harness-skills#37).
+    # gh_project_status.sh resolves dotfiles_root.sh through
+    # ${SHELL_COMMON:-$HOME/dotfiles/shell-common} while it is sourcing, so a
+    # later export is too late for its only consumer: on a plugin-only install
+    # it looked under a $HOME/dotfiles that is not there and skipped its own
+    # #1454 guard, printing a warning on every run. Nothing leaks by moving it
+    # — this script is EXECUTED, not sourced, so $SHELL_COMMON dies with the
+    # process and cannot poison the caller (see the selfcheck's §13 header).
+    export SHELL_COMMON="$_SC"
     if [ -f "$_HELPER" ] && [ -r "$_HELPER" ]; then
         # shellcheck disable=SC1090  # path is resolved at runtime
         . "$_HELPER" || :
     fi
-    if command -v _gh_project_status_sync >/dev/null 2>&1; then
-        # export only after the load is proved — an unproven export poisons
-        # every later ${SHELL_COMMON:-...} default in the same run.
-        export SHELL_COMMON="$_SC"
+    # Compare command -v's OUTPUT to the bare name, not just its exit status:
+    # the status form passes for a PATH executable of the same name, which
+    # would certify a helper that defined nothing (harness-skills#36).
+    if [ "$(command -v _gh_project_status_sync 2>/dev/null)" = _gh_project_status_sync ]; then
         # Warn when --only-from is about to absorb the write (dEitY719/dotfiles#1507 F-2).
         # Deliberately non-committal about why: the non-Backlog/Ready
         # complement also holds Done and custom columns, where "another session

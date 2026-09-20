@@ -78,11 +78,23 @@ maps, multi-doc files, and other YAML features are NOT supported.
    # lib/vendor/shell-common would get sourced.
    [ -f "$_PYD" ] && [ -r "$_PYD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
        || _PYD="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/parse_yaml_defaults.sh" # tier 2
+   # Clear the name first, so the check after the load proves THIS load defined
+   # it (dEitY719/harness-skills#36). An [ -f ]/[ -r ] pair is a load guard, not
+   # a proof: it passes a file that sources halfway and defines nothing, and the
+   # next step would then die on `command not found` mid-run instead of taking
+   # the documented skip.
+   unset -f _parse_yaml_defaults_static 2>/dev/null || :
+   unalias _parse_yaml_defaults_static 2>/dev/null || :
    if [ -f "$_PYD" ] && [ -r "$_PYD" ]; then
        # The helper self-disables in a non-interactive shell unless this is set.
        DOTFILES_FORCE_INIT=1 . "$_PYD"
-   else
-       printf '[WARN] parse_yaml_defaults.sh not found at %s — auto-labels skipped. On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' "$_PYD" >&2
+   fi
+   # Compare command -v's OUTPUT to the bare name: POSIX prints the bare name
+   # for a function, a pathname for an external command, an `alias ...` string
+   # for an alias — so a stray `_parse_yaml_defaults_static` on PATH cannot
+   # certify a parser that never loaded.
+   if [ "$(command -v _parse_yaml_defaults_static 2>/dev/null)" != _parse_yaml_defaults_static ]; then
+       printf '[WARN] parse_yaml_defaults.sh not usable at %s — auto-labels skipped. On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' "$_PYD" >&2
    fi
    ```
 

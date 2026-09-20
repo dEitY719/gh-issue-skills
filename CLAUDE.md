@@ -76,9 +76,16 @@ point.
 **3. The plugin-root resolution convention** (`references/plugin-root.md` there,
 `harness-skills#10`). Every site that composes a path from `$CLAUDE_PLUGIN_ROOT`
 follows it: never splice a defaulted `$CLAUDE_PLUGIN_ROOT` into a path — guard it
-(`[ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _X="$CLAUDE_PLUGIN_ROOT/..."`), then a
-second `[ -f ]` proving the tier the first probe picked, `export` only after that
-proof, and a loud stop naming the path when nothing resolves. **There is no tier
+(`[ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _X="$CLAUDE_PLUGIN_ROOT/..."`), then prove
+the tier the first probe picked, and stop loudly naming the path when nothing
+resolves. The proof is `unset -f` + `unalias`, the load, then comparing
+`command -v`'s **output** to the bare function name — an `[ -f ]`/`[ -r ]` pair
+is a load guard, and an exit-status `command -v` passes for a PATH executable of
+that name (`harness-skills#36`). `export SHELL_COMMON` goes **before** the load,
+not after, because the vendored helpers resolve their own siblings through
+`${SHELL_COMMON:-...}` while they source; the failure arm `unset`s it, so the
+observable contract is still "set if and only if a helper proved out"
+(`harness-skills#37`). **There is no tier
 4**: `${CLAUDE_PLUGIN_ROOT:-$PWD}` was retired by `harness-skills#22` because
 `$PWD` is caller-controlled and these skills run inside the repo under review, so
 a PR shipping `lib/vendor/shell-common/` would get it sourced. `lib/resolve-target.sh`
