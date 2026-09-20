@@ -55,12 +55,10 @@ extract discussion-convert '_GD="${DOTFILES_ROOT' 'fi' \
     skills/discussion-convert/references/convert-cmd.md
 extract discussion-create '_GD="${DOTFILES_ROOT' '}' \
     skills/discussion-create/references/create-cmd.md
-extract implement-claim '_SC="${SHELL_COMMON' 'fi' \
-    skills/implement/references/claim.md
-extract proceed-claim '_SC="${SHELL_COMMON' '```' \
-    skills/proceed/references/claim.md
-extract proceed-claim-head '_SC="${SHELL_COMMON' 'fi' \
-    skills/proceed/references/claim.md
+# The board-transition prologue used to be extracted from both claim.md files
+# here. It has one home now — lib/claim-issue.sh — so the same tiers are
+# asserted in lib/claim-issue.selfcheck.sh §13, against the real script rather
+# than a slice of a doc (dEitY719/gh-issue-skills#21).
 
 # 1. The gate grep: an explicitly-empty default spliced straight into a path is
 #    always the defect (it collapses to the filesystem root), and so is a `$PWD`
@@ -94,29 +92,10 @@ for sh in sh bash zsh; do
         chk "$sh/$block names the way out" hinted "$got"
     done
 
-    # 3. The board-transition sites are documented soft-fail: they must warn and
-    #    skip the step, never abort the skill.
-    err=$(run "$sh" proceed-claim); rc=$?
-    chk "$sh/proceed-claim does not abort" 0 "$rc"
-    case "$err" in *"board transition skipped"*) got=warned ;; *) got="$err" ;; esac
-    chk "$sh/proceed-claim warns and skips" warned "$got"
-
-    # 3b. A board-transition site must not fire an _gh_project_status_sync
-    #     inherited from an earlier source once resolution has failed — that
-    #     mutates a board while the warning above claims the step was skipped.
-    got=$( cd "$SANDBOX" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
-        HOME="$HOME_EMPTY" "$sh" -c '
-            rm -f CALLED; : > N   # <N> in the block lexes as a redirect pair,
-            #                       so the probe reports through a file, not stdout
-            _gh_project_status_sync() { : > CALLED; }
-            . "$1" >/dev/null 2>&1
-            [ -f CALLED ] && printf called || printf skipped' _ "$TMP/proceed-claim.sh" )
-    chk "$sh/proceed-claim does not call an inherited sync" skipped "$got"
-
     # 4. The regression this whole convention exists for: never resolve to the
     #    filesystem root, and never export an unproven SHELL_COMMON. Sourced,
     #    because that is how a poisoned export would reach later helpers.
-    for block in create discussion-convert discussion-create implement-claim proceed-claim; do
+    for block in create discussion-convert discussion-create; do
         got=$( cd "$SANDBOX" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
             HOME="$HOME_EMPTY" "$sh" -c \
             '. "$1" >/dev/null 2>&1; printf "%s" "${SHELL_COMMON:-unset}"' _ "$TMP/$block.sh" )
@@ -139,22 +118,6 @@ resolves() { # resolves <shell> <block> <cwd> <plugin-root-or-empty>
     else
         ( cd "$3" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
             HOME="$HOME_EMPTY" "$1" "$TMP/$2.sh" ) >/dev/null 2>&1
-    fi
-}
-
-# Did the block actually load the function? That, not the file's mode, is what
-# the sites now prove — so it is what this asserts.
-head_state() { # head_state <shell> <block> <cwd> <plugin-root-or-empty>
-    _probe='[ -n "${INHERIT-}" ] && eval "_gh_project_status_sync() { :; }"
-            [ -n "${SETE-}" ] && set -e
-            . "$1"
-            command -v _gh_project_status_sync >/dev/null 2>&1 && printf loaded || printf not-loaded'
-    if [ -n "$4" ]; then
-        ( cd "$3" && env -u SHELL_COMMON -u DOTFILES_ROOT CLAUDE_PLUGIN_ROOT="$4" \
-            INHERIT="${INHERIT-}" SETE="${SETE-}" HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/$2.sh" 2>/dev/null )
-    else
-        ( cd "$3" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
-            INHERIT="${INHERIT-}" SETE="${SETE-}" HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/$2.sh" 2>/dev/null )
     fi
 }
 
@@ -194,40 +157,6 @@ for sh in sh bash zsh; do
         fi
     done
 
-    # The board-transition prologues do not exit; the observable is whether
-    # _gh_project_status_sync is defined after they run.
-    for block in implement-claim proceed-claim-head; do
-        chk "$sh/$block loads via CLAUDE_PLUGIN_ROOT (tier 2)" loaded \
-            "$(head_state "$sh" "$block" "$SANDBOX" "$ROOT")"
-        chk "$sh/$block does NOT load from the cwd (no tier 4)" not-loaded \
-            "$(head_state "$sh" "$block" "$ROOT" "")"
-        chk "$sh/$block reports not-loaded at tier 5" not-loaded \
-            "$(head_state "$sh" "$block" "$SANDBOX" "")"
-        if [ "$CAN_TEST_UNREADABLE" -eq 1 ]; then
-            chk "$sh/$block rejects an unreadable helper" not-loaded \
-                "$(head_state "$sh" "$block" "$SANDBOX" "$UNREADABLE")"
-        fi
-        # A directory at the probed path is the case `-r` alone would accept.
-        chk "$sh/$block rejects a directory at the helper path" not-loaded \
-            "$(head_state "$sh" "$block" "$SANDBOX" "$DIRTRAP")"
-        # And an inherited definition must not survive into the verdict.
-        chk "$sh/$block drops an inherited definition" not-loaded \
-            "$(INHERIT=1 head_state "$sh" "$block" "$SANDBOX" "")"
-
-        # Under the caller's `set -e` the same paths must still reach the
-        # warn-and-skip verdict rather than aborting: this transition is
-        # documented soft-fail, and a pasted block inherits shell options.
-        chk "$sh/$block survives set -e at tier 5" not-loaded \
-            "$(SETE=1 head_state "$sh" "$block" "$SANDBOX" "")"
-        chk "$sh/$block survives set -e on the directory trap" not-loaded \
-            "$(SETE=1 head_state "$sh" "$block" "$SANDBOX" "$DIRTRAP")"
-        chk "$sh/$block still loads under set -e" loaded \
-            "$(SETE=1 head_state "$sh" "$block" "$SANDBOX" "$ROOT")"
-        if [ "$CAN_TEST_UNREADABLE" -eq 1 ]; then
-            chk "$sh/$block survives set -e on an unreadable helper" not-loaded \
-                "$(SETE=1 head_state "$sh" "$block" "$SANDBOX" "$UNREADABLE")"
-        fi
-    done
 done
 
 # 6. The repo-resolution bootstrap line (dEitY719/harness-skills#24): the block

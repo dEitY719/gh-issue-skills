@@ -83,7 +83,13 @@ proof, and a loud stop naming the path when nothing resolves. **There is no tier
 `$PWD` is caller-controlled and these skills run inside the repo under review, so
 a PR shipping `lib/vendor/shell-common/` would get it sourced. `lib/resolve-target.sh`
 is the self-locating-file form; the `references/*.md` blocks are the pasted form,
-which gets no `$0`/`BASH_SOURCE` tier. `lib/plugin-root.selfcheck.sh` asserts the
+which gets no `$0`/`BASH_SOURCE` tier. A third form is a `lib/*.sh` the skill
+*executes* — `claim-issue.sh`, `validate-protocol.sh` — addressed as
+`"$PLUGIN_ROOT/lib/<name>.sh"` behind a `[ -z "${PLUGIN_ROOT:-}" ]` guard, using
+the root `resolve-target.sh` already proved in Step 1. Its own process is why an
+executed helper cannot inherit the caller's `set -e`, cannot inherit a stale
+helper function, and cannot leave a poisoned `SHELL_COMMON` behind; those three
+failure modes exist only for the pasted form. `lib/plugin-root.selfcheck.sh` asserts the
 pasted form by extracting the blocks from the shipped docs and running them with
 `CLAUDE_PLUGIN_ROOT` unset — including from a cwd that *does* hold
 `lib/vendor/shell-common`, which must still stop at tier 5. Run it after touching

@@ -39,6 +39,8 @@ jobs:
         skills/implement/references/claim.md
         skills/proceed/references/claim.md
         skills/proceed/references/help.md
+        lib/claim-issue.sh
+        lib/claim-issue.selfcheck.sh
 
   # Post-merge patch bump, owned by harness-skills: on a push to main that
   # changed shipped content, bump X.Y.Z -> X.Y.(Z+1) in every manifest and push

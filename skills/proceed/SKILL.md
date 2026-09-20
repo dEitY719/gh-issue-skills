@@ -45,10 +45,10 @@ Positional args: `<issue-number> [remote]` — no `mode` arg; always `direct`.
 
 ## Step 2: Fetch + Claim + Schema Validation
 
-2.1 **Fetch + Claim** (`fetch-issue` marker) — run the five claim substeps
-in `references/claim.md` (fetch → block-label guard → self-assign → board
-transition → depends-on). CLOSED-issue refusal precedes schema
-(`references/fetch-issue.md`).
+2.1 **Fetch + Claim** (`fetch-issue` marker) — fetch, then run 2.1.2-2.1.5 via
+`lib/claim-issue.sh` per `references/claim.md` (block-label guard → self-assign
+→ board transition → depends-on; no duplicate-PR guard). CLOSED-issue refusal
+precedes schema (`references/fetch-issue.md`).
 
 2.2 **Schema validation** (`schema-valid` marker) — run
 `bash "$PLUGIN_ROOT/lib/validate-protocol.sh" "$N" <<<"$BODY"` against the strict
