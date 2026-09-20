@@ -1,6 +1,6 @@
 {
   "name": "gh-issue",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "GitHub issue and discussion lifecycle: read, create, implement, directive-protocol execution, Discussion authoring and promotion.",
   "author": {
     "name": "dEitY719",
