@@ -72,13 +72,17 @@ maps, multi-doc files, and other YAML features are NOT supported.
    `command not found` mid-step:
 
    ```bash
-   _PYD="${SHELL_COMMON:-${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common}/functions/parse_yaml_defaults.sh"
-   [ -r "$_PYD" ] || _PYD="${CLAUDE_PLUGIN_ROOT:-.}/lib/vendor/shell-common/functions/parse_yaml_defaults.sh"
-   if [ -r "$_PYD" ]; then
+   _PYD="${SHELL_COMMON:-${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common}/functions/parse_yaml_defaults.sh" # tier 1
+   # No tier 4 (dEitY719/harness-skills#22): $PWD is caller-controlled here, and
+   # this skill runs inside the repo under review — a PR shipping its own
+   # lib/vendor/shell-common would get sourced.
+   [ -f "$_PYD" ] && [ -r "$_PYD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
+       || _PYD="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/parse_yaml_defaults.sh" # tier 2
+   if [ -f "$_PYD" ] && [ -r "$_PYD" ]; then
        # The helper self-disables in a non-interactive shell unless this is set.
        DOTFILES_FORCE_INIT=1 . "$_PYD"
    else
-       printf '[WARN] parse_yaml_defaults.sh not found at %s — auto-labels skipped.\n' "$_PYD" >&2
+       printf '[WARN] parse_yaml_defaults.sh not found at %s — auto-labels skipped. On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' "$_PYD" >&2
    fi
    ```
 

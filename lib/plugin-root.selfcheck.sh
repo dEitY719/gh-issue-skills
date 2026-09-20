@@ -64,9 +64,10 @@ extract proceed-claim-head '_SC="${SHELL_COMMON' 'fi' \
 
 # 1. The gate grep: an explicitly-empty default spliced straight into a path is
 #    always the defect (it collapses to the filesystem root), and so is a `$PWD`
-#    default — the retired tier 4 (see header).
-hits=$(cd "$ROOT" && git ls-files -z | xargs -0 grep -lE '\$\{[A-Za-z_][A-Za-z0-9_]*:?-(\$PWD)?\}/' 2>/dev/null | wc -l)
-chk "no empty-default or \$PWD path splices in tracked files" 0 "$((hits))"
+#    or `.` default — both spell the retired tier 4 (see header). `:-.` is the
+#    form that slipped past this grep into auto-labels.md (#26).
+hits=$(cd "$ROOT" && git ls-files -z | xargs -0 grep -lE '\$\{[A-Za-z_][A-Za-z0-9_]*:?-(\$PWD|\.)?\}/' 2>/dev/null | wc -l)
+chk "no empty-default, \$PWD or cwd path splices in tracked files" 0 "$((hits))"
 
 # Tier 5 conditions: no harness exported CLAUDE_PLUGIN_ROOT and no ~/dotfiles —
 # so tiers 1 and 2 both miss. The cwd is irrelevant now that tier 4 is gone;
@@ -161,6 +162,7 @@ head_state() { # head_state <shell> <block> <cwd> <plugin-root-or-empty>
 DIRTRAP="$TMP/dirtrap"
 mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/gh_project_status.sh"
 mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/gh_discussion.sh"
+mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/parse_yaml_defaults.sh"
 
 # An existing but unreadable helper must not count as resolved: `-f` alone
 # passes it, the source then fails, and an inherited function stays callable.
@@ -311,6 +313,40 @@ DECOY
 else
     echo "skip  dash not installed"
 fi
+
+# 7. The auto-labels parser prologue (#26). A third pasted block, soft-fail like
+#    the board ones: it warns and skips rather than aborting, and the observable
+#    is whether the parser's helpers got defined. It shipped `${CLAUDE_PLUGIN_ROOT:-.}`
+#    — a literal tier 4 — until #26, which nothing here covered because the block
+#    was never extracted.
+dedent_block skills/issue-create/references/auto-labels.md > "$TMP/auto-labels.sh"
+[ -s "$TMP/auto-labels.sh" ] || { printf 'FAIL  auto-labels: extracted nothing\n'; fails=$((fails + 1)); }
+
+parser_state() { # parser_state <shell> <cwd> <plugin-root-or-empty>
+    _probe='. "$1"
+            command -v _parse_yaml_defaults_static >/dev/null 2>&1 && printf loaded || printf not-loaded'
+    if [ -n "$3" ]; then
+        ( cd "$2" && env -u SHELL_COMMON -u DOTFILES_ROOT CLAUDE_PLUGIN_ROOT="$3" \
+            HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/auto-labels.sh" 2>/dev/null )
+    else
+        ( cd "$2" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
+            HOME="$HOME_EMPTY" "$1" -c "$_probe" _ "$TMP/auto-labels.sh" 2>/dev/null )
+    fi
+}
+
+for sh in sh bash zsh; do
+    command -v "$sh" >/dev/null 2>&1 || continue
+    chk "$sh/auto-labels loads via CLAUDE_PLUGIN_ROOT (tier 2)" loaded \
+        "$(parser_state "$sh" "$SANDBOX" "$ROOT")"
+    # $ROOT really does hold lib/vendor/shell-common/functions/parse_yaml_defaults.sh,
+    # which is exactly what a PR under review would ship.
+    chk "$sh/auto-labels does NOT load from the cwd (no tier 4)" not-loaded \
+        "$(parser_state "$sh" "$ROOT" "")"
+    chk "$sh/auto-labels reports not-loaded at tier 5" not-loaded \
+        "$(parser_state "$sh" "$SANDBOX" "")"
+    chk "$sh/auto-labels rejects a directory at the parser path" not-loaded \
+        "$(parser_state "$sh" "$SANDBOX" "$DIRTRAP")"
+done
 
 printf '\n'
 if [ "$fails" -eq 0 ]; then printf 'ok    all checks passed\n'; else printf 'FAIL  %s check(s)\n' "$fails"; fi
