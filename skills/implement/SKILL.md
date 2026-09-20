@@ -48,8 +48,8 @@ Per `references/superpowers-detection.md`: plugin missing → force mode `direct
 
 ## Step 3: Fetch + Claim Issue
 
-Six substeps in order — full policy, env vars, and behavior matrix in
-`references/claim.md`. After 3.1/3.3/3.4 emit `printf '[step:gh-issue-implement/<marker>] OK\n'`
+Six substeps in order; 3.2-3.5 run `lib/claim-issue.sh` — call block, policy,
+env vars and behavior matrix in `references/claim.md`. After 3.1/3.3/3.4 emit `printf '[step:gh-issue-implement/<marker>] OK\n'`
 (`fetch-issue`, `self-assign`, `board-transition`) for the step-skip guard (dEitY719/dotfiles#753).
 
 3.1 **Fetch** — `references/fetch-issue.md` (CLOSED refusal there).

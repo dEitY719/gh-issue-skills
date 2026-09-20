@@ -1,7 +1,9 @@
 # gh-issue:implement — Step 3 Fetch + Claim
 
-This file is the SSOT for Step 3 of `gh-issue:implement`. The skill
-absorbs four session-start tasks that AgentToolbox handles in
+This file is the SSOT for Step 3 **policy** of `gh-issue:implement`; the
+algorithm itself is [`lib/claim-issue.sh`](../../../lib/claim-issue.sh), which
+this skill and `gh-issue:proceed` both run (dEitY719/gh-issue-skills#21). The
+skill absorbs four session-start tasks that AgentToolbox handles in
 `claude-enter-issue` (worktree creation stays the user's job; everything
 else lands here):
 
@@ -37,79 +39,77 @@ costs a search API call and there is no point paying for it on an issue
 the board's pre-run state rather than mixed in with this run's own
 `In progress` write.
 
-## Substep detail
+## 3.1 Fetch issue
 
-> **Host targeting (dEitY719/dotfiles#1403)** — every `gh` call in this file runs as
+See `references/fetch-issue.md` — it owns the `gh issue view` call and the
+CLOSED refusal, whose wording is this skill's own. The JSON it returns is
+`$ISSUE_JSON` below and is reused by 3.2 (`labels`), 3.3 (`assignees`), 3.5
+(`body`), and Step 5 (title, body, comments) — call once, parse many times.
+
+## 3.2–3.5 Run the claim
+
+`$N` is the issue number from Step 1; `$TARGET_REPO` / `$TARGET_HOST` /
+`$PLUGIN_ROOT` are the exports `lib/resolve-target.sh` made there. No cwd
+fallback (dEitY719/harness-skills#24): `$PWD` is caller-controlled — a PR
+checkout under review — and a defaulted splice would run THAT CHECKOUT'S OWN
+`claim-issue.sh`.
+
+```bash
+_CI="" # no cwd fallback (dEitY719/harness-skills#24)
+[ -z "${PLUGIN_ROOT:-}" ] || _CI="$PLUGIN_ROOT/lib/claim-issue.sh"
+if [ -z "$_CI" ] || [ ! -f "$_CI" ] || [ ! -r "$_CI" ]; then
+    printf '[FAIL] claim-issue.sh not found — Step 1 must export PLUGIN_ROOT (export CLAUDE_PLUGIN_ROOT=<plugin dir>).\n' >&2
+    exit 1
+fi
+printf '%s' "$ISSUE_JSON" | "$_CI" "$N" \
+    --block-labels-default 'do-not-work,on-hold,보류,⏸️ Postpone,reference' \
+    --duplicate-pr-guard
+_rc=$?
+[ "$_rc" -eq 0 ] || exit "$_rc"
+```
+
+Executed, not sourced: unlike `resolve-target.sh` this helper exports
+nothing, and running it in its own process is what keeps the board helper's
+functions out of the skill's shell and makes the caller's `set -e` irrelevant
+to a documented soft-fail step.
+
+**The two flags are this skill's half of the policy** — the whole of what
+`gh-issue:proceed` does differently, stated at the call site rather than
+hidden behind a caller name inside the script:
+
+- `--block-labels-default` carries the trailing `reference`, which marks
+  참고용/구현 불필요 issues (issue dEitY719/dotfiles#1226). `proceed` omits it.
+  `GH_ISSUE_BLOCK_LABELS`, when set, replaces the whole list either way.
+- `--duplicate-pr-guard` turns on 3.3b. `proceed` opens no PRs, so "an open
+  PR already closes this issue" is not a duplicate signal there.
+
+## Substep policy
+
+> **Host targeting (dEitY719/dotfiles#1403)** — every `gh` call the helper makes runs as
 > `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"`, using the pair Step 1
 > bound from one and the same remote URL (`references/repo-resolution.md`).
-> Step 1 also `export`s `GH_HOST`, which is what carries the host into
-> `gh_project_status.sh` in 3.4 — that helper calls `gh` itself and has no
-> other way to learn the host. Dropping either half sends the write to the
-> wrong GitHub server without an error.
-
-### 3.1 Fetch issue
-
-See `references/fetch-issue.md`. The `gh issue view` JSON it returns is
-reused by 3.2 (`labels`), 3.3 (`assignees`), 3.5 (`body`) — call once,
-parse multiple times.
+> Dropping either half sends the write to the wrong GitHub server without an
+> error.
 
 ### 3.2 Block-label guard (fail-closed)
 
 **Goal**: refuse to start work on an issue tagged `do-not-work`,
-`on-hold`, `보류`, `⏸️ Postpone`, or whatever the team's parking-lot
-label happens to be. AgentToolbox `#233` policy: no escape hatch
+`on-hold`, `보류`, `⏸️ Postpone`, `reference`, or whatever the team's
+parking-lot label happens to be. AgentToolbox `#233` policy: no escape hatch
 (`GH_ISSUE_FORCE_BLOCKED=1` was rejected) — label removal is the only
-way to release. dotfiles inherits that posture.
-
-**Algorithm** (operates on the JSON from 3.1):
-
-```
-labels = json.labels[].name
-block  = split(GH_ISSUE_BLOCK_LABELS, ",")
-        default: "do-not-work,on-hold,보류,⏸️ Postpone,reference"
-
-for L in labels:
-    for B in block:
-        if L == B:
-            print "Refusing to start #<N> — blocked by label '<L>'."
-            print "  Remove the label and re-run, or check whether"
-            print "  the issue should stay parked."
-            exit 2
-```
+way to release. dotfiles inherits that posture. Commas separate the list;
+a space is part of a label, so don't pad them.
 
 **Why exit 2 and not 1**: `1` is the implicit failure code for many
 shell errors. `2` is reserved across this skills suite for "policy
 refusal" (mirrors `_gh_project_status_sync`'s Approved guard return
 code). A wrapper script can distinguish "the skill broke" from "the
-skill correctly refused".
+skill correctly refused". The `exit "$_rc"` above is what propagates it.
 
 ### 3.3 Self-assign
 
 **Goal**: broadcast on the issue page, in `gh issue list --repo "$TARGET_REPO"
 --assignee @me`, and on issue-list badges that this issue is being worked.
-
-**Algorithm**:
-
-```
-me        = `GH_HOST="$TARGET_HOST" gh api user -q .login`
-assignees = json.assignees[].login
-
-if "GH_ISSUE_SKIP_SELF_ASSIGN" set:
-    return 0
-
-if me in assignees:
-    return 0    # idempotent no-op
-
-if assignees == []:
-    GH_HOST="$TARGET_HOST" gh issue edit <N> --repo "$TARGET_REPO" --add-assignee @me
-    return 0    # soft-fail on API error: warn + continue
-
-# Someone else already holds it.
-print "[WARN] Issue #<N> is assigned to <other>; not overriding."
-print "    Coordinate via the issue thread, or rerun with"
-print "    GH_ISSUE_SKIP_SELF_ASSIGN=1 to suppress this warning."
-return 0
-```
 
 **Why `--add-assignee` not `--assignee`**:
 - `--add-assignee` *appends* to the existing list. Safe when a reviewer
@@ -120,117 +120,49 @@ return 0
 **Why warn-no-override on conflict**: forking a teammate's claim is
 worse than a duplicated implement attempt. The warning gives the human
 a chance to coordinate; AgentToolbox `claude-enter-issue` takes the
-same posture.
+same posture. Already holding it yourself is an idempotent no-op.
 
-**Soft-fail rule**: any of these failures → single-line `[WARN]` warning
-+ continue:
-- No write permission on repo (fork, readonly token).
-- Transient API / network error.
-- Issue locked or archived.
-
-The implement flow proceeds — the claim is informational, not load-
-bearing.
+**Soft-fail rule**: no write permission (fork, readonly token), a
+transient API error, or a locked issue → single-line `[WARN]` + continue.
+The implement flow proceeds — the claim is informational, not load-bearing.
 
 ### 3.3b Duplicate open-PR guard (soft)
 
 **Goal**: catch the case 3.3 structurally cannot — *I* am already the
 assignee because *another one of my own sessions* claimed this issue
 minutes ago from a sibling worktree. To 3.3 that is indistinguishable
-from a plain restart, so it returns `noop-self` and says nothing. Issue
+from a plain restart, so it says nothing. Issue
 dEitY719/dotfiles#1482 was implemented twice, 13 minutes apart, producing PRs dEitY719/dotfiles#1488 and
 dEitY719/dotfiles#1489 that later collided in a merge train.
 
 The reliable fingerprint of "someone already did this" is an **open PR
-that closes this issue**. Read-only, one search call, one warning line.
-It never blocks: a second session is sometimes exactly what the user
-wants (a rewrite, an abandoned first attempt), so the decision stays
-with the human. The search matches both footer keywords this repo's
-`gh-pr:commit` accepts — `Closes` and `Fixes` — since a `Fixes #<N>` PR is
-just as valid a duplicate signal as a `Closes #<N>` one (codex review,
+that closes this issue**. Read-only, one search call, one warning line
+naming the first PR the search returns — the point is to send the human to
+the PR list, not to enumerate it. It never blocks: a second session is
+sometimes exactly what the user wants (a rewrite, an abandoned first
+attempt), so the decision stays with the human. The search matches both
+footer keywords this repo's `gh-pr:commit` accepts — `Closes` and `Fixes` —
+since a `Fixes #<N>` PR is just as valid a duplicate signal (codex review,
 PR dEitY719/dotfiles#1509).
-
-**Algorithm**:
-
-```
-if "GH_ISSUE_SKIP_DUPLICATE_CHECK" set:
-    return 0
-
-prs = `GH_HOST="$TARGET_HOST" gh pr list --repo "$TARGET_REPO" \
-         --state open --search "\"Closes #<N>\" OR \"Fixes #<N>\" in:body" --json number -q '.[].number'`
-
-if prs == []:
-    return 0    # silent — no output on the common path
-
-print "[WARN] Issue #<N> 을 이미 닫는 open PR #<M> 이 있습니다 — 중복 구현 가능성. 계속 진행하기 전에 확인하세요."
-return 0
-```
-
-`<M>` is the first PR the search returns — one line however many come
-back; the point is to send the human to the PR list, not to enumerate it.
 
 **Why silence on the empty result matters**: this guard fires on every
 implement run, so a line that also prints on the common "no duplicate"
 case would train users to scroll past it — costing exactly the signal
 dEitY719/dotfiles#1507 exists to add.
 
-**Soft-fail rule** (NF-1): any failure of the search itself → **no
-output, continue**:
-- Transient API / network error.
-- Search unavailable or rate-limited on this host.
-- `gh` too old to support `--search` on `pr list`.
-
-Unlike 3.3, a failure here is not even worth a warn line: the check is
-an advisory read, and a "could not check for duplicates" line on an
-otherwise-fine run is noise of the same kind the previous paragraph
-rejects. Never abort — a duplicate warning that blocks would break every
-legitimate restart.
+**Soft-fail rule** (NF-1): a failure of the search itself (transient API
+error, search unavailable or rate-limited, `gh` too old for `--search` on
+`pr list`) prints **nothing at all**. Unlike 3.3, a failure here is not even
+worth a warn line: the check is an advisory read, and a "could not check for
+duplicates" line on an otherwise-fine run is noise of the same kind the
+previous paragraph rejects. Never abort — a duplicate warning that blocks
+would break every legitimate restart.
 
 ### 3.4 Board Status transition
 
 **Goal**: move the issue card from `Backlog`/`Ready` to `In progress`
-on every projectV2 it belongs to.
-
-**Algorithm**:
-
-```
-if "GH_ISSUE_SKIP_BOARD_TRANSITION" set:
-    return 0
-
-_SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}" # tier 1
-# No tier 4 (dEitY719/harness-skills#22): $PWD is caller-controlled here.
-[ -f "$_SC/functions/gh_project_status.sh" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
-    || _SC="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common" # tier 2
-_HELPER="$_SC/functions/gh_project_status.sh"
-# Drop any inherited definition BEFORE sourcing, so the check below proves this
-# load defined the function rather than an earlier one. A file-mode test cannot:
-# -f passes an unreadable file, -r passes a directory, and neither notices a
-# helper that sources halfway.
-#
-# Every step here is errexit-safe: a pasted block inherits the caller's `set -e`,
-# and this transition is documented soft-fail — it must warn and skip, never
-# abort the run. `unset -f` on an undefined name, a bare `[ ... ] && cmd` whose
-# test fails, and a failed `.` are all non-zero, so each is neutralised.
-unset -f _gh_project_status_sync 2>/dev/null || :
-if [ -f "$_HELPER" ] && [ -r "$_HELPER" ]; then
-    . "$_HELPER" || :
-fi
-if ! command -v _gh_project_status_sync >/dev/null 2>&1; then
-    # Defense-in-depth (dEitY719/dotfiles#724): sourceable but undefined → silent no-op
-    # without this guard. One-line stderr warning, never blocks.
-    printf '[gh-issue-implement] _gh_project_status_sync did not load from %s — board transition skipped (dEitY719/dotfiles#724). On any harness other than Claude Code, export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
-        "$_HELPER" >&2
-else
-    # export only after the load is proved — an unproven export poisons every
-    # later ${SHELL_COMMON:-...} default in the same run.
-    export SHELL_COMMON="$_SC"
-    # --repo "$TARGET_REPO" (Step 1) is explicit (dEitY719/dotfiles#1405): the helper's
-    # `gh repo view` fallback answers `gh repo set-default`, not the
-    # remote this run resolved.
-    _gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO" || :
-fi
-```
-
-The helper (`shell-common/functions/gh_project_status.sh`) handles:
+on every projectV2 it belongs to, via `_gh_project_status_sync` from
+`shell-common/functions/gh_project_status.sh`. The helper handles:
 
 - **Explicit `--repo`**: `$TARGET_REPO` from Step 1 (dEitY719/dotfiles#1405). Without it
   the helper resolves via `gh repo view`, i.e. whatever
@@ -243,32 +175,29 @@ The helper (`shell-common/functions/gh_project_status.sh`) handles:
   (`In design`, `Spec`, etc.) are left untouched; teams that want
   those moved should override the helper or skip with
   `GH_ISSUE_SKIP_BOARD_TRANSITION=1` and run the transition manually.
+- **Verify pair (race absorption, dEitY719/dotfiles#393)**: after the mutation the
+  helper sleeps `_GH_PROJECT_STATUS_VERIFY_SLEEP` (default 1 s) and
+  re-queries. Re-issues the mutation once if a builtin workflow
+  reverted the value. Second mismatch → loud stderr, still rc 0.
+
+Locating that helper follows the plugin-root convention
+(`harness-skills#10`): tier 1 `$SHELL_COMMON`, tier 2
+`$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common`, **no tier 4** — `$PWD` is the
+repo under review (dEitY719/harness-skills#22). Sourceable-but-undefined is
+a one-line stderr warning and a skipped step, never an abort
+(dEitY719/dotfiles#724).
 
 **Warn when `--only-from` absorbs the write (dEitY719/dotfiles#1507, F-2)**: before
-handing off to `_gh_project_status_sync`, read the card's current
-Status with the same SSOT query helper `gh-pr-merge` used for its
-now-retired board-approval gate (`_gh_project_status_query_current`,
-also from `gh_project_status.sh` — see
-the sibling repo `dEitY719/gh-pr-skills`'s
-`skills/merge/references/board-policy.md`, "Retired: Step 2-B
-(removed in dEitY719/dotfiles#1513)"), and when it is neither `Backlog` nor `Ready`,
-print one line before the (no-op) mutation:
-
-```
-status = `_gh_project_status_query_current issue <N> "$TARGET_REPO"`
-
-if status not in ("Backlog", "Ready"):
-    print "[WARN] Issue #<N> Status 가 이미 \"<status>\" 입니다 — 다른 세션의 중복 착수이거나, 이슈가 이미 다른 단계로 넘어갔을 수 있습니다."
-```
-
-This changes nothing about the mutation — the helper's whitelist still
-absorbs it, exactly as before. It only stops the absorption from being
-*silent*. A card already sitting in `In progress` is the board-side
-fingerprint of the same duplicate-session failure 3.3b watches for on
-the PR side, and the two signals are independent: the other session may
-have moved the board without opening a PR yet, or opened a PR in a repo
-with no board at all. A restart of your own abandoned run also lands
-here, which is fine — the line is advisory, not a refusal.
+handing off, the helper's `_gh_project_status_query_current` reads the card's
+current Status, and when it is neither `Backlog` nor `Ready` one line prints
+before the (no-op) mutation. This changes nothing about the mutation — the
+whitelist still absorbs it, exactly as before. It only stops the absorption
+from being *silent*. A card already sitting in `In progress` is the
+board-side fingerprint of the same duplicate-session failure 3.3b watches
+for on the PR side, and the two signals are independent: the other session
+may have moved the board without opening a PR yet, or opened a PR in a repo
+with no board at all. A restart of your own abandoned run also lands here,
+which is fine — the line is advisory, not a refusal.
 
 The wording is deliberately non-committal about *why* the Status isn't
 `Backlog`/`Ready`: the same non-empty complement also includes terminal
@@ -277,16 +206,11 @@ already started this" would be the wrong read (codex review, PR dEitY719/dotfile
 — the message names the fact (current Status) and offers duplicate-start
 as one possible explanation, not the only one.
 
-Reading the Status is itself best-effort: a non-zero return from
-`_gh_project_status_query_current` (missing scope, network error, no
-board) skips the warning and lets `_gh_project_status_sync` run as
-usual (NF-1) — the same soft-fail posture 3.3b uses.
-- **Verify pair (race absorption, dEitY719/dotfiles#393)**: after the mutation the
-  helper sleeps `_GH_PROJECT_STATUS_VERIFY_SLEEP` (default 1 s) and
-  re-queries. Re-issues the mutation once if a builtin workflow
-  reverted the value. Second mismatch → loud stderr, still rc 0.
+Reading the Status is itself best-effort: a non-zero return skips the
+warning and lets `_gh_project_status_sync` run as usual (NF-1) — the same
+soft-fail posture 3.3b uses.
 
-**Soft-fail rule**: helper always returns 0 for non-policy errors —
+**Soft-fail rule**: the helper always returns 0 for non-policy errors —
 the implement flow proceeds regardless of board state.
 
 ### 3.5 Depends-on guard
@@ -303,36 +227,18 @@ and `M` is still OPEN. AgentToolbox `claude-check-deps` is fail-closed
   the pattern.
 
 A loud warning is enough — the user can abort with Ctrl-C if relevant.
+The pattern is case-insensitive ("Depends on", "depends on", "DEPENDS ON"
+all match) and only matches whole `#<digits>` — not `#dep-3` or `#1.2.3`.
 
-**Algorithm**:
-
-```
-if "GH_ISSUE_SKIP_DEPS_CHECK" set:
-    return 0
-
-deps = grep -oE '(?i)Depends on #[0-9]+' <issue-body> | sed 's/.*#//'
-
-for M in deps:
-    state = `GH_HOST="$TARGET_HOST" gh issue view <M> --repo "$TARGET_REPO" --json state -q .state`
-    if state == "CLOSED":
-        continue
-    print "[WARN] Issue #<N> depends on #<M> which is still <state>."
-    print "    The implement may be premature — review or close #<M> first."
-```
-
-Pattern is case-insensitive ("Depends on", "depends on", "DEPENDS
-ON" all match). Only matches whole `#<digits>` — not `#dep-3` or
-`#1.2.3`.
-
-**Failure mode**: if the `gh issue view <M>` above itself errors (deleted issue,
-cross-repo reference, network), print one warn line and continue. Do
+**Failure mode**: if the `gh issue view <M>` lookup itself errors (deleted
+issue, cross-repo reference, network), one warn line and continue. Do
 not abort — the dependency check is informational.
 
 ## Environment variables
 
 | Variable | Default | Effect |
 |---|---|---|
-| `GH_ISSUE_BLOCK_LABELS` | `do-not-work,on-hold,보류,⏸️ Postpone,reference` | Comma-separated block-label list for 3.2. Spaces inside a label are part of the label (don't pad commas). `reference` marks 참고용/구현 불필요 issues (issue dEitY719/dotfiles#1226). |
+| `GH_ISSUE_BLOCK_LABELS` | `do-not-work,on-hold,보류,⏸️ Postpone,reference` | Comma-separated block-label list for 3.2; replaces `--block-labels-default` entirely when set. Spaces inside a label are part of the label (don't pad commas). `reference` marks 참고용/구현 불필요 issues (issue dEitY719/dotfiles#1226). |
 | `GH_ISSUE_SKIP_SELF_ASSIGN` | unset | When `1`, skip 3.3 entirely. |
 | `GH_ISSUE_SKIP_DUPLICATE_CHECK` | unset | When `1`, skip 3.3b entirely — no search call, no warning. For a deliberate second implementation of the same issue (issue dEitY719/dotfiles#1507). |
 | `GH_ISSUE_SKIP_BOARD_TRANSITION` | unset | When `1`, skip 3.4 entirely (its F-2 Status warning included). |
@@ -389,10 +295,10 @@ outcome. Both warn rows still end in `proceed` — neither signal blocks.
 - **Does not enforce stacked-PR `Depends on #parent-pr`.** Only issue
   references are scanned. PR-to-PR stacking is `gh-pr:create`'s territory.
 
-## Test fixture
+## Self-check
 
-`dEitY719/dotfiles/tests/bats/skills/_fixtures/gh_issue_implement_claim.sh` mirrors
-the five substep functions verbatim. The bats suite at
-`dEitY719/dotfiles/tests/bats/skills/gh_issue_implement_claim.bats` exercises the
-eight-case behavior matrix above. Any change to substep logic must
-land in both files (and this doc).
+`lib/claim-issue.selfcheck.sh` runs the behavior matrix above against
+`lib/claim-issue.sh` with a fake `gh` on `PATH` and a stub board helper — no
+network, no `gh` auth. It also extracts the call block above out of this file
+and runs it, so a change to the flags here that the script does not implement
+fails CI rather than a run. `tests/lib-selfchecks.sh` is what CI executes.
