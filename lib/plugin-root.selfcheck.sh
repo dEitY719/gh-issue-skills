@@ -61,10 +61,12 @@ extract discussion-create '_GD="${DOTFILES_ROOT' '}' \
 # than a slice of a doc (dEitY719/gh-issue-skills#21).
 
 # 1. The gate grep: an explicitly-empty default spliced straight into a path is
-#    always the defect (it collapses to the filesystem root), and so is a `$PWD`
-#    or `.` default — both spell the retired tier 4 (see header). `:-.` is the
-#    form that slipped past this grep into auto-labels.md (#26).
-hits=$(cd "$ROOT" && git ls-files -z | xargs -0 grep -lE '\$\{[A-Za-z_][A-Za-z0-9_]*:?-(\$PWD|\.)?\}/' 2>/dev/null | wc -l)
+#    always the defect (it collapses to the filesystem root), and so is a `$PWD`,
+#    `.` or `$(pwd)` default — all three spell the retired tier 4 (see header).
+#    `:-.` is the form that slipped past this grep into auto-labels.md (#26);
+#    `$(pwd)` names the same caller-controlled directory a third way, and was
+#    added upstream in dEitY719/harness-skills#35.
+hits=$(cd "$ROOT" && git ls-files -z | xargs -0 grep -lE '\$\{[A-Za-z_][A-Za-z0-9_]*:?-(\$PWD|\$\(pwd\)|\.)?\}/' 2>/dev/null | wc -l)
 chk "no empty-default, \$PWD or cwd path splices in tracked files" 0 "$((hits))"
 
 # Tier 5 conditions: no harness exported CLAUDE_PLUGIN_ROOT and no ~/dotfiles —
@@ -251,6 +253,13 @@ fi
 dedent_block skills/issue-create/references/auto-labels.md > "$TMP/auto-labels.sh"
 [ -s "$TMP/auto-labels.sh" ] || { printf 'FAIL  auto-labels: extracted nothing\n'; fails=$((fails + 1)); }
 
+# A parser tree that is present and readable but defines nothing: the case an
+# [ -f ]/[ -r ] guard cannot tell from a real one.
+PARSER_HOLLOW="$TMP/parser-hollow"
+mkdir -p "$PARSER_HOLLOW/lib/vendor/shell-common/functions"
+printf '# defines nothing\n' \
+    > "$PARSER_HOLLOW/lib/vendor/shell-common/functions/parse_yaml_defaults.sh"
+
 parser_state() { # parser_state <shell> <cwd> <plugin-root-or-empty>
     _probe='. "$1"
             command -v _parse_yaml_defaults_static >/dev/null 2>&1 && printf loaded || printf not-loaded'
@@ -275,6 +284,17 @@ for sh in sh bash zsh; do
         "$(parser_state "$sh" "$SANDBOX" "")"
     chk "$sh/auto-labels rejects a directory at the parser path" not-loaded \
         "$(parser_state "$sh" "$SANDBOX" "$DIRTRAP")"
+    # harness-skills#36: an [ -f ]/[ -r ] pair is a load guard, not a proof. A
+    # parser that is present and readable but defines nothing passed it, so the
+    # block printed no warning and Step 2 then died on `command not found`
+    # mid-run instead of taking the documented skip. The block's own stderr is
+    # the observable -- parser_state above only reports shell state, which is
+    # not-loaded either way and so cannot see this.
+    warn=$( cd "$SANDBOX" && env -u SHELL_COMMON -u DOTFILES_ROOT \
+        CLAUDE_PLUGIN_ROOT="$PARSER_HOLLOW" HOME="$HOME_EMPTY" \
+        "$sh" "$TMP/auto-labels.sh" 2>&1 >/dev/null )
+    case "$warn" in *'auto-labels skipped'*) got=warned ;; *) got="${warn:-silent}" ;; esac
+    chk "$sh/auto-labels warns when the parser defines nothing" warned "$got"
 done
 
 printf '\n'

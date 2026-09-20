@@ -248,11 +248,24 @@ chmod 000 "$UNREADABLE/lib/vendor/shell-common/functions/gh_project_status.sh"
 [ -r "$UNREADABLE/lib/vendor/shell-common/functions/gh_project_status.sh" ] \
     && CAN_TEST_UNREADABLE=0 || CAN_TEST_UNREADABLE=1
 
-tier() { # tier <shell> <cwd> <plugin-root-or-empty> -> stderr, rc in $RC
-    local sh="$1" cwd="$2" pr="$3"
+# A tier-2 root whose helper is present and readable but defines nothing: the
+# case an existence test cannot tell from a good one, and the one the imposter
+# below rides on.
+HOLLOW="$TMP/hollow"
+mkdir -p "$HOLLOW/lib/vendor/shell-common/functions"
+printf '# defines nothing\n' > "$HOLLOW/lib/vendor/shell-common/functions/gh_project_status.sh"
+IMPOSTER="$TMP/imposter"
+mkdir -p "$IMPOSTER"
+printf '#!/bin/sh\nprintf imposter\n' > "$IMPOSTER/_gh_project_status_sync"
+chmod +x "$IMPOSTER/_gh_project_status_sync"
+
+tier() { # tier <shell> <cwd> <plugin-root-or-empty> [extra-PATH-dir]
+    local sh="$1" cwd="$2" pr="$3" xp="${4:-}"
+    local _p="$TMP/bin:$PATH"
+    [ -z "$xp" ] || _p="$xp:$_p"
     if [ -n "$pr" ]; then
         OUT=$( cd "$cwd" && { printf '%s' "$NORMAL" | env -u SHELL_COMMON -u DOTFILES_ROOT \
-            CLAUDE_PLUGIN_ROOT="$pr" HOME="$HOME_EMPTY" PATH="$TMP/bin:$PATH" \
+            CLAUDE_PLUGIN_ROOT="$pr" HOME="$HOME_EMPTY" PATH="$_p" \
             GH_LOG="$TMP/gh.log" GH_ISSUE_SKIP_SELF_ASSIGN=1 GH_ISSUE_SKIP_DEPS_CHECK=1 \
             TARGET_REPO=acme/widget TARGET_HOST=github.com \
             "$sh" "$TARGET" 7 --block-labels-default "$IMPL_DEFAULT" >/dev/null; } 2>&1 )
@@ -294,6 +307,28 @@ for sh in sh bash zsh; do
         chk "$sh: an unreadable helper is rejected" "$(skipped)" skipped
         chk "$sh: the unreadable helper does not abort" "$RC" 0
     fi
+
+    # The proof tests for a FUNCTION, not for a runnable name
+    # (dEitY719/harness-skills#36). `command -v X >/dev/null` — the shape this
+    # replaced — answers "is this name runnable", so with a helper that loads
+    # but defines nothing, a PATH executable of that exact name satisfied it
+    # and the board write was attempted against a helper that was never there.
+    # $IMPOSTER goes on PATH ahead of everything for exactly that reason.
+    tier "$sh" "$SANDBOX" "$HOLLOW" "$IMPOSTER"
+    chk "$sh: a PATH executable named _gh_project_status_sync is not the helper" \
+        "$(skipped)" skipped
+    chk "$sh: the imposter case does not abort" "$RC" 0
+
+    # SHELL_COMMON is already exported while gh_project_status.sh is SOURCED
+    # (dEitY719/harness-skills#37). That helper resolves dotfiles_root.sh
+    # through ${SHELL_COMMON:-$HOME/dotfiles/shell-common} at source time, so
+    # exporting after the proof was too late for its only consumer: on this
+    # tier-2 path, with HOME empty, it looked under a $HOME/dotfiles that does
+    # not exist and skipped its own #1454 guard. The load succeeded either
+    # way, which is why only the helper's own warning shows it.
+    tier "$sh" "$SANDBOX" "$ROOT"
+    hasnt "$sh: the helper finds its sibling while sourcing (no skipped guard)" \
+        "$OUT" '#1454 guard skipped'
 done
 rm -rf "$SANDBOX" "$HOME_EMPTY"
 

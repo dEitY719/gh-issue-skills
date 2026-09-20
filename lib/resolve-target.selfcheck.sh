@@ -135,4 +135,38 @@ else
     echo "skip  dash not installed"
 fi
 
+# 10. The load proof tests for a FUNCTION, not for a runnable name
+#     (dEitY719/harness-skills#36). A gh_host.sh that is present and readable
+#     but defines nothing used to be sourced and accepted — the `-r` check was
+#     the only gate. With an executable of that exact name on PATH, even a
+#     `command -v ... >/dev/null` proof would have passed it, so this pins the
+#     output-comparison form. And the refusal must leave SHELL_COMMON UNSET:
+#     resolve-target.sh is SOURCED, so a tree that failed the proof would
+#     otherwise outrank every later ${SHELL_COMMON:-...} default in the
+#     caller's own shell — gh-resolve-skills#8's poisoning.
+HOLLOW="$TMP/hollow"
+mkdir -p "$HOLLOW/lib/vendor/shell-common/functions" "$TMP/imposter"
+printf '# defines nothing\n' > "$HOLLOW/lib/vendor/shell-common/functions/gh_host.sh"
+printf '#!/bin/sh\nprintf imposter\n' > "$TMP/imposter/_gh_resolve_host"
+chmod +x "$TMP/imposter/_gh_resolve_host"
+got=$( cd "$TMP" && env -u SHELL_COMMON DOTFILES_ROOT=/nonexistent-dotfiles \
+       CLAUDE_PLUGIN_ROOT="$HOLLOW" PATH="$TMP/imposter:$PATH" \
+       sh -c ". \"$TARGET\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${SHELL_COMMON:-unset}\"" )
+chk "a helper that defines nothing fails the proof and exports nothing" "$got" "1|unset"
+
+# 11. SHELL_COMMON is already exported while gh_host.sh is SOURCED
+#     (dEitY719/harness-skills#37). gh_host.sh resolves dotfiles_root.sh
+#     through ${SHELL_COMMON:-$HOME/dotfiles/shell-common} at source time, so
+#     exporting after the load was too late for its only consumer: with no
+#     ~/dotfiles it looked under a path that is not there and skipped its own
+#     #1454 guard. Resolution succeeded either way, so the helper's warning on
+#     stderr is the only observable.
+EMPTYHOME=$(mktemp -d)
+err=$( cd "$TMP" && env -u SHELL_COMMON DOTFILES_ROOT=/nonexistent-dotfiles \
+       HOME="$EMPTYHOME" CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=origin \
+       sh -c ". \"$TARGET\"" 2>&1 >/dev/null )
+rm -rf "$EMPTYHOME"
+case "$err" in *'guard skipped'*) got=skipped ;; *) got=guarded ;; esac
+chk "gh_host.sh finds its sibling while sourcing (SHELL_COMMON set first)" "$got" "guarded"
+
 exit "$FAIL"
