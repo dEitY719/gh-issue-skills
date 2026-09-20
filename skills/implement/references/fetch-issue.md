@@ -4,7 +4,7 @@
 
 ```bash
 GH_HOST="$TARGET_HOST" gh issue view <N> --repo "$TARGET_REPO" --json \
-  number,title,body,state,comments,url
+  number,title,body,state,labels,assignees,comments,url
 ```
 
 `GH_HOST` and `--repo` are both mandatory and both come from Step 1's
@@ -38,6 +38,7 @@ intent explicit and creates an audit trail.
 
 ## After successful fetch
 
-Continue to the claim step (`references/claim.md`). The fetched
-JSON (title, body, comments) becomes the input for change-intent
-extraction in Step 5.
+Continue to the claim step (`references/claim.md`). The fetched JSON is
+reused downstream: `labels` and `assignees` by claim's block-label guard
+and self-assign (`references/claim.md` §3.2 / §3.3), and title, body, and
+comments by change-intent extraction in Step 5.
