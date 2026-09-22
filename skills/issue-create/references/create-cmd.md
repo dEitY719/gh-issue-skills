@@ -5,7 +5,9 @@ file, appends the ai-metrics footer (unless `GH_DISABLE_AI_METRICS=1`),
 and calls either `gh issue create` (default) or the
 `_gh_discussion_*` helpers (`DISCUSSION_MODE=1`, dEitY719/dotfiles#619).
 
-`$TOKENS`, `$HUMAN_H`, `$ELAPSED` come from Step 3.5.
+`$TOKENS`, `$HUMAN_H`, `$ELAPSED`, `$HARNESS` and `$LLM_MODEL` come from
+Step 3.5 — the last two feed the footer's provenance line and are `none`
+whenever the writing agent cannot name them (dEitY719/gh-issue-skills#43).
 `LABEL_ARGS` / `MILESTONE_ARGS` are the arrays Step 2.5 prepared (one
 `--label <name>` per kept label; `--milestone <title>` if resolved).
 Both are empty when Step 2.5 was skipped — the `gh issue create`
@@ -24,7 +26,7 @@ BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # $PLUGIN_ROOT was exported by Step 1's resolve-target.sh — a proven root, not
 # `${CLAUDE_PLUGIN_ROOT:-.}`, whose $PWD tier is the repo under review.
 bash "$PLUGIN_ROOT/lib/ai-metrics-footer.sh" \
-    "$TOKENS" "$HUMAN_H" "$ELAPSED" >> "$BODY" \
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-issue-create "$HARNESS" "$LLM_MODEL" >> "$BODY" \
     || echo "[WARN] ai-metrics append failed — continuing." >&2
 GH_HOST="$TARGET_HOST" gh issue create --repo "$TARGET_REPO" \
     --title "<title>" --body-file "$BODY" \
@@ -75,7 +77,7 @@ BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
 # $PLUGIN_ROOT was exported by Step 1's resolve-target.sh — a proven root, not
 # `${CLAUDE_PLUGIN_ROOT:-.}`, whose $PWD tier is the repo under review.
 bash "$PLUGIN_ROOT/lib/ai-metrics-footer.sh" \
-    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-issue-create >> "$BODY" \
+    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-issue-create "$HARNESS" "$LLM_MODEL" >> "$BODY" \
     || echo "[WARN] ai-metrics append failed — continuing." >&2
 
 _owner="${TARGET_REPO%%/*}"
