@@ -5,9 +5,7 @@ file, appends the ai-metrics footer (unless `GH_DISABLE_AI_METRICS=1`),
 and calls either `gh issue create` (default) or the
 `_gh_discussion_*` helpers (`DISCUSSION_MODE=1`, dEitY719/dotfiles#619).
 
-`$TOKENS`, `$HUMAN_H`, `$ELAPSED`, `$HARNESS` and `$LLM_MODEL` come from
-Step 3.5 — the last two feed the footer's provenance line and are `none`
-whenever the writing agent cannot name them (dEitY719/gh-issue-skills#43).
+`$TOKENS`, `$HUMAN_H`, `$ELAPSED`, `$HARNESS` and `$LLM_MODEL` come from Step 3.5.
 `LABEL_ARGS` / `MILESTONE_ARGS` are the arrays Step 2.5 prepared (one
 `--label <name>` per kept label; `--milestone <title>` if resolved).
 Both are empty when Step 2.5 was skipped — the `gh issue create`
