@@ -20,11 +20,8 @@ metadata:
 Read a directive issue (work-order body embedding an executable protocol) and proceed
 end-to-end WITHOUT human intervention: validate the schema, execute each step per the
 body's `decision_rules`, apply the authorized write actions (commit / PR / comment /
-close / file follow-up). Same shell as `/gh-issue:implement` minus superpowers
-detection and mode dispatch — a directive issue is pre-designed, so mode is always
-`direct`. SSOT for the protocol schema: `references/protocol-schema.md` + `lib/validate-protocol.sh`. On each step's success
-emit `printf '[step:gh-issue-proceed/<id>] OK\n'` (`fetch-issue`, `schema-valid`,
-`execute`, `report`).
+close / file follow-up). Same shell as `/gh-issue:implement` minus superpowers detection and mode dispatch — a directive issue is pre-designed, so mode is always `direct`.
+SSOT for the protocol schema: `references/protocol-schema.md` + `lib/validate-protocol.sh`. On each step's success emit `printf '[step:gh-issue-proceed/<id>] OK\n'` (`fetch-issue`, `schema-valid`, `execute`, `report`).
 
 ## Help
 
@@ -46,7 +43,9 @@ Positional args: `<issue-number> [remote]` — no `mode` arg; always `direct`.
 ## Step 2: Fetch + Claim + Schema Validation
 
 2.1 **Fetch + Claim** (`fetch-issue` marker) — retrieve the issue body via
-`gh issue view` (per `references/fetch-issue.md`). The plugin-local
+`gh issue view` (per `references/fetch-issue.md`).
+2.1.1b **Origin trust gate** — before any write: `ORIGIN=$(printf '%s' "$BODY" | bash "$PLUGIN_ROOT/lib/origin-trust.sh") || ORIGIN="ORIGIN_TRUST=review ORIGIN_HARNESS=unknown"` (fail-closed, zero API calls). `trusted`/`skipped` → continue; `review` → 9-item plausibility checklist (`implement`'s six + three protocol-only: unverifiable step, over-broad `allow:` token, Layer-1 evasion), BLOCK → exit 2 with zero writes, no schema run. Skip via `GH_ISSUE_SKIP_ORIGIN_GATE=1`; policy in `references/origin-trust.md`.
+The plugin-local
 `$PLUGIN_ROOT/lib/claim-issue.sh` processes substeps 2.1.2-2.1.5 per
 `references/claim.md` (block-label guard → self-assign → board transition →
 depends-on; no duplicate-PR guard). CLOSED-issue refusal precedes schema.

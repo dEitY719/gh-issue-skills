@@ -22,7 +22,7 @@ metadata:
 If arg #1 is `-h`, `--help`, or `help`, read `references/help.md` and
 output its content verbatim, then stop. No API calls.
 
-**Stop-on-error policy** — HARD-abort: Step 1 preconditions, 3.1 fetch, 3.2 block-label guard; all else (3.3–3.5 claim writes, Step 5 test loop) soft-fails or bounded-retries.
+**Stop-on-error policy** — HARD-abort: Step 1 preconditions, 3.1 fetch, 3.1b origin gate, 3.2 block-label guard; all else (3.3–3.5 claim writes, Step 5 test loop) soft-fails or bounded-retries.
 
 ## Step 1: Parse Args + Resolve Repo + Preconditions
 
@@ -53,13 +53,14 @@ env vars and behavior matrix in `references/claim.md`. After 3.1/3.3/3.4 emit `p
 (`fetch-issue`, `self-assign`, `board-transition`) for the step-skip guard (dEitY719/dotfiles#753).
 
 3.1 **Fetch** — `references/fetch-issue.md` (CLOSED refusal there).
+3.1b **Origin trust gate** — `ORIGIN=$(printf '%s' "$BODY" | bash "$PLUGIN_ROOT/lib/origin-trust.sh") || ORIGIN="ORIGIN_TRUST=review ORIGIN_HARNESS=unknown"` (fail-closed, zero API calls). `trusted`/`skipped` → continue; `review` → run the 6-item plausibility checklist, BLOCK → exit 2 with zero writes. Policy, checklist and report: `references/origin-trust.md`.
 3.2 **Block-label guard** — fail-closed abort (exit 2) if any label matches `GH_ISSUE_BLOCK_LABELS`.
 3.3 **Self-assign** — `--add-assignee @me` unless already assigned (warn, no override, if held by another).
 3.3b **Duplicate open-PR guard** — soft-warn when an open PR already closes `#N` (another session got there first, dEitY719/dotfiles#1507); silent otherwise, silent on API error.
 3.4 **Board transition** — `_gh_project_status_sync issue <N> "In progress" --only-from "Backlog,Ready" --repo "$TARGET_REPO"` (dEitY719/dotfiles#1405); no-op without a board, soft-warn when Status is already outside `Backlog`/`Ready` (dEitY719/dotfiles#1507).
 3.5 **Depends-on guard** — soft-warn per OPEN `Depends on #M` line.
 
-Skip 3.3 / 3.3b / 3.4 / 3.5 via their `GH_ISSUE_SKIP_*` env vars (3.3b is `GH_ISSUE_SKIP_DUPLICATE_CHECK`).
+Skip 3.1b / 3.3 / 3.3b / 3.4 / 3.5 via their `GH_ISSUE_SKIP_*` env vars (3.1b is `GH_ISSUE_SKIP_ORIGIN_GATE`, 3.3b is `GH_ISSUE_SKIP_DUPLICATE_CHECK`).
 
 ## Step 4: Mode Dispatch
 
