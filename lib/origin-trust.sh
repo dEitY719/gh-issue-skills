@@ -81,5 +81,8 @@ if [ "$HARNESS" != unknown ]; then
         fi
     done
 fi
+# Defensive restore (agy review, PR #46): nothing below globs today, but a
+# statement added under here must not silently inherit `-f`.
+set +f
 
 printf 'ORIGIN_TRUST=%s ORIGIN_HARNESS=%s ORIGIN_MODEL=%s\n' "$TRUST" "$HARNESS" "$MODEL"
