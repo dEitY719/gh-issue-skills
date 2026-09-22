@@ -46,11 +46,10 @@ Positional args: `<issue-number> [remote]` — no `mode` arg; always `direct`.
 ## Step 2: Fetch + Claim + Schema Validation
 
 2.1 **Fetch + Claim** (`fetch-issue` marker) — retrieve the issue body via
-`gh issue view` (per `references/fetch-issue.md`). The locally pinned
-`lib/claim-issue.sh` (shipped at `$PLUGIN_ROOT/lib/claim-issue.sh`, not
-resolved from `$PWD`) processes substeps 2.1.2-2.1.5 per `references/claim.md`
-(block-label guard → self-assign → board transition → depends-on; no
-duplicate-PR guard). CLOSED-issue refusal precedes schema.
+`gh issue view` (per `references/fetch-issue.md`). The plugin-local
+`$PLUGIN_ROOT/lib/claim-issue.sh` processes substeps 2.1.2-2.1.5 per
+`references/claim.md` (block-label guard → self-assign → board transition →
+depends-on; no duplicate-PR guard). CLOSED-issue refusal precedes schema.
 
 2.2 **Schema validation** (`schema-valid` marker) — run
 `bash "$PLUGIN_ROOT/lib/validate-protocol.sh" "$N" <<<"$BODY"` against the strict
