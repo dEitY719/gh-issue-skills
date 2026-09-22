@@ -66,6 +66,7 @@ Apply `references/clarification.md` → "미결 게이트 (Step 3.1)". 초안에
 
 Read `references/metrics-baseline.md` and bind `TOKENS`, `HUMAN_H`, `ELAPSED` for Step 4
 (inputs: `START_TS`, the prefix, drafted title+body; for `feat` infer small/medium/large from scope).
+Also bind `HARNESS` / `LLM_MODEL` — your own harness and model, lowercase, `none` when unsure (추측 금지); Step 4 passes them to the footer's provenance line (dEitY719/gh-issue-skills#43).
 
 ## Step 4: Create the Issue (or Discussion)
 
