@@ -17,25 +17,16 @@ write (self-assign, board move) lands on a stranger's issue #N.
 Never work around a surprising `gh` result by retrying, by dropping `--repo`,
 or by switching remotes. Verify the host first.
 
-## Never let the origin gate touch the issue (3.1b)
+## The origin gate judges, never edits, and never moves (3.1b)
 
-The gate judges; it does not edit. Rewriting a contradictory requirement or
-filling in a missing acceptance criterion replaces the author's intent with a
-guess and launders a bad spec into a plausible-looking one — the next reader
-cannot tell which sentences the human wrote. BLOCK, name the reason, and let
-a human fix the body (issue #44 D-8). The same applies to the issue itself:
-a BLOCK posts **no comment** (D-9). `GH_ISSUE_SKIP_ORIGIN_GATE=1` is the only
-bypass, and it is the caller explicitly accepting the risk.
+BLOCK and let a human fix the body — never rewrite a contradictory
+requirement or fill in a missing acceptance criterion (D-8). A BLOCK posts no
+comment either (D-9). `GH_ISSUE_SKIP_ORIGIN_GATE=1` is the only bypass.
 
-## Gate order: origin (3.1b) before block-label (3.2)
-
-An issue that is both block-labelled *and* written by an untrusted harness is
-reported as an **origin** refusal, not a block-label one — 3.1b runs first
-because it is the last point at which zero writes are still provable, and
-3.2-3.5 run inside one `lib/claim-issue.sh` process that cannot be split.
-Both exit 2, so the verdict is identical; only the message differs (NF-4).
-Do not reorder them to make the message prettier — moving 3.1b after the
-claim would put it after the self-assign write.
+Keep it ahead of 3.2: moving it after the claim would put it after the
+self-assign write, so an issue that is both block-labelled and untrusted is
+reported as an **origin** refusal (same exit 2, different message — NF-4).
+Rationale for all of the above: `references/origin-trust.md`.
 
 ## Never create commits or PRs
 

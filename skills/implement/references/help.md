@@ -60,13 +60,9 @@ superpowers skills do not resolve:
 
 ## Environment variables
 
-Full table (block labels, the `GH_ISSUE_SKIP_*` family): `references/claim.md`.
-The two the origin gate adds:
-
-| Variable | Default | Effect |
-|---|---|---|
-| `GH_TRUSTED_HARNESSES` | `claude codex` | Space-separated allow-list of harnesses whose issues start without a review. An explicitly empty value trusts nobody. Shared with the rest of the `gh-*` skill family. |
-| `GH_ISSUE_SKIP_ORIGIN_GATE` | unset | When `1`, skip the origin gate entirely. |
+Full table — block labels, the `GH_ISSUE_SKIP_*` family, and the origin
+gate's `GH_TRUSTED_HARNESSES` / `GH_ISSUE_SKIP_ORIGIN_GATE`:
+`references/claim.md`.
 
 ## What the skill will NOT do
 
