@@ -75,6 +75,8 @@ Four layers (`references/safety-gates.md`):
 | Variable | Default | Effect |
 |---|---|---|
 | `GH_ISSUE_BLOCK_LABELS` | `do-not-work,on-hold,보류,⏸️ Postpone` | Block-label list (claim guard). |
+| `GH_TRUSTED_HARNESSES` | `claude codex` | Space-separated allow-list for the 2.1.1b origin gate. An explicitly empty value trusts nobody. Family-wide name, shared with `gh-flow:issue` (issue #44 D-3). |
+| `GH_ISSUE_SKIP_ORIGIN_GATE` | unset | When `1`, skip the 2.1.1b origin trust gate entirely — the caller accepts the risk explicitly. |
 | `GH_ISSUE_SKIP_SELF_ASSIGN` | unset | When `1`, skip self-assign. |
 | `GH_ISSUE_SKIP_BOARD_TRANSITION` | unset | When `1`, skip board transition. |
 | `GH_ISSUE_SKIP_DEPS_CHECK` | unset | When `1`, skip depends-on guard. |

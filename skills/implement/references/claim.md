@@ -239,6 +239,8 @@ not abort — the dependency check is informational.
 | Variable | Default | Effect |
 |---|---|---|
 | `GH_ISSUE_BLOCK_LABELS` | `do-not-work,on-hold,보류,⏸️ Postpone,reference` | Comma-separated block-label list for 3.2; replaces `--block-labels-default` entirely when set. Spaces inside a label are part of the label (don't pad commas). `reference` marks 참고용/구현 불필요 issues (issue dEitY719/dotfiles#1226). |
+| `GH_TRUSTED_HARNESSES` | `claude codex` | Space-separated allow-list for the 3.1b origin gate (`references/origin-trust.md`). An explicitly empty value trusts nobody. Family-wide name (issue #44 D-3). |
+| `GH_ISSUE_SKIP_ORIGIN_GATE` | unset | When `1`, skip 3.1b entirely — no parse, no checklist. The caller accepts the risk explicitly. |
 | `GH_ISSUE_SKIP_SELF_ASSIGN` | unset | When `1`, skip 3.3 entirely. |
 | `GH_ISSUE_SKIP_DUPLICATE_CHECK` | unset | When `1`, skip 3.3b entirely — no search call, no warning. For a deliberate second implementation of the same issue (issue dEitY719/dotfiles#1507). |
 | `GH_ISSUE_SKIP_BOARD_TRANSITION` | unset | When `1`, skip 3.4 entirely (its F-2 Status warning included). |
