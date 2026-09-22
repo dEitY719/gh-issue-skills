@@ -77,7 +77,21 @@ Judge the issue body only. Six block reasons; anything else is not a block:
    it needs splitting first.
 
 **Insufficient information is a BLOCK, not a pass.** Starting on a guess is
-the failure this gate exists to prevent.
+the failure this gate exists to prevent. The judgment is genuinely a model's,
+not a script's — which is why it is bounded from both ends: only these six
+reasons can block (style, wording, scope-within-one-component and "I would
+have designed it differently" cannot), and a reason blocks only when the body
+itself shows it. Cite the numbered reason plus the line of evidence, or do not
+block on it.
+
+## What this gate is not
+
+It is **not** authentication. The origin line is plain text in an issue body;
+anyone who can open or edit an issue can write `Harness(claude)` into it. The
+gate raises the cost of an unreviewed spec reaching a writing skill by accident
+— a backfilled issue, an unfamiliar tool, a hand-written body — and it does not
+survive a motivated forger. Treat `trusted` as "this came from a harness we
+have decided not to double-check", never as "this is proven safe".
 
 ## BLOCK report
 
