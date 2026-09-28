@@ -26,16 +26,15 @@ file holds the argument shape and the blast radius.
        return 1 2>/dev/null || exit 1
    fi
    # shellcheck disable=SC1091
-   GH_RESOLVE_TARGET_REMOTE="${REMOTE:-origin}" . "$_RT" || exit 1
+   GH_RESOLVE_TARGET_ROOT="${_RT%/lib/resolve-target.sh}" GH_RESOLVE_TARGET_REMOTE="${REMOTE:-origin}" . "$_RT" || exit 1
    ```
 
    [`lib/resolve-target.sh`](../lib/resolve-target.sh) — this skill's own
    copy of the repo-root SSOT shared by all six skills (kept byte-identical by
    `tests/vendored-lib-sync.sh`) — confirms we are in a git repo, reads
    `git remote get-url "$REMOTE"`, sources `gh_host.sh` from `$DOTFILES_ROOT`
-   or this skill's vendored copy under `lib/vendor/` (located from the helper's
-   own directory, falling back to `CLAUDE_PLUGIN_ROOT` in a shell with no
-   self-path), and exports `TARGET_REPO`, `TARGET_HOST`, `GH_HOST`,
+   or this skill's vendored copy under `lib/vendor/` (located from the `GH_RESOLVE_TARGET_ROOT` this block passes —
+   dash has no self-path, #49 — else the helper's own directory), and exports `TARGET_REPO`, `TARGET_HOST`, `GH_HOST`,
    `SHELL_COMMON` and `PLUGIN_ROOT` (this skill's own directory, for addressing
    its `lib/` helpers). Repo and host are read from that **one** URL, so they
    can never name different servers:
