@@ -97,10 +97,18 @@ _rt_resolve() {
     # then fail loudly rather than compose a path from $PWD. The name stays
     # PLUGIN_ROOT for its consumers.
     PLUGIN_ROOT="$_rt_root"
+    # Refuse, never ignore, a bad explicit root: a relative one resolves
+    # against the caller-controlled $PWD (dEitY719/harness-skills#22), and one
+    # that does not hold this helper is stale or wrong (PR #50 review, agy
+    # FOLLOW-UP) — either would silently outrank the self path.
     case "$PLUGIN_ROOT" in
-        "" | /*) ;;
+        "") ;;
+        /*) [ -f "$PLUGIN_ROOT/lib/resolve-target.sh" ] || {
+                echo "Error: GH_RESOLVE_TARGET_ROOT '$PLUGIN_ROOT' holds no lib/resolve-target.sh." >&2
+                PLUGIN_ROOT=""
+                return 1
+            } ;;
         *)
-            # A relative root resolves against the caller-controlled $PWD.
             echo "Error: GH_RESOLVE_TARGET_ROOT must be absolute, got '$PLUGIN_ROOT' (dEitY719/harness-skills#22)." >&2
             PLUGIN_ROOT=""
             return 1
