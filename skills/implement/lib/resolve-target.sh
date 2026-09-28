@@ -16,7 +16,7 @@
 #       return 1 2>/dev/null || exit 1
 #   fi
 #   # shellcheck disable=SC1091
-#   GH_RESOLVE_TARGET_REMOTE="${REMOTE:-origin}" . "$_RT" || exit 1
+#   GH_RESOLVE_TARGET_ROOT="${_RT%/lib/resolve-target.sh}" GH_RESOLVE_TARGET_REMOTE="${REMOTE:-origin}" . "$_RT" || exit 1
 #
 # Deliberately not a positional arg to `.` — that is a bash/zsh extension
 # POSIX does not require, and dash silently drops it (confirmed: `. file
@@ -26,6 +26,8 @@
 # per call.
 #
 # Reads   GH_RESOLVE_TARGET_REMOTE (remote name, default `origin`),
+#         GH_RESOLVE_TARGET_ROOT (absolute skill dir; dash has no self-path,
+#         dEitY719/gh-issue-skills#49 — both consumed on read),
 #         DOTFILES_ROOT, CLAUDE_PLUGIN_ROOT.
 # Exports TARGET_REPO, TARGET_HOST, GH_HOST, SHELL_COMMON (whichever
 #         shell-common tree actually resolved), and PLUGIN_ROOT (the root of
@@ -65,6 +67,9 @@ _rt_resolve() {
     # stale value would silently win over `origin` on the next unrelated
     # sourcing in the same shell.
     unset GH_RESOLVE_TARGET_REMOTE
+    # Same shape, same leak, same cure (dEitY719/gh-issue-skills#49).
+    _rt_root="${GH_RESOLVE_TARGET_ROOT:-}"
+    unset GH_RESOLVE_TARGET_ROOT
 
     if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
         echo "Not in a git repo. cd into one first." >&2
@@ -82,20 +87,30 @@ _rt_resolve() {
     # Bundle root, so a skill can address its own lib/ helpers without
     # composing a path from $PWD — which the repo under review controls
     # (dEitY719/harness-skills#22). Every skill ships its own copy of this
-    # file under skills/<name>/lib/ (dEitY719/gh-issue-skills#47), so this
-    # file's own location is preferred: it is the skill directory, which a
-    # one-skill install (Hermes tap, `npx skills add`) still has. The
-    # harness's CLAUDE_PLUGIN_ROOT is the fallback for a shell with no
-    # self-path (dash); empty when neither resolves, and every consumer — the
-    # vendored tier below included — must then fail loudly rather than
-    # compose a path from $PWD. The name stays PLUGIN_ROOT for its consumers.
-    # ponytail: under dash the fallback is the plugin root, not the skill dir
-    # — fine wherever the whole plugin is installed (lib/ is byte-identical,
-    # tests/vendored-lib-sync.sh); a one-skill install needs bash or zsh.
-    PLUGIN_ROOT=""
-    case "$_rt_self" in
-        */lib/resolve-target.sh) PLUGIN_ROOT="${_rt_self%/lib/resolve-target.sh}" ;;
+    # file under skills/<name>/lib/ (dEitY719/gh-issue-skills#47), so the
+    # skill directory is the answer — it is what a one-skill install (Hermes
+    # tap, `npx skills add`) still has. Priority: the caller's explicit
+    # GH_RESOLVE_TARGET_ROOT (the repo-resolution block passes it, because
+    # dash has no self-path — dEitY719/gh-issue-skills#49), then this file's
+    # own location, then the harness's CLAUDE_PLUGIN_ROOT. Empty when none
+    # resolves, and every consumer — the vendored tier below included — must
+    # then fail loudly rather than compose a path from $PWD. The name stays
+    # PLUGIN_ROOT for its consumers.
+    PLUGIN_ROOT="$_rt_root"
+    case "$PLUGIN_ROOT" in
+        "" | /*) ;;
+        *)
+            # A relative root resolves against the caller-controlled $PWD.
+            echo "Error: GH_RESOLVE_TARGET_ROOT must be absolute, got '$PLUGIN_ROOT' (dEitY719/harness-skills#22)." >&2
+            PLUGIN_ROOT=""
+            return 1
+            ;;
     esac
+    if [ -z "$PLUGIN_ROOT" ]; then
+        case "$_rt_self" in
+            */lib/resolve-target.sh) PLUGIN_ROOT="${_rt_self%/lib/resolve-target.sh}" ;;
+        esac
+    fi
     [ -n "$PLUGIN_ROOT" ] || PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-}"
     export PLUGIN_ROOT
 

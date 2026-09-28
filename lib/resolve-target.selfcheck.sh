@@ -73,6 +73,35 @@ got=$( CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=origin . "$SKILL/lib/
        printf '%s|%s' "$PLUGIN_ROOT" "$SHELL_COMMON" )
 chk "skill copy anchors on the skill dir" "$got" "$SKILL|$SKILL/lib/vendor/shell-common"
 
+# 3e. dash has no self-path, so 3d's anchor must come from the caller: the
+#     repo-resolution block passes GH_RESOLVE_TARGET_ROOT, which outranks
+#     CLAUDE_PLUGIN_ROOT and is consumed on read — `.` is a special builtin, so
+#     under dash the prefix assignment would otherwise persist
+#     (dEitY719/gh-issue-skills#49). A relative root is refused: it would
+#     resolve against the caller-controlled $PWD (dEitY719/harness-skills#22).
+if command -v dash >/dev/null 2>&1; then
+    got=$( cd "$TMP" && CLAUDE_PLUGIN_ROOT="$ROOT" DOTFILES_ROOT=/nonexistent-dotfiles dash -c \
+           "GH_RESOLVE_TARGET_ROOT=\"$SKILL\" . \"$SKILL/lib/resolve-target.sh\" >/dev/null 2>&1; printf '%s|%s|%s' \"\$PLUGIN_ROOT\" \"\$SHELL_COMMON\" \"\${GH_RESOLVE_TARGET_ROOT:-unset}\"" )
+    chk "dash: explicit root anchors on the skill dir, then is consumed" "$got" \
+        "$SKILL|$SKILL/lib/vendor/shell-common|unset"
+
+    # One-skill install: only skills/read exists, no CLAUDE_PLUGIN_ROOT.
+    ONE="$TMP/one-skill"; mkdir -p "$ONE"; cp -R "$SKILL" "$ONE/read"
+    got=$( cd "$TMP" && env -u CLAUDE_PLUGIN_ROOT DOTFILES_ROOT=/nonexistent-dotfiles dash -c \
+           "GH_RESOLVE_TARGET_ROOT=\"$ONE/read\" . \"$ONE/read/lib/resolve-target.sh\" >/dev/null 2>&1 && printf '%s|%s' \"\$GH_HOST\" \"\$PLUGIN_ROOT\"" )
+    chk "dash: one-skill install resolves from its own lib/" "$got" "github.com|$ONE/read"
+    ONE_IMPL="$ONE/implement"; cp -R "$ROOT/skills/implement" "$ONE_IMPL"
+    got=$( cd "$TMP" && env -u CLAUDE_PLUGIN_ROOT DOTFILES_ROOT=/nonexistent-dotfiles dash -c \
+           "GH_RESOLVE_TARGET_ROOT=\"$ONE_IMPL\" . \"$ONE_IMPL/lib/resolve-target.sh\" >/dev/null 2>&1 && [ -f \"\$PLUGIN_ROOT/lib/origin-trust.sh\" ] && [ -f \"\$PLUGIN_ROOT/lib/claim-issue.sh\" ] && printf '%s' \"\$PLUGIN_ROOT\"" )
+    chk "dash: one-skill install addresses origin-trust.sh/claim-issue.sh in its lib/" "$got" "$ONE_IMPL"
+
+    got=$( cd "$TMP" && CLAUDE_PLUGIN_ROOT="$ROOT" DOTFILES_ROOT=/nonexistent-dotfiles dash -c \
+           "GH_RESOLVE_TARGET_ROOT=skills/read . \"$SKILL/lib/resolve-target.sh\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${PLUGIN_ROOT:-unset}\"" )
+    chk "dash: relative explicit root is refused" "$got" "1|unset"
+else
+    echo "skip  dash not installed"
+fi
+
 # 4. No CLAUDE_PLUGIN_ROOT (every non-Claude harness): the vendored tree is
 #    still found, via the sourced file's own path.
 got=$( unset CLAUDE_PLUGIN_ROOT; GH_RESOLVE_TARGET_REMOTE=origin . "$TARGET" >/dev/null 2>&1 &&

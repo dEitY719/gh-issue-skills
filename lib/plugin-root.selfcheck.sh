@@ -241,8 +241,11 @@ DECOY
     # gh_host.sh than the vendored one EXPECT_REPO was computed from.
     got=$( cd "$ROOT" && env -u TARGET_REPO -u DOTFILES_ROOT -u SHELL_COMMON \
         CLAUDE_PLUGIN_ROOT="$ROOT" HOME="$HOME_EMPTY" dash -c \
-        ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\"" )
-    chk "repo-resolution bootstrap resolves via CLAUDE_PLUGIN_ROOT (tier 1)" "0|$EXPECT_REPO" "$got"
+        ". \"$RRBLOCK\" >/dev/null 2>&1; printf '%s|%s|%s' \"\$?\" \"\${TARGET_REPO:-unset}\" \"\$PLUGIN_ROOT\"" )
+    # PLUGIN_ROOT: dash has no self-path, so only the block's explicit
+    # GH_RESOLVE_TARGET_ROOT anchors it on the skill dir (#49).
+    chk "repo-resolution bootstrap resolves via CLAUDE_PLUGIN_ROOT (tier 1)" \
+        "0|$EXPECT_REPO|$ROOT/skills/issue-create" "$got"
 else
     echo "skip  dash not installed"
 fi
