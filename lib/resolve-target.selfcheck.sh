@@ -98,6 +98,10 @@ if command -v dash >/dev/null 2>&1; then
     got=$( cd "$TMP" && CLAUDE_PLUGIN_ROOT="$ROOT" DOTFILES_ROOT=/nonexistent-dotfiles dash -c \
            "GH_RESOLVE_TARGET_ROOT=skills/read . \"$SKILL/lib/resolve-target.sh\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${PLUGIN_ROOT:-unset}\"" )
     chk "dash: relative explicit root is refused" "$got" "1|unset"
+
+    got=$( cd "$TMP" && CLAUDE_PLUGIN_ROOT="$ROOT" DOTFILES_ROOT=/nonexistent-dotfiles dash -c \
+           "GH_RESOLVE_TARGET_ROOT=\"$TMP\" . \"$SKILL/lib/resolve-target.sh\" >/dev/null 2>&1; printf '%s|%s' \"\$?\" \"\${PLUGIN_ROOT:-unset}\"" )
+    chk "dash: explicit root without this helper is refused" "$got" "1|unset"
 else
     echo "skip  dash not installed"
 fi
