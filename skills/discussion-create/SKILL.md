@@ -7,6 +7,8 @@ description: >-
   Options: references/options.md.
 license: MIT
 allowed-tools: Bash, Read, Grep
+compatibility:
+  network: required
 metadata:
   model_recommendation:
     tier: sonnet
@@ -68,16 +70,14 @@ fine). For non-`Ideas` categories, swap per that file's "Category variants".
 
 ## Step 3.5: Compute AI Metrics
 
-Read `gh-issue:issue-create`'s
-[`references/metrics-baseline.md`](../issue-create/references/metrics-baseline.md)
-and bind `TOKENS`, `HUMAN_H`, `ELAPSED` for Step 4 (inputs: `START_TS`, category,
-title + body; for `Ideas`, size like `feat`).
+Read `references/metrics-baseline.md` of the `gh-issue:issue-create` skill (shared
+contract) and bind `TOKENS`, `HUMAN_H`, `ELAPSED` for Step 4 (inputs: `START_TS`,
+category, title + body; for `Ideas`, size like `feat`).
 
 ## Step 4: Create the Discussion
 
-Source `shell-common/functions/gh_discussion.sh` and paste the full bash
-block in [`references/create-cmd.md`](references/create-cmd.md) verbatim — it
-handles the `mktemp` body file, the ai-metrics footer call (the helper honours
+Source `shell-common/functions/gh_discussion.sh` and paste the full bash block in
+[`references/create-cmd.md`](references/create-cmd.md) verbatim — it handles the `mktemp` body file, the ai-metrics footer call (the helper honours
 `GH_DISABLE_AI_METRICS=1` itself, dEitY719/dotfiles#399 parity), and the three GraphQL calls.
 확인 질문하지 말고 즉시 실행.
 

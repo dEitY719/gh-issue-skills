@@ -24,6 +24,12 @@ jobs:
     uses: dEitY719/harness-skills/.github/workflows/skill-check.yml@main
     with:
       plugin-name: gh-issue
+      # Trees this repo vendors and must not edit: the shared shell-common
+      # snapshot, and each skill's copy of it (#47). `*` crosses `/` in a git
+      # pathspec, so the second entry covers every skill.
+      shellcheck-exclude-paths: |
+        lib/vendor/
+        skills/*/lib/vendor/*
       # Two narrow exemptions from the repo-wide emoji ban, both for text the
       # skills quote rather than decorate with:
       #   1. the ai-metrics footer, whose chart / person / robot glyphs are the
@@ -32,9 +38,14 @@ jobs:
       #      shows the shape it emits;
       #   2. the pause-glyph `Postpone` block label, a real GitHub label name that
       #      `implement` and `proceed` refuse to start on.
-      # Everywhere else the ban still applies.
+      # Everywhere else the ban still applies. The skills/*/lib/ entries are the
+      # per-skill copies of those lib/ files (#47, tests/vendored-lib-sync.sh).
       allow-emoji-paths: |
         lib/ai-metrics-footer.sh
+        skills/issue-create/lib/ai-metrics-footer.sh
+        skills/discussion-create/lib/ai-metrics-footer.sh
+        skills/implement/lib/claim-issue.sh
+        skills/proceed/lib/claim-issue.sh
         skills/issue-create/references/metrics-helper.md
         skills/implement/references/claim.md
         skills/proceed/references/claim.md

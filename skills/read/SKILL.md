@@ -7,6 +7,8 @@ description: >-
   (gh-issue:proceed).
 license: MIT
 allowed-tools: Bash, Read, Grep
+compatibility:
+  network: required
 metadata:
   model_recommendation:
     tier: haiku

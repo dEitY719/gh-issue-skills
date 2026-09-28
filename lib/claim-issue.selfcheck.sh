@@ -264,14 +264,14 @@ tier() { # tier <shell> <cwd> <plugin-root-or-empty> [extra-PATH-dir]
     local _p="$TMP/bin:$PATH"
     [ -z "$xp" ] || _p="$xp:$_p"
     if [ -n "$pr" ]; then
-        OUT=$( cd "$cwd" && { printf '%s' "$NORMAL" | env -u SHELL_COMMON -u DOTFILES_ROOT \
+        OUT=$( cd "$cwd" && { printf '%s' "$NORMAL" | env -u SHELL_COMMON -u DOTFILES_ROOT -u PLUGIN_ROOT \
             CLAUDE_PLUGIN_ROOT="$pr" HOME="$HOME_EMPTY" PATH="$_p" \
             GH_LOG="$TMP/gh.log" GH_ISSUE_SKIP_SELF_ASSIGN=1 GH_ISSUE_SKIP_DEPS_CHECK=1 \
             TARGET_REPO=acme/widget TARGET_HOST=github.com \
             "$sh" "$TARGET" 7 --block-labels-default "$IMPL_DEFAULT" >/dev/null; } 2>&1 )
     else
         OUT=$( cd "$cwd" && { printf '%s' "$NORMAL" | env -u SHELL_COMMON -u DOTFILES_ROOT \
-            -u CLAUDE_PLUGIN_ROOT HOME="$HOME_EMPTY" PATH="$TMP/bin:$PATH" \
+            -u CLAUDE_PLUGIN_ROOT -u PLUGIN_ROOT HOME="$HOME_EMPTY" PATH="$TMP/bin:$PATH" \
             GH_LOG="$TMP/gh.log" GH_ISSUE_SKIP_SELF_ASSIGN=1 GH_ISSUE_SKIP_DEPS_CHECK=1 \
             TARGET_REPO=acme/widget TARGET_HOST=github.com \
             "$sh" "$TARGET" 7 --block-labels-default "$IMPL_DEFAULT" >/dev/null; } 2>&1 )
@@ -286,6 +286,14 @@ for sh in sh bash zsh; do
     tier "$sh" "$SANDBOX" "$ROOT"
     chk "$sh: tier 2 (CLAUDE_PLUGIN_ROOT) loads the helper" "$(skipped)" loaded
     chk "$sh: tier 2 does not abort"                        "$RC" 0
+
+    # The PLUGIN_ROOT Step 1 exported (a skill dir, #47) wins over the harness's.
+    OUT=$( cd "$SANDBOX" && { printf '%s' "$NORMAL" | env -u SHELL_COMMON -u DOTFILES_ROOT \
+        -u CLAUDE_PLUGIN_ROOT PLUGIN_ROOT="$ROOT/skills/implement" HOME="$HOME_EMPTY" \
+        PATH="$TMP/bin:$PATH" GH_LOG="$TMP/gh.log" GH_ISSUE_SKIP_SELF_ASSIGN=1 \
+        GH_ISSUE_SKIP_DEPS_CHECK=1 TARGET_REPO=acme/widget TARGET_HOST=github.com \
+        "$sh" "$TARGET" 7 --block-labels-default "$IMPL_DEFAULT" >/dev/null; } 2>&1 )
+    chk "$sh: tier 2 via PLUGIN_ROOT (skill dir) loads the helper" "$(skipped)" loaded
 
     # $ROOT really does hold lib/vendor/shell-common, so running from that cwd
     # with nothing exported must STILL stop — tier 4 was retired (#22).

@@ -77,7 +77,7 @@ maps, multi-doc files, and other YAML features are NOT supported.
    # this skill runs inside the repo under review — a PR shipping its own
    # lib/vendor/shell-common would get sourced.
    [ -f "$_PYD" ] && [ -r "$_PYD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
-       || _PYD="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/parse_yaml_defaults.sh" # tier 2
+       || _PYD="$CLAUDE_PLUGIN_ROOT/skills/issue-create/lib/vendor/shell-common/functions/parse_yaml_defaults.sh" # tier 2
    # Clear the name first, so the check after the load proves THIS load defined
    # it (dEitY719/harness-skills#36). An [ -f ]/[ -r ] pair is a load guard, not
    # a proof: it passes a file that sources halfway and defines nothing, and the

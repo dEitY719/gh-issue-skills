@@ -84,7 +84,7 @@ Priority order — first available wins:
 ## Block Format
 
 Appended after a `---` horizontal rule at the end of the body by
-[`lib/ai-metrics-footer.sh`](../../../lib/ai-metrics-footer.sh), which is the
+[`lib/ai-metrics-footer.sh`](../lib/ai-metrics-footer.sh), which is the
 SSOT for the exact bytes — see `references/metrics-helper.md` for the shape.
 Its three arguments:
 
