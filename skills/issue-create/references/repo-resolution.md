@@ -18,7 +18,7 @@ file holds the argument shape and the blast radius.
 
    ```bash
    _RT="" # no cwd fallback (dEitY719/harness-skills#24)
-   [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RT="$CLAUDE_PLUGIN_ROOT/lib/resolve-target.sh" # tier 1
+   [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RT="$CLAUDE_PLUGIN_ROOT/skills/issue-create/lib/resolve-target.sh" # tier 1
    if [ ! -f "$_RT" ] || [ ! -r "$_RT" ]; then
        printf '[FAIL] resolve-target.sh not found — export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' >&2
        return 1 2>/dev/null || exit 1
@@ -27,15 +27,16 @@ file holds the argument shape and the blast radius.
    GH_RESOLVE_TARGET_REMOTE="${REMOTE:-origin}" . "$_RT" || exit 1
    ```
 
-   [`lib/resolve-target.sh`](../../../lib/resolve-target.sh) is the SSOT for
-   this step across all six skills — it confirms we are in a git repo, reads
+   [`lib/resolve-target.sh`](../lib/resolve-target.sh) — this skill's own
+   copy of the repo-root SSOT shared by all six skills (kept byte-identical by
+   `tests/vendored-lib-sync.sh`) — confirms we are in a git repo, reads
    `git remote get-url "$REMOTE"`, sources `gh_host.sh` from `$DOTFILES_ROOT`
-   or the vendored copy under `lib/vendor/` (located via `CLAUDE_PLUGIN_ROOT`,
-   falling back to the helper's own directory when no harness exports it), and
-   exports `TARGET_REPO`, `TARGET_HOST`, `GH_HOST`, `SHELL_COMMON` and
-   `PLUGIN_ROOT` (this plugin's own root, for addressing `lib/` helpers). Repo and
-   host are read from that **one** URL, so they can never name different
-   servers:
+   or this skill's vendored copy under `lib/vendor/` (located from the helper's
+   own directory, falling back to `CLAUDE_PLUGIN_ROOT` in a shell with no
+   self-path), and exports `TARGET_REPO`, `TARGET_HOST`, `GH_HOST`,
+   `SHELL_COMMON` and `PLUGIN_ROOT` (this skill's own directory, for addressing
+   its `lib/` helpers). Repo and host are read from that **one** URL, so they
+   can never name different servers:
 
    - `https://github.com/<owner>/<repo>.git` → `github.com` + `<owner>/<repo>`
    - `git@github.samsungds.net:<owner>/<repo>.git` → `github.samsungds.net`

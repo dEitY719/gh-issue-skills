@@ -65,6 +65,14 @@ got=$( unset CLAUDE_PLUGIN_ROOT; GH_RESOLVE_TARGET_REMOTE=origin . "$TARGET" >/d
        printf '%s' "$PLUGIN_ROOT" )
 chk "PLUGIN_ROOT is proven, not \$PWD" "$got" "$ROOT"
 
+# 3d. A skill's own copy anchors on the skill dir, even when the harness names
+#     the plugin root (dEitY719/gh-issue-skills#47): its lib/ is what a
+#     one-skill install ships, and SHELL_COMMON follows it.
+SKILL="$ROOT/skills/read"
+got=$( CLAUDE_PLUGIN_ROOT="$ROOT" GH_RESOLVE_TARGET_REMOTE=origin . "$SKILL/lib/resolve-target.sh" >/dev/null 2>&1 &&
+       printf '%s|%s' "$PLUGIN_ROOT" "$SHELL_COMMON" )
+chk "skill copy anchors on the skill dir" "$got" "$SKILL|$SKILL/lib/vendor/shell-common"
+
 # 4. No CLAUDE_PLUGIN_ROOT (every non-Claude harness): the vendored tree is
 #    still found, via the sourced file's own path.
 got=$( unset CLAUDE_PLUGIN_ROOT; GH_RESOLVE_TARGET_REMOTE=origin . "$TARGET" >/dev/null 2>&1 &&

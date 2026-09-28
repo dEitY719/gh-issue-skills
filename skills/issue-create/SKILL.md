@@ -7,6 +7,8 @@ description: >-
   gh-issue:discussion-create instead. Flags: references/help.md.
 license: MIT
 allowed-tools: Bash, Read, Grep
+compatibility:
+  network: required
 metadata:
   model_recommendation:
     tier: sonnet

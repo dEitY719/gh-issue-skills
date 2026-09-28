@@ -7,6 +7,8 @@ description: >-
   (gh-issue:implement).
 license: MIT
 allowed-tools: Bash, Read, Grep, Glob, Edit, Write, Skill, TaskCreate, TaskUpdate, TaskList
+compatibility:
+  network: required
 metadata:
   model_recommendation:
     tier: opus

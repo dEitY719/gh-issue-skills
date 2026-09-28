@@ -1,7 +1,7 @@
 # gh-issue:implement — Step 3 Fetch + Claim
 
 This file is the SSOT for Step 3 **policy** of `gh-issue:implement`; the
-algorithm itself is [`lib/claim-issue.sh`](../../../lib/claim-issue.sh), which
+algorithm itself is [`lib/claim-issue.sh`](../lib/claim-issue.sh), which
 this skill and `gh-issue:proceed` both run (dEitY719/gh-issue-skills#21). The
 skill absorbs four session-start tasks that AgentToolbox handles in
 `claude-enter-issue` (worktree creation stays the user's job; everything
@@ -182,7 +182,7 @@ on every projectV2 it belongs to, via `_gh_project_status_sync` from
 
 Locating that helper follows the plugin-root convention
 (`harness-skills#10`): tier 1 `$SHELL_COMMON`, tier 2
-`$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common`, **no tier 4** — `$PWD` is the
+`${PLUGIN_ROOT:-$CLAUDE_PLUGIN_ROOT}/lib/vendor/shell-common` (this skill's own vendored copy), **no tier 4** — `$PWD` is the
 repo under review (dEitY719/harness-skills#22). Sourceable-but-undefined is
 a one-line stderr warning and a skipped step, never an abort
 (dEitY719/dotfiles#724).

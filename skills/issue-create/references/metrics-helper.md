@@ -80,7 +80,7 @@ From `create/references/metrics-baseline.md` by issue type:
 
 ### GitHub Issue / PR body footer
 
-[`lib/ai-metrics-footer.sh`](../../../lib/ai-metrics-footer.sh) is the SSOT for
+[`lib/ai-metrics-footer.sh`](../lib/ai-metrics-footer.sh) is the SSOT for
 these bytes — `gh-setup:add-ai-metrics` parses the `<details>` wrapper and the
 comment markers, so nothing may retype them. Its output looks like:
 

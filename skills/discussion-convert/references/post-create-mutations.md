@@ -1,7 +1,7 @@
 # Post-Create Mutations — gh-issue:discussion-convert Steps 6-8
 
 All three run **after** the Issue exists (Step 5), and all of them live in
-[`lib/discussion-post-convert.sh`](../../../lib/discussion-post-convert.sh)
+[`lib/discussion-post-convert.sh`](../lib/discussion-post-convert.sh)
 rather than in this file. Nothing about the ordering or the skip logic needs
 judgment, so the skill calls the script instead of re-deriving it:
 

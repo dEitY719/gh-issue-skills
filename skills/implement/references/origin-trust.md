@@ -1,7 +1,7 @@
 # gh-issue:implement — Step 3.1b Origin (Harness) trust gate
 
 SSOT for the **policy**; the parse/allow-list algorithm itself is
-[`lib/origin-trust.sh`](../../../lib/origin-trust.sh), which
+[`lib/origin-trust.sh`](../lib/origin-trust.sh), which
 `gh-issue:proceed` runs too (issue #44 F-1 / D-2). One regex, one trust set,
 one place to fix when issue #43 changes the line format.
 

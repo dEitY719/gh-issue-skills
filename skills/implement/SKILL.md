@@ -7,6 +7,8 @@ description: >-
   Flags: references/help.md.
 license: MIT
 allowed-tools: Bash, Read, Grep, Glob, Edit, Write, Skill
+compatibility:
+  network: required
 metadata:
   model_recommendation:
     tier: opus

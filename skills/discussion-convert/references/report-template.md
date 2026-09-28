@@ -10,7 +10,7 @@ Next: /gh-issue:implement <M>
 ```
 
 The `steps:` line is not composed here — it is stdout from
-[`lib/discussion-post-convert.sh`](../../../lib/discussion-post-convert.sh)
+[`lib/discussion-post-convert.sh`](../lib/discussion-post-convert.sh)
 (Steps 6-8), printed verbatim. Tokens:
 
 | Token | Meaning |

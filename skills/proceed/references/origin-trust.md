@@ -1,12 +1,12 @@
 # gh-issue:proceed — Step 2.1.1b Origin (Harness) trust gate
 
 Policy SSOT for this skill's half of the gate. The parse/allow-list algorithm
-is [`lib/origin-trust.sh`](../../../lib/origin-trust.sh), shared verbatim with
+is [`lib/origin-trust.sh`](../lib/origin-trust.sh), shared verbatim with
 `gh-issue:implement` (issue #44 F-1 / D-2); the **mechanics** — call block,
 decision table, `GH_TRUSTED_HARNESSES`, fail-closed `||` arm, BLOCK report
 shape, the six shared checklist items — are documented once in
-[`skills/implement/references/origin-trust.md`](../../implement/references/origin-trust.md)
-and are not restated here. This file carries only what `proceed` does
+the `gh-issue:implement` skill's `references/origin-trust.md` and are not
+restated here. This file carries only what `proceed` does
 differently.
 
 ## Why `proceed` needs it more than `implement` does

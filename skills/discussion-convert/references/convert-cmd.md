@@ -21,7 +21,7 @@ Inputs bound by the caller:
 _GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
 # No tier 4 (dEitY719/harness-skills#22): $PWD is caller-controlled here.
 [ -f "$_GD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
-    || _GD="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/gh_discussion.sh" # tier 2
+    || _GD="$CLAUDE_PLUGIN_ROOT/skills/discussion-convert/lib/vendor/shell-common/functions/gh_discussion.sh" # tier 2
 # The second probe proves the tier the first one picked; without it a missing
 # helper is sourced as a wrong path instead of stopping. -f and -r both: -r
 # alone passes a directory, -f alone passes an unreadable file whose source

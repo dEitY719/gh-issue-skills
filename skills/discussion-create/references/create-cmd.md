@@ -14,7 +14,7 @@ against the repo's category list).
 _GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
 # No tier 4 (dEitY719/harness-skills#22): $PWD is caller-controlled here.
 [ -f "$_GD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
-    || _GD="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/gh_discussion.sh" # tier 2
+    || _GD="$CLAUDE_PLUGIN_ROOT/skills/discussion-create/lib/vendor/shell-common/functions/gh_discussion.sh" # tier 2
 [ -f "$_GD" ] && [ -r "$_GD" ] || {
     printf '[gh-issue:discussion-create] gh_discussion.sh not found at %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
         "$_GD" >&2

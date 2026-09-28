@@ -102,6 +102,15 @@ pasted form by extracting the blocks from the shipped docs and running them with
 `lib/vendor/shell-common`, which must still stop at tier 5. Run it after touching
 any of them. Link the upstream doc, do not restate it.
 
+**Every skill ships its own copy of the helpers it runs** (#47). A Hermes tap or
+`npx skills add` installs one skill directory, so `skills/<name>/lib/` holds each
+`lib/*.sh` and `lib/vendor/shell-common/functions/*.sh` that skill uses, and its
+docs address them as `$CLAUDE_PLUGIN_ROOT/skills/<name>/lib/...` or through the
+`PLUGIN_ROOT` that skill's `resolve-target.sh` copy exports (its own skill
+directory). The repo-root `lib/` stays the SSOT and is where the selfchecks run.
+Edit there, then re-copy; `tests/vendored-lib-sync.sh` fails on any copy that
+differs from it and on any helper a skill names without shipping.
+
 ## Rules for changing skills
 
 - **Skill directory name is the identity.** `skills/<name>/` must match the

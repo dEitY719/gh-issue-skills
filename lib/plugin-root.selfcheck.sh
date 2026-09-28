@@ -174,6 +174,7 @@ dedent_block() { # dedent_block <file> -> stdout, dedented, fenced ```bash block
         on { sub(/^   /, ""); print }
     ' "$ROOT/$1"
 }
+skill_neutral() { sed 's|/skills/[a-z-]*/lib/|/skills/<name>/lib/|g'; }
 dedent_block skills/issue-create/references/repo-resolution.md > "$TMP/repo-resolution.sh"
 [ -s "$TMP/repo-resolution.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from skills/issue-create\n'; fails=$((fails + 1)); }
 for f in skills/discussion-convert/references/repo-resolution.md \
@@ -183,7 +184,8 @@ for f in skills/discussion-convert/references/repo-resolution.md \
          skills/read/references/repo-resolution.md; do
     dedent_block "$f" > "$TMP/repo-resolution-cmp.sh"
     [ -s "$TMP/repo-resolution-cmp.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from %s\n' "$f"; fails=$((fails + 1)); }
-    cmp -s "$TMP/repo-resolution.sh" "$TMP/repo-resolution-cmp.sh" \
+    # Each copy names its own skill's lib/ (#47); only that segment may differ.
+    cmp -s <(skill_neutral < "$TMP/repo-resolution.sh") <(skill_neutral < "$TMP/repo-resolution-cmp.sh") \
         || { printf 'FAIL  repo-resolution: %s drifted from skills/issue-create copy\n' "$f"; fails=$((fails + 1)); }
 done
 
@@ -197,7 +199,7 @@ awk '
 ' "$ROOT/lib/resolve-target.sh" > "$TMP/repo-resolution-docstring.sh"
 [ -s "$TMP/repo-resolution-docstring.sh" ] || { printf 'FAIL  repo-resolution: extracted nothing from lib/resolve-target.sh docstring\n'; fails=$((fails + 1)); }
 chk "repo-resolution: lib/resolve-target.sh docstring matches skills/issue-create copy" \
-    "$(cat "$TMP/repo-resolution.sh")" "$(cat "$TMP/repo-resolution-docstring.sh")"
+    "$(skill_neutral < "$TMP/repo-resolution.sh")" "$(cat "$TMP/repo-resolution-docstring.sh")"
 
 if command -v dash >/dev/null 2>&1; then
     # Decoy: exactly what a PR checkout under review could ship — its own

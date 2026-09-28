@@ -7,6 +7,8 @@ description: >-
   (gh-issue:discussion-create).
 license: MIT
 allowed-tools: Bash, Read, Grep
+compatibility:
+  network: required
 metadata:
   model_recommendation:
     tier: haiku
@@ -72,9 +74,8 @@ live in [`references/convert-cmd.md`](references/convert-cmd.md) Step 4. On a ma
 
 ## Step 5: Create the Issue
 
-Build the backlink + verbatim Discussion body and `gh issue create`,
-capturing `<M>` — detail in
-[`references/create-issue.md`](references/create-issue.md).
+Build the backlink + verbatim Discussion body and `gh issue create`, capturing
+`<M>` — detail in [`references/create-issue.md`](references/create-issue.md).
 
 ## Steps 6-8: Post-Create Mutations
 
@@ -90,9 +91,8 @@ name the failing step and quote the first helper stderr line.
 
 ## Constraints
 
-Operating invariants (always `--repo`, fail on missing remote, Ideas-only
-guard, best-effort post-create mutations, idempotency) →
-[`references/constraints.md`](references/constraints.md).
+Operating invariants (always `--repo`, fail on missing remote, Ideas-only guard,
+best-effort post-create mutations, idempotency) → [`references/constraints.md`](references/constraints.md).
 
 ## Related Skills
 

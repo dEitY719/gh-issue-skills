@@ -1,7 +1,7 @@
 # gh-issue:proceed — Step 2.1 Fetch + Claim
 
 Five substeps in order. The algorithm is
-[`lib/claim-issue.sh`](../../../lib/claim-issue.sh), shared with
+[`lib/claim-issue.sh`](../lib/claim-issue.sh), shared with
 `/gh-issue:implement` (dEitY719/gh-issue-skills#21); this file states the
 policy *this* skill runs it under. Worktree creation stays the user's job;
 everything else lands here.
@@ -103,7 +103,7 @@ write. Soft-fail: any non-policy error → rc 0.
 
 Locating the helper follows the plugin-root convention
 (`harness-skills#10`): tier 1 `$SHELL_COMMON`, tier 2
-`$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common`, **no tier 4** — `$PWD` is the
+`${PLUGIN_ROOT:-$CLAUDE_PLUGIN_ROOT}/lib/vendor/shell-common` (this skill's own vendored copy), **no tier 4** — `$PWD` is the
 repo under review (dEitY719/harness-skills#22). Sourceable-but-undefined is a
 one-line stderr warning and a skipped step, never an abort.
 

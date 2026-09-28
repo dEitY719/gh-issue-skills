@@ -9,8 +9,8 @@ verbatim:
   `gh issue create` with `LABEL_ARGS` / `MILESTONE_ARGS` from Step 2.5.
 - **Discussion path** (`DISCUSSION_MODE=1`) — same body file +
   ai-metrics footer, then source `gh_discussion.sh` (resolved from
-  `$DOTFILES_ROOT/shell-common/functions/`, falling back to the plugin's
-  own `lib/vendor/shell-common/functions/` under `$CLAUDE_PLUGIN_ROOT` when a
+  `$DOTFILES_ROOT/shell-common/functions/`, falling back to
+  this skill's own `lib/vendor/shell-common/functions/` under `$CLAUDE_PLUGIN_ROOT/skills/issue-create` when a
   harness exports it, proved by a `[ -f ]` before use; when none does there is
   no further tier — no `$PWD` guess (dEitY719/harness-skills#22) — so it stops
   with the export hint) and run
