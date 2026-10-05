@@ -28,16 +28,15 @@ new=${1:-}
 errf=$(mktemp 2>/dev/null) || errf="${TMPDIR:-/tmp}/gh-issue-create-dep-$$.err"
 trap 'rm -f "$errf"' EXIT
 
-warn() { # warn <N> <cause-file-or-empty>
+warn() { # warn <N> — cause is the first line of $errf, omitted when empty
     printf '[WARN] Blocked by #%s 링크 실패 — GH UI에서 수동 추가 필요\n' "$1"
-    _cause=""
-    [ -n "$2" ] && _cause=$(head -n 1 "$2" 2>/dev/null)
+    _cause=$(head -n 1 "$errf" 2>/dev/null)
     [ -z "$_cause" ] || printf '    원인: %s\n' "$_cause"
 }
 
 if [ -z "$new" ] || [ -z "${GH_HOST:-}" ] || [ -z "${TARGET_REPO:-}" ]; then
     printf 'link-deps: new issue number, GH_HOST or TARGET_REPO missing — no gh call made\n' > "$errf"
-    for N in "$@"; do warn "$N" "$errf"; done
+    for N in "$@"; do warn "$N"; done
     exit 0
 fi
 export GH_HOST
@@ -73,6 +72,6 @@ for N in "$@"; do
                 }
               }' >/dev/null 2>"$errf" && continue
     fi
-    warn "$N" "$errf"
+    warn "$N"
 done
 exit 0

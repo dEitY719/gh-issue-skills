@@ -61,7 +61,7 @@ if [ "$(command -v _gh_discussion_create)" != _gh_discussion_create ]; then
 fi
 
 # Three calls, not one: each failure mode gets its own [gh-discussion] line
-# (references/create-cmd.md "Why three calls").
+# (skills/discussion-create/references/create-cmd.md "Why three calls").
 repo_id=$(_gh_discussion_repo_id "$1" "$2") || exit 1
 category_id=$(_gh_discussion_category_id "$1" "$2" "$3") || exit 1
 url=$(_gh_discussion_create "$repo_id" "$category_id" "$4" "$5") || exit 1
