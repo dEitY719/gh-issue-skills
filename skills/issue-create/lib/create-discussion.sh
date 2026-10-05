@@ -46,7 +46,7 @@ export GH_HOST
 
 _gd=""
 [ -z "${SHELL_COMMON:-}" ] || _gd="$SHELL_COMMON/functions/gh_discussion.sh" # tier 0
-if [ -z "$_gd" ] || [ ! -f "$_gd" ] || [ ! -r "$_gd" ]; then
+if [ ! -f "$_gd" ] || [ ! -r "$_gd" ]; then
     _gd="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
 fi
 if [ ! -f "$_gd" ] || [ ! -r "$_gd" ]; then
