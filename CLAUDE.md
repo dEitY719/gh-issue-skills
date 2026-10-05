@@ -99,7 +99,9 @@ helper function, and cannot leave a poisoned `SHELL_COMMON` behind; those three
 failure modes exist only for the pasted form. `lib/plugin-root.selfcheck.sh` asserts the
 pasted form by extracting the blocks from the shipped docs and running them with
 `CLAUDE_PLUGIN_ROOT` unset — including from a cwd that *does* hold
-`lib/vendor/shell-common`, which must still stop at tier 5. Run it after touching
+`lib/vendor/shell-common`, which must still not resolve from it. No hard-fail
+helper loader is pasted any more: the last one, discussion-convert's `_GD=`
+block, became the executed `lib/discussion-fetch.sh` (#58). Run it after touching
 any of them. Link the upstream doc, do not restate it.
 
 **Every skill ships its own copy of the helpers it runs** (#47). A Hermes tap or

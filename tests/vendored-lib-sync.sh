@@ -28,8 +28,8 @@ while IFS= read -r f; do
         fail=1
     fi
 done < <(find skills -path 'skills/*/lib/*' -type f | sort)
-# A scan that finds nothing must not read as "no drift" (6 skills, 37 copies).
-[ "$n" -ge 37 ] || { printf 'FAIL  only %s vendored copies found — the scan is broken, not the tree\n' "$n"; fail=1; }
+# A scan that finds nothing must not read as "no drift" (6 skills, 38 copies).
+[ "$n" -ge 38 ] || { printf 'FAIL  only %s vendored copies found — the scan is broken, not the tree\n' "$n"; fail=1; }
 
 for s in skills/*/; do
     s=${s%/}

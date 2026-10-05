@@ -54,7 +54,7 @@ chk "too few args returns non-zero" "$?" "1"
 #    other file `allow-emoji-paths` still lets carry these glyphs. Slice its
 #    block out of the shipped doc instead of retyping it, so a drift between
 #    the doc and this script fails here rather than hiding (same trick as
-#    lib/plugin-root.selfcheck.sh's `extract`). The placeholders are just
+#    lib/plugin-root.selfcheck.sh's `dedent_block`). The placeholders are just
 #    strings, so they can be passed straight in as the three values.
 doc=$(awk '/^### GitHub Issue \/ PR body footer$/ { on = 1 }
            on && /^```$/ { n++; if (n == 1) next; exit }

@@ -52,10 +52,10 @@ call below runs as `GH_HOST="$TARGET_HOST" gh ... --repo "$TARGET_REPO"`
 
 ## Step 2: Fetch the Discussion
 
-Source `shell-common/functions/gh_discussion.sh` and call
-`_gh_discussion_fetch "$_owner" "$_repo" "$N"`. Read with `jq`: `.id` (node
-ID for comment/close/lock), `.number`, `.title`, `.body`, `.url`,
-`.category`, `.closed`, `.locked`. Fetch failure -> abort with stderr.
+Run `DISC_JSON=$(mktemp)` then
+`bash "$PLUGIN_ROOT/lib/discussion-fetch.sh" "${TARGET_REPO%%/*}" "${TARGET_REPO##*/}" "$N" > "$DISC_JSON"`
+(executed, not sourced). Read with `jq`: `.id` (node ID for comment/close/lock),
+`.number`, `.title`, `.body`, `.url`, `.category`, `.closed`, `.locked`. Non-zero exit -> abort with its stderr.
 
 ## Step 3: Category Guard
 
