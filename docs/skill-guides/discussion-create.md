@@ -92,10 +92,10 @@ SKILL.md 의 Step 구조는 5단계(+ 3.5)다.
    200줄짜리 RFC 도 괜찮다.
 5. **Step 3.5 — ai-metrics 계산.** `create` 의 `references/metrics-baseline.md` 를 읽어
    `TOKENS`, `HUMAN_H`, `ELAPSED` 를 바인딩한다.
-6. **Step 4 — 생성.** `gh_discussion.sh` 를 source 하고 `references/create-cmd.md` 의
-   bash 블록을 verbatim 실행한다 — 임시 본문 파일, `GH_DISABLE_AI_METRICS=1`
-   숏서킷, ai-metrics footer, 3개의 GraphQL 호출(repo node ID 조회, category ID 조회,
-   `createDiscussion`)을 처리한다. 확인 질문 없이 즉시 실행한다.
+6. **Step 4 — 생성.** 임시 본문 파일에 ai-metrics footer 를 붙인 뒤
+   `lib/create-discussion.sh` 를 실행한다 — `gh_discussion.sh` 로드와 3개의 GraphQL
+   호출(repo node ID 조회, category ID 조회, `createDiscussion`)을 처리하고 URL 을
+   출력한다. 계약은 `references/create-cmd.md`. 확인 질문 없이 즉시 실행한다.
 7. **Step 5 — 리포트.** `[OK]` / `[FAIL]` 블록과 `Next:` 힌트를 출력한다. Step 2.1
    거부는 자체 메시지를 찍고 Step 3~5 를 통째로 건너뛴다.
 

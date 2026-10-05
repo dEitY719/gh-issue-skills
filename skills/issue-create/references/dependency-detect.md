@@ -85,72 +85,22 @@ the whole issue creation over "nothing to link".
 ## Step 4.5 — Linking (F-2)
 
 The new issue's number only exists after Step 4, which is why the mutation
-runs here rather than inside Step 2.6. For each `N` in `DEP_NUMS`, resolve
-both node ids in one round trip (aliases), then mutate:
+runs here rather than inside Step 2.6. The procedure is
+[`lib/link-deps.sh`](../lib/link-deps.sh):
 
-```bash
-DEP_WARNINGS=""
-# A failed mktemp must not turn the cause capture into a redirection
-# error on an empty variable — fall back to a PID-scoped path. No EXIT
-# trap: Step 4.5 never aborts (NF-1), so the rm below is always reached,
-# and a trap here would silently replace the one create-cmd.md installs
-# for its own $BODY when both blocks run in the same shell.
-_errf=$(mktemp) || _errf="${TMPDIR:-/tmp}/gh-issue-create-dep-$$.err"
-for N in $DEP_NUMS; do
-    # `// ""` on both ids is what keeps a GraphQL null out of the mutation:
-    # a missing issue resolves to null, and interpolating that would send the
-    # literal string "null" as an ID!.
-    # stderr lands in $_errf rather than /dev/null (dEitY719/dotfiles#1458): a non-existent
-    # number is rejected *here*, not by the mutation, and the rejection names
-    # itself in plain text. stdout stays on the pipe because $IDS needs it —
-    # which is why this is a file and not a `2>&1` merge.
-    # Variables: $owner String!, $name String!, $new Int!, $dep Int!
-    IDS=$(GH_HOST="$TARGET_HOST" gh api graphql \
-        -f owner="${TARGET_REPO%%/*}" -f name="${TARGET_REPO##*/}" \
-        -F new="$NEW_NUM" -F dep="$N" \
-        -f query='
-          query($owner:String!, $name:String!, $new:Int!, $dep:Int!) {
-            repository(owner:$owner, name:$name) {
-              newIssue: issue(number:$new) { id }
-              depIssue: issue(number:$dep) { id }
-            }
-          }' --jq '(.data.repository // {}) |
-                   "\(.newIssue.id // "") \(.depIssue.id // "")"' 2>"$_errf") || IDS=""
+`DEP_WARNINGS=$(bash "$PLUGIN_ROOT/lib/link-deps.sh" "$NEW_NUM" $DEP_NUMS)`
 
-    _new_id="${IDS%% *}"
-    _dep_id="${IDS##* }"
-    _rc=1
-    if [ -n "$_new_id" ] && [ -n "$_dep_id" ]; then
-        # $_errf is reused, so a clean lookup can never leave a stale cause
-        # attached to a mutation failure — the redirect truncates it.
-        # Variables: $issueId ID!, $blockingIssueId ID!
-        GH_HOST="$TARGET_HOST" gh api graphql \
-            -f issueId="$_new_id" -f blockingIssueId="$_dep_id" \
-            -f query='
-              mutation($issueId:ID!, $blockingIssueId:ID!) {
-                addBlockedBy(input:{issueId:$issueId, blockingIssueId:$blockingIssueId}) {
-                  issue { number }
-                }
-              }' >/dev/null 2>"$_errf" && _rc=0
-    fi
+| | `lib/link-deps.sh` |
+|---|---|
+| Input | `<new-issue#> <dep#>...`; env `GH_HOST`, `TARGET_REPO` (from Step 1) |
+| Per N | one aliased query resolves both node ids (`newIssue` / `depIssue`, `// ""` so a GraphQL null never reaches the mutation as the string `"null"`), then one `addBlockedBy(input:{issueId, blockingIssueId})` |
+| Output | stdout: per failed N, the NF-1 warning line plus its `원인:` line (below); empty = every N linked |
+| Exit | **always 0** (NF-1) — including a missing `GH_HOST` / `TARGET_REPO`, which warns once per N without calling `gh` |
 
-    # NF-1: one warning per failed N, on stderr *and* stacked for Step 5.
-    # Emitting only to stderr would lose it — Step 5's report is the artifact
-    # the operator actually reads.
-    if [ "$_rc" -ne 0 ]; then
-        _w="[WARN] Blocked by #${N} 링크 실패 — GH UI에서 수동 추가 필요"
-        _cause=$(head -n 1 "$_errf")
-        if [ -n "$_cause" ]; then
-            _w="${_w}
-    원인: ${_cause}"
-        fi
-        printf '%s\n' "$_w" >&2
-        DEP_WARNINGS="${DEP_WARNINGS}${_w}
-"
-    fi
-done
-rm -f "$_errf"
-```
+Each call's stderr is captured to a temp file rather than `/dev/null`
+(dEitY719/dotfiles#1458): a non-existent number is rejected by the lookup, not
+the mutation, and the rejection names itself in plain text. Self-check:
+`lib/link-deps.selfcheck.sh`.
 
 `$DEP_WARNINGS` is what Step 5 prepends to its verdict line
 (`references/report-template.md`). An empty value means every `N` linked.
@@ -228,14 +178,14 @@ What the suite covers: the trigger matrix, the plain-mention negatives, the
 NF-2 cross-repo skip, `--no-auto-deps`, every id/mutation state that produces
 (or suppresses) the NF-1 warning, and the `원인:` line's presence, truncation,
 and absence-when-silent. Two drift guards hold the doc to the fixture: the
-reference regex printed here must be byte-identical to the fixture's, and this
-doc must not reintroduce `>/dev/null 2>&1` over the GraphQL calls. Editing one
+reference regex printed here must be byte-identical to the fixture's, and
+`lib/link-deps.sh` must not reintroduce `>/dev/null 2>&1` over the GraphQL calls. Editing one
 side without the other turns the suite red.
 
 Since dEitY719/dotfiles#1457 it also pins the `addBlockedBy` argument shape, two ways:
 
-- **Offline** — string assertions that the prose shape line and the mutation
-  above both still name `blockingIssueId`, plus a negative one that the
+- **Offline** — string assertions that the prose shape line above and the
+  mutation in `lib/link-deps.sh` both still name `blockingIssueId`, plus a negative one that the
   rejected `blockedByIds` array spelling from dEitY719/dotfiles#1445 survives in none of this
   file's **fenced code blocks**. The negative half is scoped to fenced code
   on purpose (PR dEitY719/dotfiles#1465 review): a whole-file ban would also forbid this
@@ -261,8 +211,9 @@ the offline half is what covers that case.
 The two fail on different things on purpose: the offline check catches an
 accidental edit here, the live one catches an upstream schema change.
 
-What it still does not cover: the two GraphQL invocations themselves —
-mocking `gh` would test the mock. Everything that decides what happens
+What it does not cover: the two GraphQL invocations themselves — mocking
+`gh` would test the mock. Their argument order and the NF-1 outcomes are
+pinned here instead, by `lib/link-deps.selfcheck.sh`. Everything that decides what happens
 *around* them is fixtured, which is where the branching lives. Scope of the
 shape guards is `addBlockedBy` alone; the `Issue.blockedBy` read path was
 confirmed working in dEitY719/dotfiles#1445, and pinning the whole schema would cost more

@@ -72,13 +72,14 @@ Also bind `HARNESS` / `LLM_MODEL` — your own harness and model, lowercase, `no
 
 ## Step 4: Create the Issue (or Discussion)
 
-Follow `references/discussion-dispatch.md`: read `references/create-cmd.md` and paste the
-matching bash block verbatim — Issue path (default) or Discussion path
-(`DISCUSSION_MODE=1`). 확인 질문 없이 즉시 실행.
+Write the body to a `mktemp` file `$BODY` and append the ai-metrics footer, then execute
+`bash "$PLUGIN_ROOT/lib/create-issue.sh" --title "<title>" --body-file "$BODY" "${LABEL_ARGS[@]}" "${MILESTONE_ARGS[@]}"`
+(`$PLUGIN_ROOT`: proven by Step 1's `resolve-target.sh`); `DISCUSSION_MODE=1` runs `lib/create-discussion.sh`
+instead. Dispatch + contracts: `references/discussion-dispatch.md`, `references/create-cmd.md`. 확인 질문 없이 즉시 실행.
 
 ## Step 4.5: Link Dependencies
 
-For each `N` in `DEP_NUMS`, run the node-id query + `addBlockedBy` mutation from `references/dependency-detect.md` — the new issue number only exists after Step 4, which is why the mutation waits until here. Non-fatal (NF-1): any failure appends one `[WARN]` line per `references/report-template.md` and never aborts.
+When `DEP_NUMS` is non-empty, `DEP_WARNINGS=$(bash "$PLUGIN_ROOT/lib/link-deps.sh" "$NEW_NUM" $DEP_NUMS)` (`NEW_NUM` = Step 4 URL's last segment; contract in `references/dependency-detect.md`) — the new issue number only exists after Step 4, which is why the link waits until here. Non-fatal (NF-1): always exit 0; each failure is one `[WARN]` line for `references/report-template.md`.
 
 ## Step 5: Report
 

@@ -1,54 +1,49 @@
 # gh-issue:discussion-create — Step 4 Create Command
 
-Detail companion to SKILL.md Step 4. Writes the drafted body to a temp
-file, appends the ai-metrics footer (unless `GH_DISABLE_AI_METRICS=1`),
-and runs the three GraphQL calls via `gh_discussion.sh`.
+Detail companion to SKILL.md Step 4. The procedure is
+[`lib/create-discussion.sh`](../lib/create-discussion.sh) — this file is its
+contract and the reasons behind it, not code to paste.
 
-`$TOKENS`, `$HUMAN_H`, `$ELAPSED` come from Step 3.5.
-`$TARGET_REPO` is set in Step 1, split into `$_owner` / `$_repo` here.
-`$CATEGORY` defaults to `Ideas` per Step 2 (case-insensitive match
-against the repo's category list).
-`$TITLE` is drafted in Step 3.
+## Contract
 
-```bash
-_GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
-# No tier 4 (dEitY719/harness-skills#22): $PWD is caller-controlled here.
-[ -f "$_GD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
-    || _GD="$CLAUDE_PLUGIN_ROOT/skills/discussion-create/lib/vendor/shell-common/functions/gh_discussion.sh" # tier 2
-[ -f "$_GD" ] && [ -r "$_GD" ] || {
-    printf '[gh-issue:discussion-create] gh_discussion.sh not found at %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
-        "$_GD" >&2
-    return 1 2>/dev/null || exit 1
-}
-# shellcheck disable=SC1091
-. "$_GD"
+Step 4 runs, with no confirmation prompt (확인 질문하지 말고 즉시 실행):
 
-BODY=$(mktemp) && trap 'rm -f "$BODY"' EXIT
-# GH_HOST was exported in Step 1; the _gh_discussion_* GraphQL helpers below
-# read it from the environment. `gh api graphql` takes no --repo, so that
-# inherited GH_HOST is the only thing keeping the mutation on the host the
-# target remote points at (dEitY719/dotfiles#1403).
-# ... write drafted body to "$BODY" ...
-# The footer's bytes are single-sourced in lib/ai-metrics-footer.sh, which
-# also honours GH_DISABLE_AI_METRICS=1 itself — no guard needed here. The `||`
-# is metrics-helper.md's soft-fail rule: never block the create on the footer.
-# $PLUGIN_ROOT was exported by Step 1's resolve-target.sh — a proven root, not
-# `${CLAUDE_PLUGIN_ROOT:-.}`, whose $PWD tier is the repo under review.
-bash "$PLUGIN_ROOT/lib/ai-metrics-footer.sh" \
-    "$TOKENS" "$HUMAN_H" "$ELAPSED" gh-discussion-create >> "$BODY" \
-    || echo "[WARN] ai-metrics append failed — continuing." >&2
+1. Write the drafted body to a `mktemp` file `$BODY` (removed on exit).
+2. Append the footer: `bash "$PLUGIN_ROOT/lib/ai-metrics-footer.sh" "$TOKENS"
+   "$HUMAN_H" "$ELAPSED" gh-discussion-create >> "$BODY" || echo "[WARN]
+   ai-metrics append failed — continuing." >&2`. The footer's bytes are
+   single-sourced in that script, which also honours `GH_DISABLE_AI_METRICS=1`
+   itself (dEitY719/dotfiles#399 parity). The `||` is the SOFT half of the
+   failure policy: never block the create on the footer.
+3. `URL=$(bash "$PLUGIN_ROOT/lib/create-discussion.sh" "${TARGET_REPO%%/*}"
+   "${TARGET_REPO##*/}" "$CATEGORY" "$TITLE" "$BODY")`.
 
-_owner="${TARGET_REPO%%/*}"
-_repo="${TARGET_REPO##*/}"
+`$TOKENS` / `$HUMAN_H` / `$ELAPSED` come from Step 3.5, `$TARGET_REPO` and the
+exported `GH_HOST` / `PLUGIN_ROOT` from Step 1, `$CATEGORY` (default `Ideas`,
+matched case-insensitively against the repo's list) from Step 2, `$TITLE` from
+Step 3. `$PLUGIN_ROOT` is the root Step 1's `resolve-target.sh` proved — never
+`${CLAUDE_PLUGIN_ROOT:-.}`, whose `$PWD` tier is the repo under review.
 
-REPO_ID=$(_gh_discussion_repo_id "$_owner" "$_repo") || exit 1
-CATEGORY_ID=$(_gh_discussion_category_id "$_owner" "$_repo" "$CATEGORY") || exit 1
-URL=$(_gh_discussion_create "$REPO_ID" "$CATEGORY_ID" "$TITLE" "$BODY") || exit 1
+| | `lib/create-discussion.sh` |
+|---|---|
+| Input | `<owner> <repo> <category> <title> <body-file>`; env `GH_HOST` (required), `DOTFILES_ROOT` (optional) |
+| Output | the Discussion URL on stdout |
+| Exit 0 | created |
+| Exit 1 | repo lookup, category lookup or mutation failed — or `gh_discussion.sh` did not resolve; the helper's `[gh-discussion] <reason>` line is on stderr. HARD: Step 5 prints `[FAIL]` quoting it and stops |
+| Exit 2 | usage — a missing argument, an unreadable body file, or an empty `GH_HOST`; no `gh` call was made |
 
-printf '%s\n' "$URL"
-```
+`gh api graphql` takes no `--repo`, so the exported `GH_HOST` is the only thing
+keeping the three calls on the host the target remote points at
+(dEitY719/dotfiles#1403). The script refuses to run without it rather than let
+gh fall back to its default host.
 
-확인 질문하지 말고 즉시 실행.
+`gh_discussion.sh` resolves from tier 1 `$DOTFILES_ROOT/shell-common/functions/`
+(default `~/dotfiles`), then tier 2 the script's own `lib/vendor/` sibling,
+proved by the function name after the load. There is no `$PWD` tier
+(dEitY719/harness-skills#22). Self-check: `lib/create-discussion.selfcheck.sh`.
+
+The same script serves `gh-issue:issue-create --as-discussion`, which ships its
+own byte-identical copy — the two skills can no longer drift apart.
 
 ## ai-metrics footer note
 

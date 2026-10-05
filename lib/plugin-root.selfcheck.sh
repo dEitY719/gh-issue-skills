@@ -49,12 +49,14 @@ extract() { # extract <name> <start-prefix> <end-line> <file>
     [ -s "$TMP/$1.sh" ] || { printf 'FAIL  %s: extracted nothing from %s\n' "$1" "$4"; fails=$((fails + 1)); }
 }
 
-extract create '_GD="${DOTFILES_ROOT' 'fi' \
-    skills/issue-create/references/create-cmd.md
 extract discussion-convert '_GD="${DOTFILES_ROOT' 'fi' \
     skills/discussion-convert/references/convert-cmd.md
-extract discussion-create '_GD="${DOTFILES_ROOT' '}' \
-    skills/discussion-create/references/create-cmd.md
+# The issue-create (--as-discussion) and discussion-create blocks used to be
+# extracted here too. Their gh_discussion.sh lookup is an executed helper now —
+# lib/create-discussion.sh — whose tiers (and the absent cwd tier) are asserted
+# against the real script in lib/create-discussion.selfcheck.sh §5-§7
+# (dEitY719/gh-issue-skills#53).
+BLOCKS="discussion-convert"
 # The board-transition prologue used to be extracted from both claim.md files
 # here. It has one home now — lib/claim-issue.sh — so the same tiers are
 # asserted in lib/claim-issue.selfcheck.sh §13, against the real script rather
@@ -83,7 +85,7 @@ for sh in sh bash zsh; do
     command -v "$sh" >/dev/null 2>&1 || { printf 'skip  %s not installed\n' "$sh"; continue; }
 
     # 2. A hard-fail site stops, and says which path it tried plus the way out.
-    for block in create discussion-convert discussion-create; do
+    for block in $BLOCKS; do
         err=$(run "$sh" "$block"); rc=$?
         chk "$sh/$block stops" nonzero "$([ "$rc" -ne 0 ] && echo nonzero || echo "rc=$rc")"
         # The path tried is now the tier-1 one: with tier 4 retired there is no
@@ -97,7 +99,7 @@ for sh in sh bash zsh; do
     # 4. The regression this whole convention exists for: never resolve to the
     #    filesystem root, and never export an unproven SHELL_COMMON. Sourced,
     #    because that is how a poisoned export would reach later helpers.
-    for block in create discussion-convert discussion-create; do
+    for block in $BLOCKS; do
         got=$( cd "$SANDBOX" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
             HOME="$HOME_EMPTY" "$sh" -c \
             '. "$1" >/dev/null 2>&1; printf "%s" "${SHELL_COMMON:-unset}"' _ "$TMP/$block.sh" )
@@ -147,7 +149,7 @@ fi
 for sh in sh bash zsh; do
     command -v "$sh" >/dev/null 2>&1 || continue
 
-    for block in create discussion-convert discussion-create; do
+    for block in $BLOCKS; do
         resolves "$sh" "$block" "$SANDBOX" "$ROOT"
         chk "$sh/$block resolves via CLAUDE_PLUGIN_ROOT (tier 2)" 0 "$?"
         resolves "$sh" "$block" "$ROOT" ""
