@@ -92,10 +92,10 @@ runs here rather than inside Step 2.6. The procedure is
 
 | | `lib/link-deps.sh` |
 |---|---|
-| Input | `<new-issue#> <dep#>...`; env `GH_HOST`, `TARGET_REPO` (from Step 1) |
+| Input | `<new-issue#> <dep#>...`; env `GH_HOST`, `TARGET_REPO` (from Step 1), `TARGET_HOST` (must equal `GH_HOST` when set) |
 | Per N | one aliased query resolves both node ids (`newIssue` / `depIssue`, `// ""` so a GraphQL null never reaches the mutation as the string `"null"`), then one `addBlockedBy(input:{issueId, blockingIssueId})` |
 | Output | stdout: per failed N, the NF-1 warning line plus its `원인:` line (below); empty = every N linked |
-| Exit | **always 0** (NF-1) — including a missing `GH_HOST` / `TARGET_REPO`, which warns once per N without calling `gh` |
+| Exit | **always 0** (NF-1) — including a missing `GH_HOST` / `TARGET_REPO` or a set `TARGET_HOST` that differs from `GH_HOST`, which warns once per N (with a `원인:` line naming the cause) without calling `gh` |
 
 Each call's stderr is captured to a temp file rather than `/dev/null`
 (dEitY719/dotfiles#1458): a non-existent number is rejected by the lookup, not

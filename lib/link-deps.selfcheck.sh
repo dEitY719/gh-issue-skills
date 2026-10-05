@@ -41,7 +41,7 @@ chmod +x "$TMP/bin/gh"
 run() { # run <GH_HOST> <args...> -> stdout; rc in $?
     _h=$1; shift
     : > "$TMP/gh.log"
-    env PATH="$TMP/bin:$PATH" GH_LOG="$TMP/gh.log" GH_HOST="$_h" TARGET_REPO=acme/widget \
+    env -u TARGET_HOST ${_TH:+TARGET_HOST="$_TH"} PATH="$TMP/bin:$PATH" GH_LOG="$TMP/gh.log" GH_HOST="$_h" TARGET_REPO=acme/widget \
         bash "$TARGET" "$@" 2>/dev/null
 }
 
@@ -84,6 +84,15 @@ got=$(run "" 20 13 14); rc=$?
 chk "no GH_HOST: exit 0" "$rc" 0
 chk "no GH_HOST: no gh call" "$(wc -l < "$TMP/gh.log" | tr -d ' ')" 0
 chk "no GH_HOST: warning per N" "$(printf '%s\n' "$got" | grep -c '^\[WARN\]')" 2
+
+# 6b. TARGET_HOST set and != GH_HOST: no gh call, exit 0, warning + 원인 per N (#57).
+got=$(_TH=ghes.example run github.com 20 13 14); rc=$?
+chk "host mismatch: exit 0" "$rc" 0
+chk "host mismatch: no gh call" "$(wc -l < "$TMP/gh.log" | tr -d ' ')" 0
+chk "host mismatch: warning per N" "$(printf '%s\n' "$got" | grep -c '^\[WARN\]')" 2
+chk "host mismatch: 원인 names both hosts" "$(printf '%s\n' "$got" | grep -c '원인: link-deps: GH_HOST (github.com) != TARGET_HOST (ghes.example)')" 2
+got=$(_TH=github.com run github.com 20 13); rc=$?
+chk "GH_HOST == TARGET_HOST links" "$rc|$got" "0|"
 
 # 7. No deps: nothing to do.
 got=$(run github.com 20); rc=$?

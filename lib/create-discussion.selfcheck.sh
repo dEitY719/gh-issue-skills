@@ -44,7 +44,7 @@ BODY="$TMP/body.md"; printf 'body\n' > "$BODY"
 run() { # run <GH_HOST> <args...> -> stdout; rc in $?
     _h=$1; shift
     : > "$TMP/gh.log"
-    env -u SHELL_COMMON PATH="$TMP/bin:$PATH" GH_LOG="$TMP/gh.log" GH_HOST="$_h" HOME="$TMP/home" \
+    env -u SHELL_COMMON -u TARGET_HOST ${_TH:+TARGET_HOST="$_TH"} PATH="$TMP/bin:$PATH" GH_LOG="$TMP/gh.log" GH_HOST="$_h" HOME="$TMP/home" \
         DOTFILES_ROOT=/nonexistent-dotfiles bash "${SCRIPT:-$TARGET}" "$@" 2>"$TMP/err"
 }
 log() { tr '\n' ',' < "$TMP/gh.log"; }
@@ -59,6 +59,15 @@ chk "happy call order + host" "$(log)" "repo host=github.com,category host=githu
 run "" acme widget Ideas T "$BODY" >/dev/null; rc=$?
 chk "empty GH_HOST exits 2" "$rc" 2
 chk "empty GH_HOST never calls gh" "$(log)" ""
+
+# 2b. TARGET_HOST set and != GH_HOST: host and repo came from different remotes
+#     -> exit 2, no call (same guard as create-issue.sh, #57). Equal is fine.
+_TH=ghes.example run github.com acme widget Ideas T "$BODY" >/dev/null; rc=$?
+chk "GH_HOST != TARGET_HOST exits 2, no gh call" "$rc|$(log)" "2|"
+case $(cat "$TMP/err") in "[FAIL] GH_HOST (github.com) != TARGET_HOST (ghes.example)"*) got=named ;; *) got=silent ;; esac
+chk "host mismatch names both hosts" "$got" named
+_TH=github.com run github.com acme widget Ideas T "$BODY" >/dev/null; rc=$?
+chk "GH_HOST == TARGET_HOST passes" "$rc" 0
 
 # 3. Usage: a missing argument or an unreadable body file -> exit 2, no call.
 run github.com acme widget Ideas T >/dev/null; rc=$?

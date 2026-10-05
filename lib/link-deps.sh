@@ -9,6 +9,8 @@
 #
 # Reads   GH_HOST and TARGET_REPO (Step 1). The GraphQL endpoint is chosen by
 #         host alone, so GH_HOST is exported for both calls (dEitY719/dotfiles#1403).
+#         TARGET_HOST, when set, must equal GH_HOST; a mismatch warns per N
+#         with zero gh calls (#57).
 # Prints  on stdout, per failed N, the NF-1 warning plus an indented `원인:`
 #         line carrying the first stderr line of the failing call (omitted
 #         when nothing was captured, dEitY719/dotfiles#1458). Empty = every N linked.
@@ -36,6 +38,11 @@ warn() { # warn <N> — cause is the first line of $errf, omitted when empty
 
 if [ -z "$new" ] || [ -z "${GH_HOST:-}" ] || [ -z "${TARGET_REPO:-}" ]; then
     printf 'link-deps: new issue number, GH_HOST or TARGET_REPO missing — no gh call made\n' > "$errf"
+    for N in "$@"; do warn "$N"; done
+    exit 0
+fi
+if [ -n "${TARGET_HOST:-}" ] && [ "$TARGET_HOST" != "$GH_HOST" ]; then
+    printf 'link-deps: GH_HOST (%s) != TARGET_HOST (%s) — no gh call made\n' "$GH_HOST" "$TARGET_HOST" > "$errf"
     for N in "$@"; do warn "$N"; done
     exit 0
 fi
