@@ -1,7 +1,7 @@
 #!/bin/sh
 # VENDORED — do not edit here.
 # SSOT: dEitY719/dotfiles shell-common/functions/gh_discussion.sh
-# Synced 2026-09-05T10:16Z by dEitY719/harness-skills scripts/sync-shell-common-vendor.sh — re-run that script to update.
+# Synced 2026-10-05T02:45Z by dEitY719/harness-skills scripts/sync-shell-common-vendor.sh — re-run that script to update.
 # shellcheck shell=bash
 # shell-common/functions/gh_discussion.sh
 # GraphQL wrappers for the GitHub Discussions write API. The REST endpoints
@@ -70,6 +70,7 @@
 # (PR #497). See issue #720.
 
 _gh_discussion_repo_id() {
+    [ -n "${ZSH_VERSION-}" ] && emulate -L sh
     local _owner="${1:-}" _repo="${2:-}"
     if [ -z "$_owner" ] || [ -z "$_repo" ]; then
         printf '[gh-discussion] usage: _gh_discussion_repo_id <owner> <repo>\n' >&2
@@ -107,6 +108,7 @@ _gh_discussion_repo_id() {
 }
 
 _gh_discussion_category_id() {
+    [ -n "${ZSH_VERSION-}" ] && emulate -L sh
     local _owner="${1:-}" _repo="${2:-}" _category="${3:-}"
     if [ -z "$_owner" ] || [ -z "$_repo" ] || [ -z "$_category" ]; then
         printf '[gh-discussion] usage: _gh_discussion_category_id <owner> <repo> <category>\n' >&2
@@ -171,6 +173,7 @@ _gh_discussion_category_id() {
 }
 
 _gh_discussion_create() {
+    [ -n "${ZSH_VERSION-}" ] && emulate -L sh
     local _repo_id="${1:-}" _category_id="${2:-}" _title="${3:-}" _body_file="${4:-}"
     if [ -z "$_repo_id" ] || [ -z "$_category_id" ] || [ -z "$_title" ] ||
         [ -z "$_body_file" ]; then
@@ -223,6 +226,7 @@ _gh_discussion_create() {
 }
 
 _gh_discussion_fetch() {
+    [ -n "${ZSH_VERSION-}" ] && emulate -L sh
     local _owner="${1:-}" _repo="${2:-}" _num="${3:-}"
     if [ -z "$_owner" ] || [ -z "$_repo" ] || [ -z "$_num" ]; then
         printf '[gh-discussion] usage: _gh_discussion_fetch <owner> <repo> <number>\n' >&2
@@ -278,6 +282,7 @@ _gh_discussion_fetch() {
 }
 
 _gh_discussion_comment() {
+    [ -n "${ZSH_VERSION-}" ] && emulate -L sh
     local _disc_id="${1:-}" _body_file="${2:-}"
     if [ -z "$_disc_id" ] || [ -z "$_body_file" ]; then
         printf '[gh-discussion] usage: _gh_discussion_comment <discussion-id> <body-file>\n' >&2
@@ -322,6 +327,7 @@ _gh_discussion_comment() {
 }
 
 _gh_discussion_close() {
+    [ -n "${ZSH_VERSION-}" ] && emulate -L sh
     local _disc_id="${1:-}" _reason="${2:-RESOLVED}"
     if [ -z "$_disc_id" ]; then
         printf '[gh-discussion] usage: _gh_discussion_close <discussion-id> [reason]\n' >&2
@@ -370,6 +376,7 @@ _gh_discussion_close() {
 }
 
 _gh_discussion_lock() {
+    [ -n "${ZSH_VERSION-}" ] && emulate -L sh
     local _disc_id="${1:-}"
     if [ -z "$_disc_id" ]; then
         printf '[gh-discussion] usage: _gh_discussion_lock <discussion-id>\n' >&2
