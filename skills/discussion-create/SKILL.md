@@ -24,6 +24,8 @@ metadata:
 If arg #1 is `-h`, `--help`, or `help`, read `references/help.md` and
 output its content verbatim, then stop. No API calls.
 
+**Stop-on-error policy** — HARD (`[FAIL]`, stop): Step 1 repo/host resolution, Step 2.1 routing guard, Step 4 GraphQL (non-zero exit). SOFT (`[WARN]`, continue): Step 3.5 metrics + footer append.
+
 ## Role
 
 Convert the chat into a GitHub Discussion (default `Ideas`/RFC) — an
@@ -34,9 +36,8 @@ executing once the routing guard passes and printing only the URL. Categories
 
 ## Options
 
-Arguments (positional `[remote]`/`[category]`, `--force-discussion`,
-`GH_DISABLE_AI_METRICS`, `-h`/`--help`/`help`) →
-[`references/options.md`](references/options.md).
+Arguments (positional `[remote]`/`[category]`, `--force-discussion`, `GH_DISABLE_AI_METRICS`,
+`-h`/`--help`/`help`) → [`references/options.md`](references/options.md).
 
 ## Step 1: Detect Repo Context
 
@@ -76,10 +77,9 @@ category, title + body; for `Ideas`, size like `feat`).
 
 ## Step 4: Create the Discussion
 
-Source `shell-common/functions/gh_discussion.sh` and paste the full bash block in
-[`references/create-cmd.md`](references/create-cmd.md) verbatim — it handles the `mktemp` body file, the ai-metrics footer call (the helper honours
-`GH_DISABLE_AI_METRICS=1` itself, dEitY719/dotfiles#399 parity), and the three GraphQL calls.
-확인 질문하지 말고 즉시 실행.
+Write the body to a `mktemp` file `$BODY`, append the ai-metrics footer, then run
+`URL=$(bash "$PLUGIN_ROOT/lib/create-discussion.sh" "${TARGET_REPO%%/*}" "${TARGET_REPO##*/}" "$CATEGORY" "$TITLE" "$BODY")`
+— footer call, exit codes and the three GraphQL calls: [`references/create-cmd.md`](references/create-cmd.md). 확인 질문하지 말고 즉시 실행.
 
 ## Step 5: Report
 
