@@ -10,7 +10,7 @@
 # Reads   GH_HOST (exported by Step 1). `gh api graphql` takes no --repo, so
 #         that export is the only host selector the three calls have
 #         (dEitY719/dotfiles#1403); empty -> exit 2 before any gh call.
-#         DOTFILES_ROOT (optional, tier 1).
+#         SHELL_COMMON (optional, tier 0), DOTFILES_ROOT (optional, tier 1).
 # Prints  the Discussion URL on stdout.
 # Exit    0 created | 1 a lookup or the mutation failed, or gh_discussion.sh
 #         did not resolve (the helper's own `[gh-discussion]` line is on
@@ -20,9 +20,11 @@
 # The body file is the caller's: it already holds the drafted body plus the
 # ai-metrics footer (lib/ai-metrics-footer.sh). This script adds no bytes.
 #
-# gh_discussion.sh resolves from tier 1 `$DOTFILES_ROOT/shell-common/functions/`
-# (default ~/dotfiles), then tier 2 this script's own `vendor/` sibling — the
-# copy shipped inside the skill. There is no cwd tier (dEitY719/harness-skills#22):
+# gh_discussion.sh resolves from tier 0 `$SHELL_COMMON/functions/` (what Step 1's
+# resolve-target.sh proved and exported), then tier 1
+# `$DOTFILES_ROOT/shell-common/functions/` (default ~/dotfiles), then tier 2 this
+# script's own `vendor/` sibling — the copy shipped inside the skill. Same order
+# as discussion-post-convert.sh, so one run loads one copy (#56). There is no cwd tier (dEitY719/harness-skills#22):
 # $PWD is the repo under review.
 #
 # Self-check: lib/create-discussion.selfcheck.sh
@@ -42,7 +44,11 @@ if [ -z "${GH_HOST:-}" ]; then
 fi
 export GH_HOST
 
-_gd="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
+_gd=""
+[ -z "${SHELL_COMMON:-}" ] || _gd="$SHELL_COMMON/functions/gh_discussion.sh" # tier 0
+if [ -z "$_gd" ] || [ ! -f "$_gd" ] || [ ! -r "$_gd" ]; then
+    _gd="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
+fi
 if [ ! -f "$_gd" ] || [ ! -r "$_gd" ]; then
     _gd="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/vendor/shell-common/functions/gh_discussion.sh" # tier 2
 fi

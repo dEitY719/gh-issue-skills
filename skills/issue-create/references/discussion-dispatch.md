@@ -7,8 +7,9 @@ and then execute one helper — contracts in `references/create-cmd.md`:
 - **Issue path** (default, `DISCUSSION_MODE` unset) —
   `lib/create-issue.sh` with `LABEL_ARGS` / `MILESTONE_ARGS` from Step 2.5.
 - **Discussion path** (`DISCUSSION_MODE=1`) — `lib/create-discussion.sh`,
-  which loads `gh_discussion.sh` from `$DOTFILES_ROOT/shell-common/functions/`
-  or this skill's own `lib/vendor/` copy (no `$PWD` tier,
+  which loads `gh_discussion.sh` from `$SHELL_COMMON/functions/`, then
+  `$DOTFILES_ROOT/shell-common/functions/`, then this skill's own
+  `lib/vendor/` copy (no `$PWD` tier,
   dEitY719/harness-skills#22) and runs the three lookups
   (`_gh_discussion_repo_id`, `_gh_discussion_category_id`,
   `_gh_discussion_create`). Print the Discussion URL instead of an

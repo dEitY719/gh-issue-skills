@@ -37,8 +37,11 @@ keeping the three calls on the host the target remote points at
 (dEitY719/dotfiles#1403). The script refuses to run without it rather than let
 gh fall back to its default host.
 
-`gh_discussion.sh` resolves from tier 1 `$DOTFILES_ROOT/shell-common/functions/`
-(default `~/dotfiles`), then tier 2 the script's own `lib/vendor/` sibling,
+`gh_discussion.sh` resolves from tier 0 `$SHELL_COMMON/functions/` (the tree
+Step 1's `resolve-target.sh` proved and exported), then tier 1
+`$DOTFILES_ROOT/shell-common/functions/` (default `~/dotfiles`), then tier 2 the
+script's own `lib/vendor/` sibling — the same order as
+`discussion-post-convert.sh`, so one run never loads two different copies —
 proved by the function name after the load. There is no `$PWD` tier
 (dEitY719/harness-skills#22). Self-check: `lib/create-discussion.selfcheck.sh`.
 
