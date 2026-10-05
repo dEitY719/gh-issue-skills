@@ -24,6 +24,11 @@
 # Self-check: lib/create-issue.selfcheck.sh
 set -u
 
+usage() {
+    echo "usage: create-issue.sh --title <t> --body-file <f> [--label L]... [--milestone M] [--assignee A]" >&2
+    exit 2
+}
+
 title="" body="" extra=()
 while [ "$#" -gt 0 ]; do
     case $1 in
@@ -40,14 +45,12 @@ while [ "$#" -gt 0 ]; do
             shift 2 ;;
         *)
             printf '[FAIL] unknown argument: %s\n' "$1" >&2
-            echo "usage: create-issue.sh --title <t> --body-file <f> [--label L]... [--milestone M] [--assignee A]" >&2
-            exit 2 ;;
+            usage ;;
     esac
 done
 
 if [ -z "$title" ] || [ -z "$body" ]; then
-    echo "usage: create-issue.sh --title <t> --body-file <f> [--label L]... [--milestone M] [--assignee A]" >&2
-    exit 2
+    usage
 fi
 if [ ! -f "$body" ] || [ ! -r "$body" ]; then
     printf '[FAIL] body file not readable: %s\n' "$body" >&2
