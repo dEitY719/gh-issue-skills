@@ -10,12 +10,13 @@
 # Reads   GH_HOST (exported by Step 1). `gh api graphql` takes no --repo, so
 #         that export is the only host selector the three calls have
 #         (dEitY719/dotfiles#1403); empty -> exit 2 before any gh call.
+#         TARGET_HOST, when set, must equal GH_HOST (same reason, #57).
 #         SHELL_COMMON (optional, tier 0), DOTFILES_ROOT (optional, tier 1).
 # Prints  the Discussion URL on stdout.
 # Exit    0 created | 1 a lookup or the mutation failed, or gh_discussion.sh
 #         did not resolve (the helper's own `[gh-discussion]` line is on
 #         stderr) | 2 usage: missing argument, unreadable body file, empty
-#         GH_HOST.
+#         GH_HOST, or GH_HOST != a set TARGET_HOST.
 #
 # The body file is the caller's: it already holds the drafted body plus the
 # ai-metrics footer (lib/ai-metrics-footer.sh). This script adds no bytes.
@@ -40,6 +41,10 @@ if [ ! -f "$5" ] || [ ! -r "$5" ]; then
 fi
 if [ -z "${GH_HOST:-}" ]; then
     echo "[FAIL] GH_HOST is empty — Step 1 must export it; gh api graphql has no other host selector (dEitY719/dotfiles#1403)." >&2
+    exit 2
+fi
+if [ -n "${TARGET_HOST:-}" ] && [ "$TARGET_HOST" != "$GH_HOST" ]; then
+    printf '[FAIL] GH_HOST (%s) != TARGET_HOST (%s) — host and repo must come from one remote URL.\n' "$GH_HOST" "$TARGET_HOST" >&2
     exit 2
 fi
 export GH_HOST

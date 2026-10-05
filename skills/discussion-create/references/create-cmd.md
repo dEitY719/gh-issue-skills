@@ -26,11 +26,11 @@ Step 3. `$PLUGIN_ROOT` is the root Step 1's `resolve-target.sh` proved — never
 
 | | `lib/create-discussion.sh` |
 |---|---|
-| Input | `<owner> <repo> <category> <title> <body-file>`; env `GH_HOST` (required), `DOTFILES_ROOT` (optional) |
+| Input | `<owner> <repo> <category> <title> <body-file>`; env `GH_HOST` (required), `TARGET_HOST` (must equal `GH_HOST` when set), `DOTFILES_ROOT` (optional) |
 | Output | the Discussion URL on stdout |
 | Exit 0 | created |
 | Exit 1 | repo lookup, category lookup or mutation failed — or `gh_discussion.sh` did not resolve; the helper's `[gh-discussion] <reason>` line is on stderr. HARD: Step 5 prints `[FAIL]` quoting it and stops |
-| Exit 2 | usage — a missing argument, an unreadable body file, or an empty `GH_HOST`; no `gh` call was made |
+| Exit 2 | usage — a missing argument, an unreadable body file, an empty `GH_HOST`, or a set `TARGET_HOST` that differs from it (`[FAIL] GH_HOST (a) != TARGET_HOST (b)`); no `gh` call was made |
 
 `gh api graphql` takes no `--repo`, so the exported `GH_HOST` is the only thing
 keeping the three calls on the host the target remote points at

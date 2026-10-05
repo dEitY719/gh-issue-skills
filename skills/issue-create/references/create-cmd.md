@@ -59,7 +59,7 @@ Step 2.5 was skipped, so the label arrays are empty and unused.
 `[OK] Discussion (<category>): <url>`.
 
 Its contract (input, URL output, exit 1 = lookup/mutation failure or missing
-helper, exit 2 = usage or empty `GH_HOST`) is
+helper, exit 2 = usage, empty `GH_HOST`, or `GH_HOST` != a set `TARGET_HOST`) is
 [[gh-issue:discussion-create]]'s `references/create-cmd.md`. This skill ships a
 byte-identical copy of the same script, which is what keeps the two
 skills' three GraphQL calls in lock-step. The exported `GH_HOST` is their only
