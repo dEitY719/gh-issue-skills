@@ -36,8 +36,8 @@ Examples:
 
 1. Confirms a git repo context and resolves `owner/repo` from the
    target remote.
-2. Fetches the Discussion via `_gh_discussion_fetch` (single GraphQL
-   call) and extracts node ID + body + category + locked/closed state.
+2. Fetches the Discussion via `lib/discussion-fetch.sh` (one
+   `_gh_discussion_fetch` GraphQL call) and extracts node ID + body + category + locked/closed state.
 3. **Category guard** — refuses non-`Ideas` Discussions unless
    `--force-category` is set. Override is one-shot, not a policy
    change.

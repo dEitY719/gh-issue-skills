@@ -37,30 +37,14 @@ chk() { # chk <label> <expected> <got>
     fi
 }
 
-# Slice one block out of a doc: from the first line starting with $2 through the
-# first subsequent line equal to $3. A closing fence as the end anchor takes the
-# whole rest of the block and is not itself emitted.
-extract() { # extract <name> <start-prefix> <end-line> <file>
-    awk -v s="$2" -v e="$3" '
-        !on && index($0, s) == 1 { on = 1 }
-        on && $0 == e { if (e != "```") print; exit }
-        on { print }
-    ' "$ROOT/$4" > "$TMP/$1.sh"
-    [ -s "$TMP/$1.sh" ] || { printf 'FAIL  %s: extracted nothing from %s\n' "$1" "$4"; fails=$((fails + 1)); }
-}
-
-extract discussion-convert '_GD="${DOTFILES_ROOT' 'fi' \
-    skills/discussion-convert/references/convert-cmd.md
-# The issue-create (--as-discussion) and discussion-create blocks used to be
-# extracted here too. Their gh_discussion.sh lookup is an executed helper now —
-# lib/create-discussion.sh — whose tiers (and the absent cwd tier) are asserted
-# against the real script in lib/create-discussion.selfcheck.sh §5-§7
-# (dEitY719/gh-issue-skills#53).
-BLOCKS="discussion-convert"
-# The board-transition prologue used to be extracted from both claim.md files
-# here. It has one home now — lib/claim-issue.sh — so the same tiers are
-# asserted in lib/claim-issue.selfcheck.sh §13, against the real script rather
-# than a slice of a doc (dEitY719/gh-issue-skills#21).
+# No hard-fail helper loader is pasted from the docs any more, so the old
+# extract-and-run sections 2/4/5 are gone; 6 and 7 below still slice their two
+# blocks. The last loader — the `_GD=` gh_discussion.sh block in discussion-convert's convert-cmd.md — became
+# the executed lib/discussion-fetch.sh, whose tiers (and the absent cwd tier) are
+# asserted against the real script in lib/discussion-fetch.selfcheck.sh
+# (dEitY719/gh-issue-skills#58). Before it, the issue-create / discussion-create
+# blocks moved to lib/create-discussion.sh (#53) and the board-transition prologue
+# to lib/claim-issue.sh (#21), each with its own selfcheck.
 
 # 1. The gate grep: an explicitly-empty default spliced straight into a path is
 #    always the defect (it collapses to the filesystem root), and so is a `$PWD`,
@@ -71,97 +55,9 @@ BLOCKS="discussion-convert"
 hits=$(cd "$ROOT" && git ls-files -z | xargs -0 grep -lE '\$\{[A-Za-z_][A-Za-z0-9_]*:?-(\$PWD|\$\(pwd\)|\.)?\}/' 2>/dev/null | wc -l)
 chk "no empty-default, \$PWD or cwd path splices in tracked files" 0 "$((hits))"
 
-# Tier 5 conditions: no harness exported CLAUDE_PLUGIN_ROOT and no ~/dotfiles —
-# so tiers 1 and 2 both miss. The cwd is irrelevant now that tier 4 is gone;
-# section 5 pins that separately by running the same blocks from $ROOT.
-run() { # run <shell> <block>  -> stderr on stdout, rc in $?
-    # Braces, not `2>&1 >/dev/null`: same effect, but unambiguous to shellcheck
-    # (SC2069) and to the next reader — only stderr is captured.
-    ( cd "$SANDBOX" && { env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
-        HOME="$HOME_EMPTY" "$1" "$TMP/$2.sh" >/dev/null; } 2>&1 )
-}
-
-for sh in sh bash zsh; do
-    command -v "$sh" >/dev/null 2>&1 || { printf 'skip  %s not installed\n' "$sh"; continue; }
-
-    # 2. A hard-fail site stops, and says which path it tried plus the way out.
-    for block in $BLOCKS; do
-        err=$(run "$sh" "$block"); rc=$?
-        chk "$sh/$block stops" nonzero "$([ "$rc" -ne 0 ] && echo nonzero || echo "rc=$rc")"
-        # The path tried is now the tier-1 one: with tier 4 retired there is no
-        # cwd-derived path left to name.
-        case "$err" in *"$HOME_EMPTY/dotfiles"*) got=named ;; *) got="$err" ;; esac
-        chk "$sh/$block names the path it tried" named "$got"
-        case "$err" in *CLAUDE_PLUGIN_ROOT*) got=hinted ;; *) got=no-hint ;; esac
-        chk "$sh/$block names the way out" hinted "$got"
-    done
-
-    # 4. The regression this whole convention exists for: never resolve to the
-    #    filesystem root, and never export an unproven SHELL_COMMON. Sourced,
-    #    because that is how a poisoned export would reach later helpers.
-    for block in $BLOCKS; do
-        got=$( cd "$SANDBOX" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
-            HOME="$HOME_EMPTY" "$sh" -c \
-            '. "$1" >/dev/null 2>&1; printf "%s" "${SHELL_COMMON:-unset}"' _ "$TMP/$block.sh" )
-        chk "$sh/$block leaves SHELL_COMMON unset" unset "$got"
-        err=$(run "$sh" "$block" 2>&1)
-        case "$err" in *' /lib/vendor'*|*'at /lib'*|*'under /lib'*) got=poisoned ;; *) got=clean ;; esac
-        chk "$sh/$block never resolves under /" clean "$got"
-    done
-done
-
-# 5. The positive path, plus the retired tier 4 (see header). Without a
-#    positive case a block that always failed would pass every check above, so
-#    tier 2 (CLAUDE_PLUGIN_ROOT set) must resolve and exit 0. `$ROOT` really
-#    does hold lib/vendor/shell-common, so running from that cwd with
-#    CLAUDE_PLUGIN_ROOT unset must still stop at tier 5.
-resolves() { # resolves <shell> <block> <cwd> <plugin-root-or-empty>
-    if [ -n "$4" ]; then
-        ( cd "$3" && env -u SHELL_COMMON -u DOTFILES_ROOT CLAUDE_PLUGIN_ROOT="$4" \
-            HOME="$HOME_EMPTY" "$1" "$TMP/$2.sh" ) >/dev/null 2>&1
-    else
-        ( cd "$3" && env -u CLAUDE_PLUGIN_ROOT -u SHELL_COMMON -u DOTFILES_ROOT \
-            HOME="$HOME_EMPTY" "$1" "$TMP/$2.sh" ) >/dev/null 2>&1
-    fi
-}
-
-# A directory where the helper should be: the case a bare `-r` would accept.
+# A directory where the parser should be: the case a bare `-r` would accept.
 DIRTRAP="$TMP/dirtrap"
-mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/gh_project_status.sh"
-mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/gh_discussion.sh"
 mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/parse_yaml_defaults.sh"
-
-# An existing but unreadable helper must not count as resolved: `-f` alone
-# passes it, the source then fails, and an inherited function stays callable.
-UNREADABLE="$TMP/unreadable-root"
-mkdir -p "$UNREADABLE/lib/vendor/shell-common/functions"
-for _fn in gh_discussion.sh gh_project_status.sh; do
-    printf '#\n' > "$UNREADABLE/lib/vendor/shell-common/functions/$_fn"
-    chmod 000 "$UNREADABLE/lib/vendor/shell-common/functions/$_fn"
-done
-# Root ignores the permission bits, so the case is only meaningful unprivileged.
-if [ -r "$UNREADABLE/lib/vendor/shell-common/functions/gh_discussion.sh" ]; then
-    CAN_TEST_UNREADABLE=0
-else
-    CAN_TEST_UNREADABLE=1
-fi
-
-for sh in sh bash zsh; do
-    command -v "$sh" >/dev/null 2>&1 || continue
-
-    for block in $BLOCKS; do
-        resolves "$sh" "$block" "$SANDBOX" "$ROOT"
-        chk "$sh/$block resolves via CLAUDE_PLUGIN_ROOT (tier 2)" 0 "$?"
-        resolves "$sh" "$block" "$ROOT" ""
-        chk "$sh/$block does NOT resolve from the cwd (no tier 4)" 1 "$(($? != 0))"
-
-        if [ "$CAN_TEST_UNREADABLE" -eq 1 ]; then
-            resolves "$sh" "$block" "$SANDBOX" "$UNREADABLE"
-            chk "$sh/$block rejects an unreadable helper" 1 "$(($? != 0))"
-        fi
-    done
-
-done
 
 # 6. The repo-resolution bootstrap line (dEitY719/harness-skills#24): the block
 #    that locates lib/resolve-target.sh ITSELF, one step before that file's own

@@ -1,8 +1,10 @@
-# gh-issue:discussion-convert — Step 5-8 Convert Command
+# gh-issue:discussion-convert — Step 4-8 Convert Command
 
-Detail companion to SKILL.md Steps 5 through 8. Reads the JSON
-captured in Step 2 (the `_gh_discussion_fetch` output) and runs the
-emulated convert sequence in order.
+Detail companion to SKILL.md Steps 4 through 8. Reads the JSON
+`lib/discussion-fetch.sh` wrote in Step 2 and runs the emulated convert
+sequence in order. Nothing here sources a shell helper: the Step 2 fetch
+and Steps 6-8 are executed scripts that resolve `gh_discussion.sh`
+themselves (#58).
 
 Inputs bound by the caller:
 
@@ -10,32 +12,14 @@ Inputs bound by the caller:
 - `$TARGET_HOST`        — the host parsed from that same remote URL
                           (Step 1); also exported as `GH_HOST`
 - `$N`                  — Discussion number (positional arg)
-- `$DISC_JSON`          — path to the temp file holding the JSON from
-                          `_gh_discussion_fetch`
+- `$DISC_JSON`          — path to the temp file holding the JSON
+                          `lib/discussion-fetch.sh` printed (Step 2)
 - `$OPT_NO_COMMENT`     — `1` if `--no-comment` was passed
 - `$OPT_NO_LOCK`        — `1` if `--no-lock` was passed
 - `$OPT_NO_CLOSE`       — `1` if `--no-close` was passed
 - `$OPT_NO_BOARD_SYNC`  — `1` if `--no-board-sync` was passed
 
 ```bash
-_GD="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
-# No tier 4 (dEitY719/harness-skills#22): $PWD is caller-controlled here.
-[ -f "$_GD" ] || [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] \
-    || _GD="$CLAUDE_PLUGIN_ROOT/skills/discussion-convert/lib/vendor/shell-common/functions/gh_discussion.sh" # tier 2
-# The second probe proves the tier the first one picked; without it a missing
-# helper is sourced as a wrong path instead of stopping. -f and -r both: -r
-# alone passes a directory, -f alone passes an unreadable file whose source
-# then fails silently.
-if [ ! -f "$_GD" ] || [ ! -r "$_GD" ]; then
-    printf '[gh-issue:discussion-convert] helper not found at %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
-        "$_GD" >&2
-    return 1 2>/dev/null || exit 1
-fi
-# shellcheck disable=SC1091
-. "$_GD"
-# gh_project_status.sh is NOT sourced here: Steps 6-8 moved into
-# lib/discussion-post-convert.sh, which resolves and sources it itself.
-
 DISC_ID=$(jq -r '.id'     "$DISC_JSON")
 DTITLE=$(jq -r '.title'   "$DISC_JSON")
 DCAT=$(jq -r '.category'  "$DISC_JSON")
