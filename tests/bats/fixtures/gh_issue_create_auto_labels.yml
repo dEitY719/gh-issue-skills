@@ -1,0 +1,16 @@
+# Test-local .gh-issue-defaults.yml for gh_issue_create_auto_labels.bats.
+# Same shape as dEitY719/dotfiles' own SSOT at the time the suite moved here
+# (dEitY719/dotfiles#2200), frozen so the suite does not depend on that repo.
+default_labels:
+  static: []
+  by_title_prefix:
+    feat: [feat]
+    fix: [fix]
+    refactor: [refactor]
+    test: [test]
+    verify: [verify]
+    ci: [ci]
+    docs: [docs]
+    chore: []
+
+milestone: none

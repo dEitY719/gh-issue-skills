@@ -169,10 +169,11 @@ The result is a warning, not a wrong link, and the fix stays manual — and its
 
 ## Test fixture
 
-Detection **and** the Step 4.5 outcome classification are mirrored in
-`dEitY719/dotfiles/tests/bats/skills/_fixtures/gh_issue_create_dependency_detect.sh`, locked by
-`dEitY719/dotfiles/tests/bats/skills/gh_issue_create_dependency_detect.bats`. That fixture's
-header carries the sync rule for trigger-phrase changes.
+Detection is mirrored in
+`tests/bats/fixtures/gh_issue_create_dependency_detect.sh` (repo root), locked by
+`tests/bats/gh_issue_create_dependency_detect.bats`; the Step 4.5 outcome runs
+the real `lib/link-deps.sh` there against a stub `gh`. That fixture's header
+carries the sync rule for trigger-phrase changes.
 
 What the suite covers: the trigger matrix, the plain-mention negatives, the
 NF-2 cross-repo skip, `--no-auto-deps`, every id/mutation state that produces
@@ -182,39 +183,16 @@ reference regex printed here must be byte-identical to the fixture's, and
 `lib/link-deps.sh` must not reintroduce `>/dev/null 2>&1` over the GraphQL calls. Editing one
 side without the other turns the suite red.
 
-Since dEitY719/dotfiles#1457 it also pins the `addBlockedBy` argument shape, two ways:
+Since dEitY719/dotfiles#1457 it also pins the `addBlockedBy` argument shape
+offline: `lib/link-deps.sh` must still name `blockingIssueId` and must not
+carry the rejected `blockedByIds` array spelling from dEitY719/dotfiles#1445.
+The live-schema introspection of `AddBlockedByInput` that the dotfiles suite
+once ran is not repeated here: it needs `gh` auth and network, and CI's
+`bats` job has neither.
 
-- **Offline** — string assertions that the prose shape line above and the
-  mutation in `lib/link-deps.sh` both still name `blockingIssueId`, plus a negative one that the
-  rejected `blockedByIds` array spelling from dEitY719/dotfiles#1445 survives in none of this
-  file's **fenced code blocks**. The negative half is scoped to fenced code
-  on purpose (PR dEitY719/dotfiles#1465 review): a whole-file ban would also forbid this
-  paragraph from naming the old spelling at all, and the history is worth
-  writing down. Coverage does not narrow — the two positive assertions
-  already pin both places the name appears.
-- **Live schema** — `AddBlockedByInput`'s input fields are read back from
-  the real API by introspection and compared against the shape recorded at
-  the top of this file. This is not a mock; it is a read-only query against
-  the server whose shape this doc records. Without network or `gh` auth it
-  **skips** rather than fails, so an offline shell never goes red over an
-  unrelated concern.
-
-That skip raises a fair question — who ever runs the networked half? The
-answer is `git/hooks/pre-push`, which runs `mise run test` on every push;
-this repo has no CI test lane by design (dEitY719/dotfiles#754 moved the suite to that hook,
-SSOT in `dEitY719/dotfiles/docs/.ssot/local-test-policy.md`). The pushing machine is the one
-that just authenticated `gh`, so the guard fires on the path that matters.
-It is a developer-machine guarantee rather than a server-side one — a push
-with `SKIP_LOCAL_PYTEST=1`, or from a shell without `gh` auth, skips it, and
-the offline half is what covers that case.
-
-The two fail on different things on purpose: the offline check catches an
-accidental edit here, the live one catches an upstream schema change.
-
-What it does not cover: the two GraphQL invocations themselves — mocking
-`gh` would test the mock. Their argument order and the NF-1 outcomes are
-pinned here instead, by `lib/link-deps.selfcheck.sh`. Everything that decides what happens
-*around* them is fixtured, which is where the branching lives. Scope of the
-shape guards is `addBlockedBy` alone; the `Issue.blockedBy` read path was
-confirmed working in dEitY719/dotfiles#1445, and pinning the whole schema would cost more
-upkeep than it returns.
+What it does not cover: the GraphQL server itself — the stub `gh` answers
+with fixed ids and exit codes. The NF-1 outcomes and argument order are also
+pinned by `lib/link-deps.selfcheck.sh`. Scope of the shape guard is
+`addBlockedBy` alone; the `Issue.blockedBy` read path was confirmed working in
+dEitY719/dotfiles#1445, and pinning the whole schema would cost more upkeep
+than it returns.

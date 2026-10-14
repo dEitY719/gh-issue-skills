@@ -113,6 +113,18 @@ directory). The repo-root `lib/` stays the SSOT and is where the selfchecks run.
 Edit there, then re-copy; `tests/vendored-lib-sync.sh` fails on any copy that
 differs from it and on any helper a skill names without shipping.
 
+## Tests
+
+Two lanes, both in CI. `tests/*.sh` (the `lib/*.selfcheck.sh` runner and
+`tests/vendored-lib-sync.sh`) run inside `validate.yml`'s reusable workflow.
+`tests/bats/*.bats` run in `.github/workflows/bats.yml` (moved from
+dEitY719/dotfiles#2200); fixtures live in `tests/bats/fixtures/` and source or
+execute the shipped `lib/*.sh` wherever one exists — a fixture mirrors prose
+only when no shell ships, and then carries a drift test that greps the
+`references/*.md` it mirrors. Run locally:
+
+    BATS_LIB_PATH=<dir holding bats-support and bats-assert> bats -r tests/bats
+
 ## Rules for changing skills
 
 - **Skill directory name is the identity.** `skills/<name>/` must match the
