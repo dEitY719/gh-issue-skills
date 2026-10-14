@@ -144,5 +144,5 @@ maps, multi-doc files, and other YAML features are NOT supported.
 | `--no-auto-labels` | n/a | n/a | original behaviour |
 | dotfiles, title `docs: ...`, `documentation` label missing | yes | yes | warn + skip; other labels still apply |
 
-The bats suite at `dEitY719/dotfiles/tests/bats/skills/gh_issue_create_auto_labels.bats`
-locks all seven rows.
+The bats suite at `tests/bats/gh_issue_create_auto_labels.bats` (repo root)
+locks all seven rows against the vendored parser.

@@ -3,9 +3,8 @@
 The issue body must contain **8 required sections**, each identified by an
 H2 or H3 heading whose normalized text matches one of the listed aliases
 (case-insensitive substring; alias list per row is OR). SSOT for the
-schema validator; the bats fixture
-`dEitY719/dotfiles/tests/bats/skills/_fixtures/gh_issue_proceed_schema.sh` mirrors this and
-the suite `gh_issue_proceed_schema.bats` exercises five variants. `lib/validate-protocol.sh`
+schema validator; the bats suite `tests/bats/gh_issue_proceed_schema.bats`
+(repo root) runs five variants through `lib/validate-protocol.sh`. `lib/validate-protocol.sh`
 is this spec as code (self-check: `lib/validate-protocol.selfcheck.sh`) — Step 2.2 executes
 it rather than re-deriving §§1-3 by hand each run.
 

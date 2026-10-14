@@ -2,9 +2,10 @@
 
 Four layers, strictest to weakest. Each can independently trigger abort.
 This file is the SSOT for `ABSOLUTE_BLOCK_PATTERNS` (Layer 1); the bats
-fixture `dEitY719/dotfiles/tests/bats/skills/_fixtures/gh_issue_proceed_safety.sh` mirrors
-the patterns and the suite `gh_issue_proceed_safety.bats` covers one
-positive + one negative per pattern.
+fixture `tests/bats/fixtures/gh_issue_proceed_safety.sh` (repo root) mirrors
+the patterns and the suite `tests/bats/gh_issue_proceed_safety.bats` covers one
+positive + one negative per pattern, plus a drift test that every key the
+fixture emits is listed in the Layer 1 table below.
 
 ## Layer 1 — Absolute prohibitions
 

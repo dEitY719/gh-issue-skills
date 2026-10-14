@@ -219,6 +219,10 @@ decorate with: the ai-metrics footer, whose glyphs are the wire format itself
 (dEitY719/dotfiles#317 F-2, PR dEitY719/dotfiles#320), and the `Postpone` block label that `implement` and
 `proceed` refuse to start on. Nothing else in the repo may carry an emoji.
 
+[`.github/workflows/bats.yml`](.github/workflows/bats.yml) runs the
+`tests/bats/` suite (pinned bats-core 1.13.0, bats-support 0.3.0, bats-assert
+2.2.4) on every push and PR.
+
 ## Provenance
 
 Extracted from [`dEitY719/dotfiles`](https://github.com/dEitY719/dotfiles)
