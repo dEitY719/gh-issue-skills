@@ -177,9 +177,9 @@ if [ -z "${GH_ISSUE_SKIP_BOARD_TRANSITION:-}" ]; then
     # skill directory this helper was vendored into (dEitY719/gh-issue-skills#47)
     # — over the harness's CLAUDE_PLUGIN_ROOT.
     _R="${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:-}}"
-    [ -f "$_SC/functions/gh_project_status.sh" ] || [ -z "$_R" ] \
+    [ -f "$_SC/lib/gh_project_status.sh" ] || [ -z "$_R" ] \
         || _SC="$_R/lib/vendor/shell-common" # tier 2
-    _HELPER="$_SC/functions/gh_project_status.sh"
+    _HELPER="$_SC/lib/gh_project_status.sh"
     # Drop any inherited definition BEFORE sourcing, so the check below proves
     # this load defined the function rather than an earlier one. A file-mode
     # test cannot: -f passes an unreadable file, -r passes a directory, and

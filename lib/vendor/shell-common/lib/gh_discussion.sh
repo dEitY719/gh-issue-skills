@@ -1,9 +1,9 @@
 #!/bin/sh
 # VENDORED — do not edit here.
-# SSOT: dEitY719/dotfiles shell-common/functions/gh_discussion.sh
-# Synced 2026-10-17T01:33Z by dEitY719/harness-skills scripts/sync-shell-common-vendor.sh — re-run that script to update.
+# SSOT: dEitY719/dotfiles shell-common/lib/gh_discussion.sh
+# Synced 2026-10-17T02:20Z by dEitY719/harness-skills scripts/sync-shell-common-vendor.sh — re-run that script to update.
 # shellcheck shell=bash
-# shell-common/functions/gh_discussion.sh
+# shell-common/lib/gh_discussion.sh
 # No interactive guard: pure function library, sourced by the gh discussion
 # skills from non-interactive shells.
 # GraphQL wrappers for the GitHub Discussions write API. The REST endpoints

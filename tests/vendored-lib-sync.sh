@@ -9,7 +9,7 @@
 #   bash tests/vendored-lib-sync.sh
 #
 # 1. Every file under skills/*/lib/ is byte-identical to lib/<same path>.
-# 2. Every lib/<x>.sh or functions/<x>.sh a skill names — in its markdown, or
+# 2. Every lib/<x>.sh, lib/<x_y>.sh or functions/<x>.sh a skill names — in its markdown, or
 #    on a non-comment line of a script it ships — exists inside that skill, so
 #    a new helper reference cannot land without its copy.
 #
@@ -35,10 +35,13 @@ for s in skills/*/; do
     s=${s%/}
     refs=$( { find "$s" -name '*.md' -exec cat {} +
               find "$s" -name '*.sh' -exec grep -hv '^[[:space:]]*#' {} +; } |
-        grep -oE '(^|[^a-z_-])(lib/[a-z-]+\.sh|functions/[a-z_]+\.sh)' |
+        grep -oE '(^|[^a-z_-])(lib/[a-z_-]+\.sh|functions/[a-z_]+\.sh)' |
         sed -E 's/^[^lf]*//' | sort -u) || :
     for r in $refs; do
+        # shell-common names use underscores (dotfiles#2154 moved them to lib/);
+        # this repo's own helpers use dashes.
         case $r in
+            lib/*_*) p="$s/lib/vendor/shell-common/$r" ;;
             lib/*) p="$s/$r" ;;
             *) p="$s/lib/vendor/shell-common/$r" ;;
         esac

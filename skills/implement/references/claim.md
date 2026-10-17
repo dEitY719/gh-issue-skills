@@ -162,7 +162,7 @@ would break every legitimate restart.
 
 **Goal**: move the issue card from `Backlog`/`Ready` to `In progress`
 on every projectV2 it belongs to, via `_gh_project_status_sync` from
-`shell-common/functions/gh_project_status.sh`. The helper handles:
+`shell-common/lib/gh_project_status.sh`. The helper handles:
 
 - **Explicit `--repo`**: `$TARGET_REPO` from Step 1 (dEitY719/dotfiles#1405). Without it
   the helper resolves via `gh repo view`, i.e. whatever

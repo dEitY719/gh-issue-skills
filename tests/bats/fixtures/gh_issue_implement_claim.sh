@@ -33,7 +33,7 @@ _claim_run() {
     local _n="$1"; shift
     local _t
     _t=$(mktemp -d) || return 1
-    mkdir -p "$_t/bin" "$_t/sc/functions"
+    mkdir -p "$_t/bin" "$_t/sc/lib"
     cat >"$_t/bin/gh" <<'GH'
 #!/bin/sh
 printf '%s\n' "$*" >> "$CLAIM_GH_LOG"
@@ -50,7 +50,7 @@ case "$1 ${2:-}" in
 esac
 GH
     chmod +x "$_t/bin/gh"
-    cat >"$_t/sc/functions/gh_project_status.sh" <<'SC'
+    cat >"$_t/sc/lib/gh_project_status.sh" <<'SC'
 _gh_project_status_sync() {
     if [ "${FAKE_BOARD_ATTACHED:-1}" = 0 ]; then echo no-board; else echo "sync $*"; fi >> "$CLAIM_GH_LOG"
 }

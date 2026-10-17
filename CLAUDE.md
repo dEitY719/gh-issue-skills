@@ -106,7 +106,7 @@ any of them. Link the upstream doc, do not restate it.
 
 **Every skill ships its own copy of the helpers it runs** (#47). A Hermes tap or
 `npx skills add` installs one skill directory, so `skills/<name>/lib/` holds each
-`lib/*.sh` and `lib/vendor/shell-common/functions/*.sh` that skill uses, and its
+`lib/*.sh` and `lib/vendor/shell-common/{lib,functions,util}/*.sh` that skill uses, and its
 docs address them as `$CLAUDE_PLUGIN_ROOT/skills/<name>/lib/...` or through the
 `PLUGIN_ROOT` that skill's `resolve-target.sh` copy exports (its own skill
 directory). The repo-root `lib/` stays the SSOT and is where the selfchecks run.
