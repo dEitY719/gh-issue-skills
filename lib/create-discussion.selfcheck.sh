@@ -88,8 +88,8 @@ GH_FAIL=create run github.com acme widget Ideas T "$BODY" >/dev/null; rc=$?
 chk "mutation fail exits 1" "$rc" 1
 
 # 5. Tier 1 wins when DOTFILES_ROOT holds the helper.
-mkdir -p "$TMP/dot/shell-common/functions"
-cat > "$TMP/dot/shell-common/functions/gh_discussion.sh" <<'STUB'
+mkdir -p "$TMP/dot/shell-common/lib"
+cat > "$TMP/dot/shell-common/lib/gh_discussion.sh" <<'STUB'
 _gh_discussion_repo_id() { echo R_t1; }
 _gh_discussion_category_id() { echo C_t1; }
 _gh_discussion_create() { echo "tier1:$1:$2:$3"; }
@@ -101,8 +101,8 @@ chk "tier 1 (DOTFILES_ROOT)" "$got" "tier1:R_t1:C_t1:T"
 # 5b. Tier 0 wins over tier 1 and tier 2: the SHELL_COMMON Step 1 proved and
 #     exported (lib/resolve-target.sh), the same order discussion-post-convert.sh
 #     uses (#56). A SHELL_COMMON without the helper falls through to tier 1.
-mkdir -p "$TMP/sc/functions"
-sed 's/tier1/tier0/' "$TMP/dot/shell-common/functions/gh_discussion.sh" > "$TMP/sc/functions/gh_discussion.sh"
+mkdir -p "$TMP/sc/lib"
+sed 's/tier1/tier0/' "$TMP/dot/shell-common/lib/gh_discussion.sh" > "$TMP/sc/lib/gh_discussion.sh"
 got=$(env PATH="$TMP/bin:$PATH" GH_LOG="$TMP/gh.log" GH_HOST=github.com HOME="$TMP/home" \
     SHELL_COMMON="$TMP/sc" DOTFILES_ROOT="$TMP/dot" bash "$TARGET" acme widget Ideas T "$BODY" 2>/dev/null)
 chk "tier 0 (SHELL_COMMON) beats tier 1" "$got" "tier0:R_t1:C_t1:T"
@@ -115,11 +115,11 @@ chk "tier 0 without the helper falls to tier 1" "$got" "tier1:R_t1:C_t1:T"
 mkdir -p "$TMP/bare"; cp "$TARGET" "$TMP/bare/"
 got=$(cd "$ROOT" && SCRIPT="$TMP/bare/create-discussion.sh" run github.com acme widget Ideas T "$BODY"); rc=$?
 chk "no vendor -> exit 1, no gh call" "$rc|$(log)" "1|"
-case $(cat "$TMP/err") in *"$TMP/bare/vendor/shell-common/functions/gh_discussion.sh"*) got=named ;; *) got=unnamed ;; esac
+case $(cat "$TMP/err") in *"$TMP/bare/vendor/shell-common/lib/gh_discussion.sh"*) got=named ;; *) got=unnamed ;; esac
 chk "no vendor names the path tried" "$got" named
 
 # 7. A helper that defines nothing is caught by the function proof.
-: > "$TMP/dot/shell-common/functions/gh_discussion.sh"
+: > "$TMP/dot/shell-common/lib/gh_discussion.sh"
 env -u SHELL_COMMON PATH="$TMP/bin:$PATH" GH_LOG="$TMP/gh.log" GH_HOST=github.com HOME="$TMP/home" \
     DOTFILES_ROOT="$TMP/dot" bash "$TARGET" acme widget Ideas T "$BODY" >/dev/null 2>&1; rc=$?
 chk "empty helper fails the function proof" "$rc" 1

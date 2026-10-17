@@ -165,8 +165,8 @@ fi
 #    non-bash/zsh harness runs — a cwd that DOES hold lib/vendor/shell-common
 #    must be refused, not sourced. The decoy below is exactly what a repo under
 #    review could ship.
-mkdir -p "$TMP/lib/vendor/shell-common/functions"
-cat > "$TMP/lib/vendor/shell-common/functions/gh_host.sh" <<'DECOY'
+mkdir -p "$TMP/lib/vendor/shell-common/lib"
+cat > "$TMP/lib/vendor/shell-common/lib/gh_host.sh" <<'DECOY'
 _gh_parse_owner_repo_url() { echo poisoned/repo; }
 _gh_host_from_url() { echo evil.example; }
 _gh_resolve_host() { echo evil.example; }
@@ -189,8 +189,8 @@ fi
 #     otherwise outrank every later ${SHELL_COMMON:-...} default in the
 #     caller's own shell — gh-resolve-skills#8's poisoning.
 HOLLOW="$TMP/hollow"
-mkdir -p "$HOLLOW/lib/vendor/shell-common/functions" "$TMP/imposter"
-printf '# defines nothing\n' > "$HOLLOW/lib/vendor/shell-common/functions/gh_host.sh"
+mkdir -p "$HOLLOW/lib/vendor/shell-common/lib" "$TMP/imposter"
+printf '# defines nothing\n' > "$HOLLOW/lib/vendor/shell-common/lib/gh_host.sh"
 printf '#!/bin/sh\nprintf imposter\n' > "$TMP/imposter/_gh_resolve_host"
 chmod +x "$TMP/imposter/_gh_resolve_host"
 got=$( cd "$TMP" && env -u SHELL_COMMON DOTFILES_ROOT=/nonexistent-dotfiles \

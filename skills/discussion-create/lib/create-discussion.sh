@@ -21,9 +21,9 @@
 # The body file is the caller's: it already holds the drafted body plus the
 # ai-metrics footer (lib/ai-metrics-footer.sh). This script adds no bytes.
 #
-# gh_discussion.sh resolves from tier 0 `$SHELL_COMMON/functions/` (what Step 1's
+# gh_discussion.sh resolves from tier 0 `$SHELL_COMMON/lib/` (what Step 1's
 # resolve-target.sh proved and exported), then tier 1
-# `$DOTFILES_ROOT/shell-common/functions/` (default ~/dotfiles), then tier 2 this
+# `$DOTFILES_ROOT/shell-common/lib/` (default ~/dotfiles), then tier 2 this
 # script's own `vendor/` sibling — the copy shipped inside the skill. Same order
 # as discussion-post-convert.sh, so one run loads one copy (#56). There is no cwd tier (dEitY719/harness-skills#22):
 # $PWD is the repo under review.
@@ -50,12 +50,12 @@ fi
 export GH_HOST
 
 _gd=""
-[ -z "${SHELL_COMMON:-}" ] || _gd="$SHELL_COMMON/functions/gh_discussion.sh" # tier 0
+[ -z "${SHELL_COMMON:-}" ] || _gd="$SHELL_COMMON/lib/gh_discussion.sh" # tier 0
 if [ ! -f "$_gd" ] || [ ! -r "$_gd" ]; then
-    _gd="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/functions/gh_discussion.sh" # tier 1
+    _gd="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common/lib/gh_discussion.sh" # tier 1
 fi
 if [ ! -f "$_gd" ] || [ ! -r "$_gd" ]; then
-    _gd="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/vendor/shell-common/functions/gh_discussion.sh" # tier 2
+    _gd="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/vendor/shell-common/lib/gh_discussion.sh" # tier 2
 fi
 if [ ! -f "$_gd" ] || [ ! -r "$_gd" ]; then
     printf '[FAIL] gh_discussion.sh not found at %s — the skill install is missing lib/vendor; reinstall it.\n' "$_gd" >&2

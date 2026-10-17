@@ -131,7 +131,7 @@ DECOY
     # trips its own advisory "foreign checkout" warning (#1454) on a machine
     # that also has ~/dotfiles — harmless here, just noisy test output.
     # shellcheck disable=SC1091
-    . "$ROOT/lib/vendor/shell-common/functions/gh_host.sh" 2>/dev/null
+    . "$ROOT/lib/vendor/shell-common/lib/gh_host.sh" 2>/dev/null
     EXPECT_REPO=$(_gh_parse_owner_repo_url "$(cd "$ROOT" && git remote get-url origin)")
     # -u DOTFILES_ROOT -u SHELL_COMMON, HOME=$HOME_EMPTY (PR #27 review, codex
     # FOLLOW-UP): matches the isolation `resolves()` above already uses — an

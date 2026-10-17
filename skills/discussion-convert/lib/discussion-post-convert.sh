@@ -45,10 +45,10 @@ fi
 # or the plugin root the harness named. There is no cwd tier (dEitY719/harness-skills#22) — $PWD is the repo
 # under review, which could ship its own lib/vendor/shell-common.
 _dp_sc="${SHELL_COMMON:-}"
-if [ -z "$_dp_sc" ] || [ ! -r "$_dp_sc/functions/gh_discussion.sh" ]; then
+if [ -z "$_dp_sc" ] || [ ! -r "$_dp_sc/lib/gh_discussion.sh" ]; then
     _dp_sc="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
 fi
-if [ ! -r "$_dp_sc/functions/gh_discussion.sh" ]; then
+if [ ! -r "$_dp_sc/lib/gh_discussion.sh" ]; then
     # PLUGIN_ROOT first: resolve-target.sh set it to the skill directory this
     # helper was vendored into (dEitY719/gh-issue-skills#47).
     _dp_root="${PLUGIN_ROOT:-}"
@@ -63,16 +63,16 @@ fi
 # alone passes a directory, -f alone passes an unreadable file whose source then
 # fails silently.
 for _f in gh_discussion.sh gh_project_status.sh; do
-    if [ ! -f "$_dp_sc/functions/$_f" ] || [ ! -r "$_dp_sc/functions/$_f" ]; then
-        printf '[gh-issue:discussion-convert] helper not found at %s/functions/%s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+    if [ ! -f "$_dp_sc/lib/$_f" ] || [ ! -r "$_dp_sc/lib/$_f" ]; then
+        printf '[gh-issue:discussion-convert] helper not found at %s/lib/%s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
             "$_dp_sc" "$_f" >&2
         exit 1
     fi
 done
 # shellcheck disable=SC1090,SC1091  # path is resolved at runtime
-. "$_dp_sc/functions/gh_discussion.sh"
+. "$_dp_sc/lib/gh_discussion.sh"
 # shellcheck disable=SC1090,SC1091
-. "$_dp_sc/functions/gh_project_status.sh"
+. "$_dp_sc/lib/gh_project_status.sh"
 
 # Tokens: on = ran, off = disabled by a --no-* flag, skip = already in that
 # state, fail = attempted and errored (board: synced/skipped/failed).

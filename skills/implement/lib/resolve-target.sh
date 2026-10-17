@@ -47,7 +47,7 @@
 # harnesses this plugin supports. This branch MUST stay at file top level:
 # zsh rebinds $0 to the sourced file only for this file's own statements, and
 # inside a function $0 is the function's own name. Same shape as the branch in
-# lib/vendor/shell-common/functions/gh_host.sh.
+# lib/vendor/shell-common/lib/gh_host.sh.
 if [ -n "${ZSH_VERSION-}" ]; then
     _rt_self="$0"
 elif [ -n "${BASH_VERSION-}" ]; then
@@ -123,7 +123,7 @@ _rt_resolve() {
     export PLUGIN_ROOT
 
     _rt_sc="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
-    if [ ! -f "$_rt_sc/functions/gh_host.sh" ]; then
+    if [ ! -f "$_rt_sc/lib/gh_host.sh" ]; then
         # Vendored tier, under the root proven above — never `.`. There is no
         # tier 4 (dEitY719/harness-skills#22): $PWD is the repo under review, and a PR
         # shipping its own lib/vendor/shell-common would get it sourced here.
@@ -136,8 +136,8 @@ _rt_resolve() {
     fi
     # -f and -r both: -r alone passes a directory, -f alone passes an
     # unreadable file whose source then fails silently.
-    if [ ! -f "$_rt_sc/functions/gh_host.sh" ] || [ ! -r "$_rt_sc/functions/gh_host.sh" ]; then
-        echo "Error: gh_host.sh not found under $_rt_sc/functions/." >&2
+    if [ ! -f "$_rt_sc/lib/gh_host.sh" ] || [ ! -r "$_rt_sc/lib/gh_host.sh" ]; then
+        echo "Error: gh_host.sh not found under $_rt_sc/lib/." >&2
         return 1
     fi
     # Clear both names before the load so the proof below is about THIS load:
@@ -155,7 +155,7 @@ _rt_resolve() {
     # is silently skipped on a plugin-only install (dEitY719/harness-skills#37).
     export SHELL_COMMON="$_rt_sc"
     # shellcheck disable=SC1090,SC1091  # path is resolved at runtime
-    . "$_rt_sc/functions/gh_host.sh"
+    . "$_rt_sc/lib/gh_host.sh"
     # Compare command -v's OUTPUT to the bare name: POSIX prints the bare name
     # for a function or builtin, a pathname for an external command, and an
     # `alias ...` string for an alias, so one `=` separates them without
@@ -164,7 +164,7 @@ _rt_resolve() {
     # later ${SHELL_COMMON:-...} default — gh-resolve-skills#8's poisoning.
     if [ "$(command -v _gh_resolve_host 2>/dev/null)" != _gh_resolve_host ]; then
         unset SHELL_COMMON
-        echo "Error: $_rt_sc/functions/gh_host.sh did not define _gh_resolve_host." >&2
+        echo "Error: $_rt_sc/lib/gh_host.sh did not define _gh_resolve_host." >&2
         return 1
     fi
 

@@ -39,8 +39,8 @@ GH
 chmod +x "$TMP/bin/gh"
 
 # --- the stub board helper ---------------------------------------------------
-mkdir -p "$TMP/sc/functions"
-cat > "$TMP/sc/functions/gh_project_status.sh" <<'SC'
+mkdir -p "$TMP/sc/lib"
+cat > "$TMP/sc/lib/gh_project_status.sh" <<'SC'
 _gh_project_status_sync() { printf 'sync %s\n' "$*" >> "$GH_LOG"; return 0; }
 _gh_project_status_query_current() {
     [ -n "${BOARD_STATUS:-}" ] || return 1
@@ -239,21 +239,21 @@ done
 # the caller's shell.
 SANDBOX=$(mktemp -d); HOME_EMPTY=$(mktemp -d)
 DIRTRAP="$TMP/dirtrap"        # a directory where the helper should be: the
-mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/gh_project_status.sh"
+mkdir -p "$DIRTRAP/lib/vendor/shell-common/lib/gh_project_status.sh"
 UNREADABLE="$TMP/unreadable"  # present but unreadable: `-f` alone accepts it
-mkdir -p "$UNREADABLE/lib/vendor/shell-common/functions"
-printf '#\n' > "$UNREADABLE/lib/vendor/shell-common/functions/gh_project_status.sh"
-chmod 000 "$UNREADABLE/lib/vendor/shell-common/functions/gh_project_status.sh"
+mkdir -p "$UNREADABLE/lib/vendor/shell-common/lib"
+printf '#\n' > "$UNREADABLE/lib/vendor/shell-common/lib/gh_project_status.sh"
+chmod 000 "$UNREADABLE/lib/vendor/shell-common/lib/gh_project_status.sh"
 # Root ignores the permission bits, so that case is only meaningful unprivileged.
-[ -r "$UNREADABLE/lib/vendor/shell-common/functions/gh_project_status.sh" ] \
+[ -r "$UNREADABLE/lib/vendor/shell-common/lib/gh_project_status.sh" ] \
     && CAN_TEST_UNREADABLE=0 || CAN_TEST_UNREADABLE=1
 
 # A tier-2 root whose helper is present and readable but defines nothing: the
 # case an existence test cannot tell from a good one, and the one the imposter
 # below rides on.
 HOLLOW="$TMP/hollow"
-mkdir -p "$HOLLOW/lib/vendor/shell-common/functions"
-printf '# defines nothing\n' > "$HOLLOW/lib/vendor/shell-common/functions/gh_project_status.sh"
+mkdir -p "$HOLLOW/lib/vendor/shell-common/lib"
+printf '# defines nothing\n' > "$HOLLOW/lib/vendor/shell-common/lib/gh_project_status.sh"
 IMPOSTER="$TMP/imposter"
 mkdir -p "$IMPOSTER"
 printf '#!/bin/sh\nprintf imposter\n' > "$IMPOSTER/_gh_project_status_sync"

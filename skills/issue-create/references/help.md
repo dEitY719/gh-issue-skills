@@ -127,7 +127,7 @@ A 200-line issue is fine if the conversation warranted it.
   `Lessons`) → print the four allowed values and exit 3 without any
   API call.
 - `--as-discussion <category>` when
-  `shell-common/functions/gh_discussion.sh` is missing → print
+  `shell-common/lib/gh_discussion.sh` is missing → print
   `Install gh-discussion-create skill first.` and exit 1.
 - User answers the Step 3.1 gate only partially → the remaining items are
   asked again. Never filled in on the skill's own initiative.

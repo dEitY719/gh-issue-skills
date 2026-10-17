@@ -63,9 +63,9 @@ case $(cat "$TMP/err") in *"[gh-discussion] discussion #7 not found"*) got=named
 chk "fetch fail passes the helper's reason through" "$got" named
 
 # 5. Tier 1 wins when DOTFILES_ROOT holds the helper; tier 0 beats it.
-mkdir -p "$TMP/dot/shell-common/functions" "$TMP/sc/functions"
-echo '_gh_discussion_fetch() { echo "tier1:$1:$2:$3"; }' > "$TMP/dot/shell-common/functions/gh_discussion.sh"
-sed 's/tier1/tier0/' "$TMP/dot/shell-common/functions/gh_discussion.sh" > "$TMP/sc/functions/gh_discussion.sh"
+mkdir -p "$TMP/dot/shell-common/lib" "$TMP/sc/lib"
+echo '_gh_discussion_fetch() { echo "tier1:$1:$2:$3"; }' > "$TMP/dot/shell-common/lib/gh_discussion.sh"
+sed 's/tier1/tier0/' "$TMP/dot/shell-common/lib/gh_discussion.sh" > "$TMP/sc/lib/gh_discussion.sh"
 chk "tier 1 (DOTFILES_ROOT)" "$(_DR="$TMP/dot" run github.com acme widget 7)" "tier1:acme:widget:7"
 chk "tier 0 (SHELL_COMMON) beats tier 1" "$(_SC="$TMP/sc" _DR="$TMP/dot" run github.com acme widget 7)" "tier0:acme:widget:7"
 chk "tier 0 without the helper falls to tier 1" "$(_SC="$TMP/home" _DR="$TMP/dot" run github.com acme widget 7)" "tier1:acme:widget:7"
@@ -75,20 +75,20 @@ chk "tier 0 without the helper falls to tier 1" "$(_SC="$TMP/home" _DR="$TMP/dot
 mkdir -p "$TMP/bare"; cp "$TARGET" "$TMP/bare/"
 (cd "$ROOT" && SCRIPT="$TMP/bare/discussion-fetch.sh" run github.com acme widget 7 >/dev/null); rc=$?
 chk "no vendor -> exit 1, no gh call" "$rc|$(log)" "1|"
-case $(cat "$TMP/err") in *"$TMP/bare/vendor/shell-common/functions/gh_discussion.sh"*) got=named ;; *) got=unnamed ;; esac
+case $(cat "$TMP/err") in *"$TMP/bare/vendor/shell-common/lib/gh_discussion.sh"*) got=named ;; *) got=unnamed ;; esac
 chk "no vendor names the path tried" "$got" named
 
 # 7. A directory at the tier-1 path is not the helper: it falls through to the
 #    vendored tier instead of being sourced.
-mkdir -p "$TMP/dirtrap/shell-common/functions/gh_discussion.sh"
+mkdir -p "$TMP/dirtrap/shell-common/lib/gh_discussion.sh"
 _DR="$TMP/dirtrap" run github.com acme widget 7 >/dev/null; rc=$?
 chk "directory at tier 1 falls through to vendor" "$rc|$(log)" "0|fetch host=github.com,"
 
 # 8. An unreadable helper is skipped the same way (root ignores mode bits).
-mkdir -p "$TMP/unread/shell-common/functions"
-echo '_gh_discussion_fetch() { echo poisoned; }' > "$TMP/unread/shell-common/functions/gh_discussion.sh"
-chmod 000 "$TMP/unread/shell-common/functions/gh_discussion.sh"
-if [ -r "$TMP/unread/shell-common/functions/gh_discussion.sh" ]; then
+mkdir -p "$TMP/unread/shell-common/lib"
+echo '_gh_discussion_fetch() { echo poisoned; }' > "$TMP/unread/shell-common/lib/gh_discussion.sh"
+chmod 000 "$TMP/unread/shell-common/lib/gh_discussion.sh"
+if [ -r "$TMP/unread/shell-common/lib/gh_discussion.sh" ]; then
     echo "skip  unreadable helper (running as root)"
 else
     got=$(_DR="$TMP/unread" run github.com acme widget 7)
@@ -97,7 +97,7 @@ fi
 
 # 9. A helper that defines nothing fails the function proof, even with an
 #    inherited exported function of the same name standing by.
-: > "$TMP/dot/shell-common/functions/gh_discussion.sh"
+: > "$TMP/dot/shell-common/lib/gh_discussion.sh"
 _gh_discussion_fetch() { echo inherited; }
 export -f _gh_discussion_fetch
 _DR="$TMP/dot" run github.com acme widget 7 >/dev/null; rc=$?

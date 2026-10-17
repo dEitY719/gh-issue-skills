@@ -33,13 +33,13 @@ trap 'rm -rf "$TMP"' EXIT
 # $TMP/calls records the call order so "best-effort" can be checked as
 # behaviour rather than taken on faith.
 FAKE="$TMP/plugin"
-mkdir -p "$FAKE/lib/vendor/shell-common/functions"
-cat > "$FAKE/lib/vendor/shell-common/functions/gh_discussion.sh" <<'STUB'
+mkdir -p "$FAKE/lib/vendor/shell-common/lib"
+cat > "$FAKE/lib/vendor/shell-common/lib/gh_discussion.sh" <<'STUB'
 _gh_discussion_comment() { echo "comment $1" >>"$CALLS"; return "${RC_COMMENT:-0}"; }
 _gh_discussion_close()   { echo "close $1 $2" >>"$CALLS"; return "${RC_CLOSE:-0}"; }
 _gh_discussion_lock()    { echo "lock $1" >>"$CALLS"; return "${RC_LOCK:-0}"; }
 STUB
-cat > "$FAKE/lib/vendor/shell-common/functions/gh_project_status.sh" <<'STUB'
+cat > "$FAKE/lib/vendor/shell-common/lib/gh_project_status.sh" <<'STUB'
 _gh_project_status_sync() { echo "board $*" >>"$CALLS"; return "${RC_BOARD:-0}"; }
 STUB
 
@@ -136,14 +136,14 @@ chk "unset TARGET_REPO exits 2" "$?" "2"
 #    refused rather than sourced. The decoy is exactly what a repo under review
 #    could ship. POSIX sh, the shape every non-bash/zsh harness runs.
 DECOY="$TMP/decoy"
-mkdir -p "$DECOY/lib/vendor/shell-common/functions"
-cat > "$DECOY/lib/vendor/shell-common/functions/gh_discussion.sh" <<'DECOYSTUB'
+mkdir -p "$DECOY/lib/vendor/shell-common/lib"
+cat > "$DECOY/lib/vendor/shell-common/lib/gh_discussion.sh" <<'DECOYSTUB'
 _gh_discussion_comment() { echo poisoned >&2; return 0; }
 _gh_discussion_close()   { return 0; }
 _gh_discussion_lock()    { return 0; }
 DECOYSTUB
-cp "$DECOY/lib/vendor/shell-common/functions/gh_discussion.sh" \
-   "$DECOY/lib/vendor/shell-common/functions/gh_project_status.sh"
+cp "$DECOY/lib/vendor/shell-common/lib/gh_discussion.sh" \
+   "$DECOY/lib/vendor/shell-common/lib/gh_project_status.sh"
 out=$( cd "$DECOY" && env -u CLAUDE_PLUGIN_ROOT -u PLUGIN_ROOT -u SHELL_COMMON \
        DOTFILES_ROOT=/nonexistent-dotfiles TARGET_REPO=acme/widget \
        sh "$TARGET" D_kwDO 42 2>&1; printf '|%s' "$?" )
@@ -157,11 +157,11 @@ chk "cwd lib/vendor is never sourced (no tier 4)" "$got" refused
 # 8. An existing-but-unreadable helper must stop too: -f alone passes it and the
 #    source then fails silently. Root ignores the mode bits, so skip as root.
 UNREADABLE="$TMP/unreadable"
-mkdir -p "$UNREADABLE/lib/vendor/shell-common/functions"
-printf '#\n' > "$UNREADABLE/lib/vendor/shell-common/functions/gh_discussion.sh"
-printf '#\n' > "$UNREADABLE/lib/vendor/shell-common/functions/gh_project_status.sh"
-chmod 000 "$UNREADABLE/lib/vendor/shell-common/functions/"*.sh
-if [ -r "$UNREADABLE/lib/vendor/shell-common/functions/gh_discussion.sh" ]; then
+mkdir -p "$UNREADABLE/lib/vendor/shell-common/lib"
+printf '#\n' > "$UNREADABLE/lib/vendor/shell-common/lib/gh_discussion.sh"
+printf '#\n' > "$UNREADABLE/lib/vendor/shell-common/lib/gh_project_status.sh"
+chmod 000 "$UNREADABLE/lib/vendor/shell-common/lib/"*.sh
+if [ -r "$UNREADABLE/lib/vendor/shell-common/lib/gh_discussion.sh" ]; then
     echo "skip  unreadable-helper case (running as root)"
 else
     CLAUDE_PLUGIN_ROOT="$UNREADABLE" bash "$TARGET" D_kwDO 42 >/dev/null 2>&1
@@ -170,8 +170,8 @@ fi
 
 # 9. A directory where the helper should be is the case a bare -r would accept.
 DIRTRAP="$TMP/dirtrap"
-mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/gh_discussion.sh"
-mkdir -p "$DIRTRAP/lib/vendor/shell-common/functions/gh_project_status.sh"
+mkdir -p "$DIRTRAP/lib/vendor/shell-common/lib/gh_discussion.sh"
+mkdir -p "$DIRTRAP/lib/vendor/shell-common/lib/gh_project_status.sh"
 CLAUDE_PLUGIN_ROOT="$DIRTRAP" bash "$TARGET" D_kwDO 42 >/dev/null 2>&1
 chk "a directory at the helper path is refused" "$?" "1"
 
