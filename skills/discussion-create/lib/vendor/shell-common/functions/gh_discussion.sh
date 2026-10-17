@@ -1,9 +1,11 @@
 #!/bin/sh
 # VENDORED — do not edit here.
 # SSOT: dEitY719/dotfiles shell-common/functions/gh_discussion.sh
-# Synced 2026-10-05T02:45Z by dEitY719/harness-skills scripts/sync-shell-common-vendor.sh — re-run that script to update.
+# Synced 2026-10-17T01:33Z by dEitY719/harness-skills scripts/sync-shell-common-vendor.sh — re-run that script to update.
 # shellcheck shell=bash
 # shell-common/functions/gh_discussion.sh
+# No interactive guard: pure function library, sourced by the gh discussion
+# skills from non-interactive shells.
 # GraphQL wrappers for the GitHub Discussions write API. The REST endpoints
 # for Discussions are read-only — `createDiscussion` and friends only exist
 # in GraphQL — so this helper centralises the mutation + the lookup chain
