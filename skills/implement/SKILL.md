@@ -74,8 +74,8 @@ Skip 3.1b / 3.3 / 3.3b / 3.4 / 3.5 via their `GH_ISSUE_SKIP_*` env vars (3.1b is
 ## Step 5: Implement + Test
 
 Follow `references/implementation-flow.md` → "Direct-mode flow": common steps (fetch,
-intent, scan, `$TEST_CMD`, pre-edit baseline), then branch on superpowers detection
-**and** test-runner presence — detected + runner → **TDD path**
+intent from body + all comments, latest wins on conflict, scan, `$TEST_CMD`, baseline),
+then branch: superpowers detected **and** a test runner → **TDD path**
 (`Skill(superpowers:test-driven-development)`, no attempt cap, stops on judgment);
 anything else → **fallback path** (edit, test if a runner exists, failure loop max 3×).
 Neither fixes pre-existing failures. After tests pass (or skip — no runner), emit
