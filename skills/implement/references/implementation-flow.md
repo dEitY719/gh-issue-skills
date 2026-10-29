@@ -37,7 +37,10 @@ Store the chosen command as `$TEST_CMD`.
 
 1. Fetch issue (same `GH_HOST="$TARGET_HOST" gh issue view --repo "$TARGET_REPO"
    --json ...` as gh-issue:read).
-2. Extract change intent from body + comments.
+2. Extract change intent from the body **and every comment**, read in
+   chronological order. Where a comment conflicts with the body (or an
+   earlier comment), the **latest comment wins** — comments are how the
+   requirement gets amended after filing.
 3. Scan repo structure: read AGENTS.md, CLAUDE.md, top-level README if present.
 4. Detect `$TEST_CMD` (above), then capture the **baseline**: run
    `$TEST_CMD` once with no edits and record the failing set as
