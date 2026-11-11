@@ -22,7 +22,7 @@ project-level):
 OpenCode installs the package and runs `.opencode/plugins/gh-issue.js`, which
 appends this repo's `skills/` directory to `config.skills.paths`. No symlinks
 and no further config edits are needed — the native `skill` tool discovers all
-six on the next session.
+seven on the next session.
 
 ## Verify
 
@@ -37,7 +37,7 @@ in the installed copy.
 ## Notes
 
 - The plugin injects **no** per-session bootstrap context. These skills are
-  invoked explicitly against a named issue or discussion; four of the six mutate
+  invoked explicitly against a named issue or discussion; five of the seven mutate
   a live GitHub repo, so keeping them out of the preamble is deliberate.
 - `implement`'s TDD path calls `superpowers:test-driven-development` through
   Claude Code's `Skill()` tool, which OpenCode has no equivalent for. The skill

@@ -18,8 +18,9 @@ before a branch exists, and the one skill that turns a card into edits:
 | `proceed` | whatever the protocol says | Executes the 8-section protocol a *directive* issue embeds, unattended, with a safety gate per step. |
 | `discussion-create` | a GitHub Discussion | Saves a pre-decision chat as an RFC-shaped Discussion. Refuses a decided to-do. |
 | `discussion-convert` | an Issue + a locked Discussion | Promotes a decided `Ideas` Discussion into a backlinked Issue, then locks and closes it. |
+| `review-all` | one issue comment per reviewer CLI | Fans every reviewer CLI out over one OPEN issue in parallel, before it is built, via the dotfiles `gh_issue_review` engine (dEitY719/dotfiles#2381). |
 
-Four of the six write to a live GitHub repo. That is why every safety contract
+Five of the seven write to a live GitHub repo. That is why every safety contract
 below is a hard rule rather than a preference.
 
 The skills were extracted from `dEitY719/dotfiles`
@@ -160,7 +161,7 @@ only when no shell ships, and then carries a drift test that greps the
   `references/`. `implement` is exactly at the limit — anything added there has
   to come out of somewhere else.
 - **Description budget.** CI sums every skill description and fails past 5,440
-  characters — Codex's context budget. The current total is 1,373. Keep new
+  characters — Codex's context budget. The current total is 1,629. Keep new
   descriptions tight anyway.
 
 ## Safety contracts
@@ -195,11 +196,17 @@ These are acceptance criteria carried over from dotfiles, not advice:
   a force flag was proposed and rejected.
 - **`discussion-convert` is idempotent.** An already-converted Discussion is
   recognised and not duplicated, and the Issue it creates carries a back-link.
+- **`review-all` never runs a reviewer CLI in the user's working tree** and
+  writes nothing but the lane comments. On an internal PC with a github.com
+  target, HEAD never enters the review tree (the remote's default branch is used)
+  and an unreadable setup-mode reader counts as internal. A failed lane is a
+  `skip`, never a failed run.
 
 ## Harness portability
 
-These six are `gh` CLI calls and file writes, so they port cleanly with one
-exception: `implement` calls `superpowers:test-driven-development` through
+These seven are `gh` CLI calls and file writes, so they port cleanly with one
+exception (`review-all` also needs the reviewer CLIs themselves on `PATH`; a
+missing one is a skipped lane): `implement` calls `superpowers:test-driven-development` through
 Claude Code's `Skill()` tool on its TDD path. That path is gated on the plugin
 resolving *and* a test runner being detected; when either is missing the skill
 takes its built-in fallback path, which is a complete flow (baseline, edits,

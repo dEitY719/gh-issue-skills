@@ -1,0 +1,185 @@
+#!/bin/sh
+# lib/resolve-target.sh — bind one skill run's GitHub target (repo + host).
+#
+# SSOT for Step 1 "Detect Repo Context" across all six skills in this plugin.
+# SOURCE it, never execute it — the exports are the whole product. No cwd
+# fallback (dEitY719/harness-skills#24): $PWD is caller-controlled — a PR
+# checkout under review — and a defaulted splice here would source THAT
+# CHECKOUT'S OWN copy of this file before its fail-closed logic (#22) ever
+# runs. Set GH_RESOLVE_TARGET_REMOTE first, in the same shell — not a
+# positional arg to `.` (see below) — then source:
+#
+#   _RT="" # no cwd fallback (dEitY719/harness-skills#24)
+#   [ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RT="$CLAUDE_PLUGIN_ROOT/skills/<name>/lib/resolve-target.sh" # tier 1
+#   if [ ! -f "$_RT" ] || [ ! -r "$_RT" ]; then
+#       printf '[FAIL] resolve-target.sh not found — export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' >&2
+#       return 1 2>/dev/null || exit 1
+#   fi
+#   # shellcheck disable=SC1091
+#   GH_RESOLVE_TARGET_ROOT="${_RT%/lib/resolve-target.sh}" GH_RESOLVE_TARGET_REMOTE="${REMOTE:-origin}" . "$_RT" || exit 1
+#
+# Deliberately not a positional arg to `.` — that is a bash/zsh extension
+# POSIX does not require, and dash silently drops it (confirmed: `. file
+# ghes` under dash resolves as if `ghes` were never passed, defaulting to
+# `origin` — dEitY719/gh-issue-skills#28). An env var assigned immediately
+# before the `.` call works identically everywhere and is exactly as fresh
+# per call.
+#
+# Reads   GH_RESOLVE_TARGET_REMOTE (remote name, default `origin`),
+#         GH_RESOLVE_TARGET_ROOT (absolute skill dir; dash has no self-path,
+#         dEitY719/gh-issue-skills#49 — both consumed on read),
+#         DOTFILES_ROOT, CLAUDE_PLUGIN_ROOT.
+# Exports TARGET_REPO, TARGET_HOST, GH_HOST, SHELL_COMMON (whichever
+#         shell-common tree actually resolved), and PLUGIN_ROOT (the root of
+#         the bundle this copy lives in — the skill directory for a skill's
+#         copy — for addressing lib/ helpers without a $PWD fallback).
+#
+# Why GH_HOST and not just `--repo` (dEitY719/dotfiles#1403): `gh api graphql` — the Discussion
+# read and write path — accepts no `--repo`, so an inherited GH_HOST is its
+# only host selector. Without it `gh` follows its own `gh repo set-default`
+# rather than git's remote, and on a dual-host login (github.com + GHES) the
+# mutation succeeds against the wrong server with no error at all.
+#
+# Self-check: lib/resolve-target.selfcheck.sh
+
+# Path of this file, used to locate the vendored shell-common when
+# CLAUDE_PLUGIN_ROOT is unset — the normal case on the five non-Claude
+# harnesses this plugin supports. This branch MUST stay at file top level:
+# zsh rebinds $0 to the sourced file only for this file's own statements, and
+# inside a function $0 is the function's own name. Same shape as the branch in
+# lib/vendor/shell-common/lib/gh_host.sh.
+if [ -n "${ZSH_VERSION-}" ]; then
+    _rt_self="$0"
+elif [ -n "${BASH_VERSION-}" ]; then
+    # shellcheck disable=SC3028  # bash-only var, gated by $BASH_VERSION above
+    _rt_self="${BASH_SOURCE[0]-}"
+else
+    _rt_self=""
+fi
+
+_rt_resolve() {
+    _rt_remote="${GH_RESOLVE_TARGET_REMOTE:-origin}"
+    # Consume it immediately: `.` is a POSIX special builtin, so a prefix
+    # assignment on the sourcing line (`VAR=val . file`) persists in the
+    # *calling* shell under dash after this returns — unlike a normal
+    # command, where the same prefix would be scoped to that command alone
+    # (PR dEitY719/gh-issue-skills#29 review, agy FOLLOW-UP). Left unset, a
+    # stale value would silently win over `origin` on the next unrelated
+    # sourcing in the same shell.
+    unset GH_RESOLVE_TARGET_REMOTE
+    # Same shape, same leak, same cure (dEitY719/gh-issue-skills#49).
+    _rt_root="${GH_RESOLVE_TARGET_ROOT:-}"
+    unset GH_RESOLVE_TARGET_ROOT
+
+    if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
+        echo "Not in a git repo. cd into one first." >&2
+        return 1
+    fi
+
+    # Never fall back to `origin` on a missing remote — that masks a typo and
+    # writes to the wrong repo.
+    if ! _rt_url=$(git remote get-url "$_rt_remote" 2>/dev/null); then
+        echo "Error: remote '$_rt_remote' not found. Available remotes:" >&2
+        git remote -v >&2
+        return 1
+    fi
+
+    # Bundle root, so a skill can address its own lib/ helpers without
+    # composing a path from $PWD — which the repo under review controls
+    # (dEitY719/harness-skills#22). Every skill ships its own copy of this
+    # file under skills/<name>/lib/ (dEitY719/gh-issue-skills#47), so the
+    # skill directory is the answer — it is what a one-skill install (Hermes
+    # tap, `npx skills add`) still has. Priority: the caller's explicit
+    # GH_RESOLVE_TARGET_ROOT (the repo-resolution block passes it, because
+    # dash has no self-path — dEitY719/gh-issue-skills#49), then this file's
+    # own location, then the harness's CLAUDE_PLUGIN_ROOT. Empty when none
+    # resolves, and every consumer — the vendored tier below included — must
+    # then fail loudly rather than compose a path from $PWD. The name stays
+    # PLUGIN_ROOT for its consumers.
+    PLUGIN_ROOT="$_rt_root"
+    # Refuse, never ignore, a bad explicit root: a relative one resolves
+    # against the caller-controlled $PWD (dEitY719/harness-skills#22), and one
+    # that does not hold this helper is stale or wrong (PR #50 review, agy
+    # FOLLOW-UP) — either would silently outrank the self path.
+    case "$PLUGIN_ROOT" in
+        "") ;;
+        /*) [ -f "$PLUGIN_ROOT/lib/resolve-target.sh" ] || {
+                echo "Error: GH_RESOLVE_TARGET_ROOT '$PLUGIN_ROOT' holds no lib/resolve-target.sh." >&2
+                PLUGIN_ROOT=""
+                return 1
+            } ;;
+        *)
+            echo "Error: GH_RESOLVE_TARGET_ROOT must be absolute, got '$PLUGIN_ROOT' (dEitY719/harness-skills#22)." >&2
+            PLUGIN_ROOT=""
+            return 1
+            ;;
+    esac
+    if [ -z "$PLUGIN_ROOT" ]; then
+        case "$_rt_self" in
+            */lib/resolve-target.sh) PLUGIN_ROOT="${_rt_self%/lib/resolve-target.sh}" ;;
+        esac
+    fi
+    [ -n "$PLUGIN_ROOT" ] || PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-}"
+    export PLUGIN_ROOT
+
+    _rt_sc="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
+    if [ ! -f "$_rt_sc/lib/gh_host.sh" ]; then
+        # Vendored tier, under the root proven above — never `.`. There is no
+        # tier 4 (dEitY719/harness-skills#22): $PWD is the repo under review, and a PR
+        # shipping its own lib/vendor/shell-common would get it sourced here.
+        # An unresolved root stops instead.
+        if [ -z "$PLUGIN_ROOT" ]; then
+            echo "Error: cannot locate this plugin's root — CLAUDE_PLUGIN_ROOT is unset and this file's own path is unknown. Export CLAUDE_PLUGIN_ROOT=<plugin dir>; refusing to resolve lib/vendor/shell-common from the current directory (dEitY719/harness-skills#22)." >&2
+            return 1
+        fi
+        _rt_sc="$PLUGIN_ROOT/lib/vendor/shell-common"
+    fi
+    # -f and -r both: -r alone passes a directory, -f alone passes an
+    # unreadable file whose source then fails silently.
+    if [ ! -f "$_rt_sc/lib/gh_host.sh" ] || [ ! -r "$_rt_sc/lib/gh_host.sh" ]; then
+        echo "Error: gh_host.sh not found under $_rt_sc/lib/." >&2
+        return 1
+    fi
+    # Clear both names before the load so the proof below is about THIS load:
+    # `command -v` answers "is this name runnable", so a PATH executable or a
+    # function inherited from the caller would otherwise certify a tree that
+    # defined nothing (dEitY719/harness-skills#36), and a live alias outranks
+    # the function the load just defined in sh/dash/zsh.
+    unset -f _gh_resolve_host 2>/dev/null || :
+    unalias _gh_resolve_host 2>/dev/null || :
+    # Export whichever tree resolved, so helpers sourced later by the calling
+    # skill (gh_project_status.sh, gh_discussion.sh) read the same one — and
+    # export it BEFORE the load, not after: gh_host.sh resolves dotfiles_root.sh
+    # through ${SHELL_COMMON:-$HOME/dotfiles/shell-common} while it is sourcing,
+    # so a later export is too late for its only consumer and the #1454 guard
+    # is silently skipped on a plugin-only install (dEitY719/harness-skills#37).
+    export SHELL_COMMON="$_rt_sc"
+    # shellcheck disable=SC1090,SC1091  # path is resolved at runtime
+    . "$_rt_sc/lib/gh_host.sh"
+    # Compare command -v's OUTPUT to the bare name: POSIX prints the bare name
+    # for a function or builtin, a pathname for an external command, and an
+    # `alias ...` string for an alias, so one `=` separates them without
+    # `type -t` / `declare -F`, which dash does not have. The failure arm
+    # unsets SHELL_COMMON, or a tree that failed the proof would outrank every
+    # later ${SHELL_COMMON:-...} default — gh-resolve-skills#8's poisoning.
+    if [ "$(command -v _gh_resolve_host 2>/dev/null)" != _gh_resolve_host ]; then
+        unset SHELL_COMMON
+        echo "Error: $_rt_sc/lib/gh_host.sh did not define _gh_resolve_host." >&2
+        return 1
+    fi
+
+    # Repo and host both come from that one URL, so they can never name
+    # different servers.
+    TARGET_REPO=$(_gh_parse_owner_repo_url "$_rt_url") || return 1
+    TARGET_HOST=$(_gh_host_from_url "$_rt_url") || TARGET_HOST=$(_gh_resolve_host)
+    if [ -z "$TARGET_HOST" ]; then
+        echo "Error: no host resolved for $_rt_url — refusing to run with an empty GH_HOST (dEitY719/dotfiles#1403)." >&2
+        return 1
+    fi
+
+    GH_HOST="$TARGET_HOST"
+    export TARGET_REPO TARGET_HOST GH_HOST
+}
+
+# The call's status becomes the sourcing skill's status.
+_rt_resolve

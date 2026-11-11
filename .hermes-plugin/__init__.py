@@ -1,11 +1,11 @@
 """Hermes Agent registration for the `gh-issue` skills plugin.
 
-Registers the six issue/discussion lifecycle skills with Hermes' native skill
+Registers the seven issue/discussion lifecycle skills with Hermes' native skill
 loader so `skill_view("gh-issue:<name>")` can load them on demand.
 
 Unlike superpowers, this plugin injects no session bootstrap context. These
 skills are always invoked explicitly against a named issue or discussion, and
-four of the six mutate a live GitHub repo -- paying for a bootstrap preamble on
+five of the seven mutate a live GitHub repo -- paying for a bootstrap preamble on
 every first turn would buy nothing and nudge a model toward writes it was not
 asked for.
 """

@@ -1,10 +1,11 @@
 # gh-issue-skills
 
-Six skills for the GitHub **issue and discussion lifecycle** — everything that
+Seven skills for the GitHub **issue and discussion lifecycle** — everything that
 happens to a card before a branch exists, plus the one skill that turns a card
 into file edits. Read an issue verbatim, file the current chat as a classified
-issue, implement it, execute the protocol a directive issue embeds, and author
-or promote an RFC-shaped Discussion. Packaged as a single plugin named
+issue, have every reviewer CLI review it before it is built, implement it,
+execute the protocol a directive issue embeds, and author or promote an
+RFC-shaped Discussion. Packaged as a single plugin named
 `gh-issue`, installable on six coding-agent harnesses.
 
 Its siblings own the rest of the pipeline:
@@ -25,6 +26,7 @@ no shared assets — it links out for the
 | `proceed` | `/gh-issue:proceed <N> [remote]` | Executes the 8-section protocol a *directive* issue embeds, unattended — strict schema validation, a safety gate per write step. Not a code implementer. |
 | `discussion-create` | `/gh-issue:discussion-create [category]` | Saves a pre-decision chat as an RFC-shaped Discussion (default `Ideas`). Refuses a decided to-do and routes it to `issue-create`. |
 | `discussion-convert` | `/gh-issue:discussion-convert <N>` | Promotes a decided `Ideas` Discussion into a backlinked Issue, then locks and closes it. Idempotent. |
+| `review-all` | `/gh-issue:review-all <N\|#N\|issue-URL> [remote] [--lanes L]` | Runs every reviewer CLI (claude, codex, opencode, agy, hermes) on one OPEN issue in parallel, in a throwaway tree, and posts one comment each. A failed lane is a skip. Never edits the issue. |
 
 `issue-create` and `discussion-create` are a pair split by *decidedness*: a converged
 to-do becomes an Issue, an open question becomes a Discussion.
@@ -54,6 +56,7 @@ Each page is generated from a Markdown source under
 | `implement` | `gh` with write access, plus a **clean working tree on a feature branch** — it refuses to run on the default branch and never creates a worktree for you. A test runner is detected if present; without one the test steps are skipped, not faked. |
 | `proceed` | `gh` with write access, same branch preconditions as `implement`, plus whatever the individual protocol's steps require. |
 | `discussion-create`, `discussion-convert` | `gh` with the GraphQL discussion scopes. `discussion-convert` also needs permission to lock and close. |
+| `review-all` | `gh` with permission to comment on issues, `git`, `jq`, and at least one reviewer CLI on `PATH` (a missing one is a skipped lane). The engine is the dotfiles `gh_issue_review` (dEitY719/dotfiles#2381): `$DOTFILES_ROOT/shell-common` when it has it, else the vendored copy. |
 
 Every skill carries `GH_HOST` **and** `--repo` on every `gh` call, both resolved
 from the same remote URL. `--repo` alone names no server: on a dual-host login
@@ -113,6 +116,7 @@ symlinks or code duplication:
 | `proceed` | full | full | full | full | full | full |
 | `discussion-create` | full | full, confirm in chat | full | full on Gemini, confirm in chat on Antigravity | full, confirm in chat | full, confirm in chat |
 | `discussion-convert` | full | full | full | full | full | full |
+| `review-all` | full | full | full | full | full | full |
 
 *fallback path* — `implement` picks between two complete routes. The TDD path
 needs `superpowers:test-driven-development` to resolve **and** a test runner to be
@@ -148,7 +152,7 @@ Manifests live at the repo root and all point at one flat `skills/` directory:
 
 ```
 .
-├── skills/{read,issue-create,implement,proceed,discussion-create,discussion-convert}/
+├── skills/{read,issue-create,implement,proceed,discussion-create,discussion-convert,review-all}/
 │   ├── SKILL.md
 │   └── references/
 ├── .claude-plugin/{marketplace,plugin}.json     Claude Code
