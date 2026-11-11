@@ -21,7 +21,7 @@ issue comment each. Nothing else is written.
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--lanes L` | `claude,codex,opencode,agy,hermes` | Comma list of reviewer CLIs to run. Unknown or repeated names → exit 2. |
+| `--lanes L` | `claude,codex,opencode,agy,hermes` | Comma list of reviewer CLIs to run. Unknown or repeated names → exit 2. The issue text is untrusted input, and only codex and claude run sandboxed (read-only, no Bash/Edit). For an issue written by someone you do not trust, use `--lanes codex,claude`. |
 | `--force` | — | Refused (exit 2). The engine skips a lane this `gh` login already reviewed for the same material and has no bypass. To re-review, add a comment to the issue (the hash covers title, body and human comments) or delete the old review comment. |
 
 ## Env Vars

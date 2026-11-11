@@ -53,21 +53,22 @@ no comment, so the lane turns that into exit 4.
 ## Code tree (`lib/code-tree.sh`)
 
 Reviewer CLIs run in a throwaway tree so they can check the issue's claims
-against code. An agentic CLI (codex, opencode) that edits files mid-review
-then edits a copy, not the user's work.
+against code. The tree is a separate repo with one commit (`git init` +
+`git fetch --depth 1 file://<repo> <sha>`), not a worktree. An agentic CLI
+(codex, opencode) that edits files or runs git mid-review then touches a copy.
+It cannot reach the user's work, branches or object store.
 
 | Situation | Tree | Why |
 |---|---|---|
-| a local remote names the repo | `git worktree add --detach <tmp> HEAD` | local, no network, seconds; the user merges fast, so HEAD is current. Uncommitted changes are not reviewed. |
-| internal PC (or unreadable reader) + github.com target | `git fetch <remote> <default>` then a worktree at `<remote>/<default>` | internal-only commits must never enter the tree a github.com review reads |
+| a local remote names the repo | depth-1 snapshot of HEAD | local, no network, seconds; the user merges fast, so HEAD is current. Uncommitted changes are not reviewed. |
+| internal PC (or unreadable reader) + github.com target | `git fetch <remote> <default>`, then a depth-1 snapshot of `<remote>/<default>` | internal-only commits must never enter the tree a github.com review reads, not even as unreachable objects |
 | no local remote names the repo (URL input) | `gh repo clone <host>/<owner>/<repo> <tmp> -- --depth 1` | nothing local to reuse |
 
 The internal + github.com decision is `_gh_push_github_com_forbidden` from
 `lib/gh_host.sh`, which counts a missing setup-mode reader as internal. If
 `gh_host.sh` itself cannot load, a github.com target counts the same way
-(fail closed). The tree is removed on every exit path: a worktree with
-`git worktree remove --force`, a clone only when its path carries this
-script's `mktemp` prefix.
+(fail closed). The tree is removed on every exit path, and only when its
+path carries this script's `mktemp` prefix.
 
 Tree isolation is not the whole leak defense. A CLI can still read absolute
 paths outside the tree, user config or memory. That is why the engine's
@@ -83,5 +84,6 @@ issue-review #70: claude:ok codex:skip(already reviewed) opencode:skip(Required 
 ```
 
 Skip reasons are cut to 80 characters. The engine writes the review basis
-into each comment from the tree's own HEAD. In a detached worktree that
-reads `HEAD@<sha>`; the `base:` line above names the branch it came from.
+(`리뷰 기준: <branch>@<sha>`) into each comment from the tree's own HEAD.
+The snapshot's branch is named after its source, so the comment and the
+`base:` line agree.

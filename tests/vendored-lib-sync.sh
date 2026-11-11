@@ -35,9 +35,10 @@ for s in skills/*/; do
     s=${s%/}
     refs=$( { find "$s" -name '*.md' -exec cat {} +
               find "$s" -name '*.sh' -exec grep -hv '^[[:space:]]*#' {} +; } |
-        # dotfiles' tools/custom/lib/ is never vendored; ai_cli_run.sh sources
-        # one file from it only on an optional path, behind an [ -f ] (#70).
-        sed 's|tools/custom/lib/[a-z_]*\.sh||g' |
+        # The one dotfiles tools/custom/lib/ file ai_cli_run.sh names is sourced
+        # only on its optional --user path, behind an [ -f ] (#70). Exempt that
+        # exact path, so any other unshipped reference still fails.
+        sed 's|tools/custom/lib/claude_accounts_auth\.sh||g' |
         grep -oE '(^|[^a-z_-])(lib/[a-z_-]+\.sh|functions/[a-z_]+\.sh)' |
         sed -E 's/^[^lf]*//' | sort -u) || :
     for r in $refs; do

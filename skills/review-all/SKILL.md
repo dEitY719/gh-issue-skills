@@ -56,7 +56,7 @@ What it does, in order (detail: `references/flow.md`):
    (dEitY719/dotfiles#1403); an issue URL no local remote names uses the
    URL's own host + owner/repo.
 3. Pre-flight: `gh auth status` on that host, issue exists and is OPEN → else exit 1.
-4. `lib/code-tree.sh` builds a throwaway tree — never the user's tree.
+4. `lib/code-tree.sh` builds a throwaway one-commit repo — never the user's tree or a worktree of it.
    Internal PC + github.com target → the remote's default branch, not HEAD.
 5. One `ai_fanout_run` call runs every lane at once (540s cap each) through
    `lib/review-lane.sh` → the dotfiles engine `functions/gh_issue_review.sh`.
@@ -88,6 +88,9 @@ and `leak-guard` all land there. Report formats: `references/flow.md`.
   engine's (marker `<!-- ai-issue-review:<ai>:<hash12> -->`, own login only).
 - Internal PC + github.com: HEAD never enters the tree, and the engine's
   `LEAK_PATTERNS_ERE` guard holds any matching comment (`skip(leak-guard)`).
+- The issue text is untrusted input. Only codex and claude run sandboxed (engine
+  side); agy, opencode and hermes keep `$HOME` access. On a third-party issue,
+  pass `--lanes codex,claude`.
 
 ## Related Skills
 

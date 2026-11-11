@@ -1,6 +1,6 @@
 {
   "name": "gh-issue",
-  "description": "GitHub issue and discussion lifecycle — read, create, implement, run directive protocols, author and promote Discussions",
+  "description": "GitHub issue and discussion lifecycle — read, create, review, implement, run directive protocols, author and promote Discussions",
   "version": "0.2.0",
   "contextFileName": "GEMINI.md"
 }

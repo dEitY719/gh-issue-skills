@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "gh-issue-skills",
-  "description": "GitHub issue and discussion lifecycle skills — read, create, implement, run directive protocols, author and promote Discussions",
+  "description": "GitHub issue and discussion lifecycle skills — read, create, review, implement, run directive protocols, author and promote Discussions",
   "owner": {
     "name": "dEitY719",
     "url": "https://github.com/dEitY719"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "gh-issue",
-      "description": "Drive one GitHub issue or discussion through its whole lifecycle: read it verbatim, save a chat as a classified issue, implement it with a test baseline that never touches pre-existing failures, execute the 8-section protocol a directive issue embeds, and author or promote an RFC-shaped Discussion",
+      "description": "Drive one GitHub issue or discussion through its whole lifecycle: read it verbatim, save a chat as a classified issue, implement it with a test baseline that never touches pre-existing failures, execute the 8-section protocol a directive issue embeds, fan every reviewer CLI out over an issue before it is built, and author or promote an RFC-shaped Discussion",
       "version": "0.2.0",
       "source": "./",
       "homepage": "https://github.com/dEitY719/gh-issue-skills",
