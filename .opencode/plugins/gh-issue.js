@@ -6,7 +6,7 @@
  * Unlike superpowers, this plugin injects no per-session bootstrap context.
  * These skills are always invoked explicitly against a named issue or
  * discussion, so OpenCode's native `skill` tool discovering them is all that is
- * needed. Four of the six mutate a live GitHub repo, which is a further reason
+ * needed. Five of the seven mutate a live GitHub repo, which is a further reason
  * not to keep them in the preamble.
  */
 
