@@ -13,7 +13,7 @@ Do not load all seven.
 | `proceed` | `@./skills/proceed/SKILL.md` | Executing the 8-section protocol a *directive* issue embeds, unattended. Not a code implementer — that is `implement`. |
 | `discussion-create` | `@./skills/discussion-create/SKILL.md` | Saving a pre-decision chat as an RFC-shaped Discussion. Refuses a decided to-do. |
 | `discussion-convert` | `@./skills/discussion-convert/SKILL.md` | Promoting a decided `Ideas` Discussion into a backlinked Issue, then locking and closing it. |
-| `review-all` | `@./skills/review-all/SKILL.md` | Having every reviewer CLI review one OPEN issue in parallel before it is built, one comment each. PRs go to `gh-verify:review-all`. |
+| `issue-review-all` | `@./skills/issue-review-all/SKILL.md` | Having every reviewer CLI review one OPEN issue in parallel before it is built, one comment each. PRs go to `gh-verify:review-all`. |
 
 Each skill's `references/` directory holds the detail it loads on demand.
 `SKILL.md` says which file to read and when. Do not read `references/` up front.

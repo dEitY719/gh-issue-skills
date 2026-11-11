@@ -44,7 +44,7 @@ jobs:
       # per-skill copies of those lib/ files (#47, tests/vendored-lib-sync.sh).
       allow-emoji-paths: |
         lib/vendor/shell-common/functions/gh_issue_review.sh
-        skills/review-all/lib/vendor/shell-common/functions/gh_issue_review.sh
+        skills/issue-review-all/lib/vendor/shell-common/functions/gh_issue_review.sh
         lib/ai-metrics-footer.sh
         skills/issue-create/lib/ai-metrics-footer.sh
         skills/discussion-create/lib/ai-metrics-footer.sh

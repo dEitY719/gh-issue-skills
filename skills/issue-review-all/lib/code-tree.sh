@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/code-tree.sh — the throwaway tree gh-issue:review-all's reviewer CLIs
+# lib/code-tree.sh — the throwaway tree gh-issue:issue-review-all's reviewer CLIs
 # run in (#70). Never the user's working tree, and never a worktree of the
 # user's repo: the tree is a separate repo holding one commit (depth 1), so an
 # agentic CLI that runs git in it cannot reach the user's branches, refs or

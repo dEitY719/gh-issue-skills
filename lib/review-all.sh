@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/review-all.sh — gh-issue:review-all driver (#70): every reviewer CLI
+# lib/review-all.sh — gh-issue:issue-review-all driver (#70): every reviewer CLI
 # reviews one GitHub issue in parallel, one issue comment each.
 #
 #   bash lib/review-all.sh <N|#N|issue-URL> [remote] [--lanes L] [-h]
@@ -35,7 +35,7 @@ done <<EOF
 $parsed
 EOF
 if [ "$help" = 1 ]; then
-    if [ -r "$ROOT/references/help.md" ]; then cat "$ROOT/references/help.md"; else echo "Usage: review-all <N|#N|issue-URL> [remote] [--lanes L] [-h]"; fi
+    if [ -r "$ROOT/references/help.md" ]; then cat "$ROOT/references/help.md"; else echo "Usage: issue-review-all <N|#N|issue-URL> [remote] [--lanes L] [-h]"; fi
     exit 0
 fi
 

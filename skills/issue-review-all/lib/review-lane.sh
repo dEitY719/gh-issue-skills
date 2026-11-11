@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/review-lane.sh — one reviewer lane of gh-issue:review-all (#70).
+# lib/review-lane.sh — one reviewer lane of gh-issue:issue-review-all (#70).
 #
 #   bash lib/review-lane.sh <url-dir> <owner/repo> <host> <workdir> <issue#> <ai>
 #

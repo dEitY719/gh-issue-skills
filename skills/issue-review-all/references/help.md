@@ -1,4 +1,4 @@
-# gh-issue:review-all — Help
+# gh-issue:issue-review-all — Help
 
 Every reviewer CLI reviews one OPEN GitHub issue in parallel and posts one
 issue comment each. Nothing else is written.
@@ -6,8 +6,8 @@ issue comment each. Nothing else is written.
 ## Usage
 
 ```
-/gh-issue:review-all <N|#N|issue-URL> [remote] [--lanes L]
-/gh-issue:review-all -h | --help | help
+/gh-issue:issue-review-all <N|#N|issue-URL> [remote] [--lanes L]
+/gh-issue:issue-review-all -h | --help | help
 ```
 
 ## Arguments
@@ -43,6 +43,6 @@ issue comment each. Nothing else is written.
 
 ## Examples
 
-- `/gh-issue:review-all 70` — all five lanes on `origin`'s issue #70.
-- `/gh-issue:review-all #12 upstream --lanes codex,agy` — two lanes on `upstream`.
-- `/gh-issue:review-all https://ghes.example.com/team/svc/issues/3` — a GHES issue.
+- `/gh-issue:issue-review-all 70` — all five lanes on `origin`'s issue #70.
+- `/gh-issue:issue-review-all #12 upstream --lanes codex,agy` — two lanes on `upstream`.
+- `/gh-issue:issue-review-all https://ghes.example.com/team/svc/issues/3` — a GHES issue.
