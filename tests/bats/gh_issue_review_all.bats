@@ -148,6 +148,8 @@ lane() { # lane <ai>
     [ -z "$(find "$TMPDIR" -maxdepth 1 -name 'gh-issue-review-tree.*')" ]
     [ "$(git -C "$REPO" worktree list | wc -l)" -eq 1 ]
     grep -q '^GH_HOST=github.com issue comment 7 --repo o/r ' "$GH_LOG"
+    # The snapshot keeps the source branch name, so the comment names it.
+    grep -qF '리뷰 기준: `feature@' "$POSTED"
 }
 
 @test "driver: a CLOSED issue is refused with exit 1 before any lane runs" {

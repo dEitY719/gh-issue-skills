@@ -3,7 +3,7 @@
 #
 #   bash lib/code-tree.selfcheck.sh
 #
-# Cases: a matching remote (HEAD worktree), no remote (clone, `gh` stubbed),
+# Cases: a matching remote (HEAD snapshot), no remote (clone, `gh` stubbed),
 # internal + github.com (the remote's default branch, never HEAD), an
 # unreadable setup-mode reader (fail closed = internal), and cleanup of each.
 # No network: the "remote" is a local bare repo.
@@ -78,6 +78,9 @@ chk "external + github.com: KIND" "$1" head
 chk "external + github.com: BASE" "$2" "feature@$INTERNAL"
 chk "external + github.com: tree holds HEAD" "$(cat "$3/f")" internal
 chk "tree is not the user's tree" "$(cd -P "$3" && pwd | grep -c "$TMP/tmp/gh-issue-review-tree.")" 1
+chk "tree is its own repo, not a worktree" "$(cd -P "$3/.git" 2>/dev/null && pwd)" "$(cd -P "$3" && pwd)/.git"
+chk "tree branch named after the source" "$(git -C "$3" rev-parse --abbrev-ref HEAD)" feature
+chk "tree holds one commit" "$(git -C "$3" rev-list --count HEAD)" 1
 cleanup_ok "head" "$3"
 
 # 2. Internal PC + github.com: the remote's default branch, never HEAD.
@@ -86,6 +89,8 @@ set -- $(prepare internal github.com origin)
 chk "internal + github.com: KIND" "$1" default-branch
 chk "internal + github.com: BASE" "$2" "main@$PUBLIC"
 chk "internal + github.com: no internal commit" "$(cat "$3/f")" public
+chk "internal + github.com: internal object unreachable" "$(git -C "$3" cat-file -e "$INTERNAL" 2>/dev/null && echo leaked || echo absent)" absent
+chk "internal + github.com: branch named main" "$(git -C "$3" rev-parse --abbrev-ref HEAD)" main
 cleanup_ok "default-branch" "$3"
 
 # 3. Internal PC + GHES target: HEAD is fine.

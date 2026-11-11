@@ -116,13 +116,15 @@ symlinks or code duplication:
 | `proceed` | full | full | full | full | full | full |
 | `discussion-create` | full | full, confirm in chat | full | full on Gemini, confirm in chat on Antigravity | full, confirm in chat | full, confirm in chat |
 | `discussion-convert` | full | full | full | full | full | full |
-| `review-all` | full | full | full | full | full | full |
+| `review-all` | full, long call | full, long call | full, long call | full, long call | full, long call | full, long call |
 
 *fallback path* — `implement` picks between two complete routes. The TDD path
 needs `superpowers:test-driven-development` to resolve **and** a test runner to be
 detected; otherwise it runs the built-in path (pre-edit baseline, edits, test run,
 bounded 3-attempt failure loop, full report), as harnesses without a `Skill()`
 equivalent always do. Same finish line — the skill never requires the plugin.
+
+*long call* — `review-all` is one shell call of up to ~10 minutes (540s per lane, run in parallel), and it needs the reviewer CLIs on `PATH`. A harness whose shell tool times out sooner kills the run mid-way: lanes that already posted keep their comments, but no report line is printed. Raise that harness's shell timeout or narrow `--lanes`. Unverified on the non-Claude harnesses.
 
 *confirm in chat* — two steps need a real answer: `issue-create`'s clarification guard
 (conversation has not converged) and `discussion-create`'s category selection.
