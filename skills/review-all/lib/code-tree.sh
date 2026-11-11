@@ -34,14 +34,16 @@ PREFIX="gh-issue-review-tree."
 is_github_com() {
     local h
     h=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+    h=${h%%:*} # github.com:443 is still github.com — a port must not skip the leak guard
     case "$h" in github.com | *.github.com) return 0 ;; *) return 1 ;; esac
 }
 
 # forbidden <host> — 0 when HEAD must not be used for this target.
 forbidden() {
     is_github_com "$1" || return 1
-    local gh_host="${SHELL_COMMON:-}/lib/gh_host.sh"
-    if [ -n "${SHELL_COMMON:-}" ] && [ -f "$gh_host" ] && [ -r "$gh_host" ]; then
+    local gh_host=""
+    [ -z "${SHELL_COMMON:-}" ] || gh_host="$SHELL_COMMON/lib/gh_host.sh"
+    if [ -n "$gh_host" ] && [ -f "$gh_host" ] && [ -r "$gh_host" ]; then
         unset -f _gh_push_github_com_forbidden 2>/dev/null || :
         # shellcheck disable=SC1090
         . "$gh_host" >/dev/null 2>&1 || :

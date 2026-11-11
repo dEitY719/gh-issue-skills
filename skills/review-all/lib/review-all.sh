@@ -70,13 +70,15 @@ export SHELL_COMMON="$SC"
 GH_HOST="$TARGET_HOST" gh auth status --hostname "$TARGET_HOST" >/dev/null 2>&1 ||
     { echo "gh is not logged in to $TARGET_HOST (gh auth login --hostname $TARGET_HOST)." >&2; exit 1; }
 state=$(GH_HOST="$TARGET_HOST" gh issue view "$issue" --repo "$TARGET_REPO" --json state --jq .state 2>/dev/null) ||
-    { echo "Issue #$issue not found in $TARGET_REPO on $TARGET_HOST." >&2; exit 1; }
+    { echo "Could not read issue #$issue in $TARGET_REPO on $TARGET_HOST (not found, no access, or network error)." >&2; exit 1; }
 [ "$state" = OPEN ] || { echo "Issue #$issue is $state; only OPEN issues are reviewed." >&2; exit 1; }
 
 # ---- 4. code tree ----
 tree_out=$(bash "$ROOT/lib/code-tree.sh" prepare "$TARGET_HOST" "$TARGET_REPO" "$remote") || exit 1
 TREE=$(printf '%s\n' "$tree_out" | sed -n 's/^TREE=//p')
 BASE=$(printf '%s\n' "$tree_out" | sed -n 's/^BASE=//p')
+# An empty TREE would make the fan-out run the CLIs in the caller's cwd.
+[ -n "$TREE" ] || { echo "code-tree.sh printed no TREE= line." >&2; exit 1; }
 URLS=$(mktemp -d) || { bash "$ROOT/lib/code-tree.sh" cleanup "$TREE"; exit 1; }
 # shellcheck disable=SC2317  # invoked by the EXIT trap
 cleanup() {
@@ -96,9 +98,10 @@ lines=$(ai_fanout_run "$TREE" "${GH_ISSUE_REVIEW_TIMEOUT_SEC:-540}" "$lanes" \
 summary=""
 while IFS= read -r line; do
     [ -n "$line" ] || continue
-    case "$line" in
+    # Match on the lane token only: a skip reason may itself end in ":ok".
+    case "${line%%	*}" in
+    *:skip) summary="$summary ${line%%:*}:skip($(printf '%s' "${line#*	}" | cut -c1-80))" ;;
     *:ok) summary="$summary ${line%%:*}:ok" ;;
-    *:skip*) summary="$summary ${line%%:*}:skip($(printf '%s' "${line#*	}" | cut -c1-80))" ;;
     esac
 done <<EOF
 $lines

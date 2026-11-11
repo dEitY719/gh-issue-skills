@@ -48,6 +48,8 @@ if [ "$rc" -eq 0 ]; then
         exit 4
     fi
     sed -n 's/^\[OK\] .* comment: //p' "$out" | sed -n '1p' >"$urldir/$ai"
+    # No URL means the engine's output changed shape: never report ok blind.
+    [ -s "$urldir/$ai" ] || { echo "posted, but no comment URL in the engine output" >&2; exit 1; }
     exit 0
 fi
 if [ "$rc" -eq 3 ]; then
