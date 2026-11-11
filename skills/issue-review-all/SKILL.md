@@ -1,10 +1,11 @@
 ---
-name: review-all
+name: issue-review-all
 description: >-
   Fan out every reviewer CLI (claude, codex, agy, ...) on one GitHub issue
   in parallel, one issue comment each, before it is built. Use
-  for /gh-issue:review-all, "이슈 다중 리뷰", "구현 전에 이슈 리뷰 돌려". PRs go
-  to gh-verify:review-all; never edits the issue.
+  for /gh-issue:issue-review-all (legacy /gh-issue:review-all),
+  "이슈 다중 리뷰", "구현 전에 이슈 리뷰 돌려". PRs go to
+  gh-verify:review-all; never edits the issue.
 license: MIT
 allowed-tools: Bash, Read
 compatibility:
@@ -17,7 +18,7 @@ metadata:
     non_claude: advisory-only
 ---
 
-# gh-issue:review-all — Multi-harness issue review
+# gh-issue:issue-review-all — Multi-harness issue review
 
 ## Help
 
@@ -39,7 +40,7 @@ does every step itself. Pass the user's arguments through unchanged:
 
 ```bash
 _RA="" # no cwd fallback (dEitY719/harness-skills#24)
-[ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RA="$CLAUDE_PLUGIN_ROOT/skills/review-all/lib/review-all.sh" # tier 1
+[ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RA="$CLAUDE_PLUGIN_ROOT/skills/issue-review-all/lib/review-all.sh" # tier 1
 if [ -z "$_RA" ] || [ ! -f "$_RA" ] || [ ! -r "$_RA" ]; then
     printf '[FAIL] review-all.sh not found under CLAUDE_PLUGIN_ROOT (%s) — export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
         "${CLAUDE_PLUGIN_ROOT:-unset}" >&2

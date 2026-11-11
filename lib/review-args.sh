@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/review-args.sh — argument normalizer for gh-issue:review-all (#70).
+# lib/review-args.sh — argument normalizer for gh-issue:issue-review-all (#70).
 #
 #   bash lib/review-args.sh <N|#N|issue-URL> [remote] [--lanes L] [--force] [-h]
 #
@@ -116,7 +116,7 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 
-[ -n "$issue" ] || die "Usage: review-all <N|#N|issue-URL> [remote] [--lanes L] — run with -h for help."
+[ -n "$issue" ] || die "Usage: issue-review-all <N|#N|issue-URL> [remote] [--lanes L] — run with -h for help."
 
 # Lanes: a subset of the five reviewer CLIs, no repeats.
 case ",$lanes," in *,,*) die "--lanes has an empty entry: '$lanes'" ;; esac

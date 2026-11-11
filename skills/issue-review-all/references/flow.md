@@ -1,4 +1,4 @@
-# gh-issue:review-all — Flow detail
+# gh-issue:issue-review-all — Flow detail
 
 `lib/review-all.sh` is the whole skill; this file explains its choices. Each
 helper's header is its own contract, and each has a self-check:

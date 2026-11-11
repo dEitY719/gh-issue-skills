@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 # tests/bats/gh_issue_review_all.bats
-# gh-issue:review-all (#70) against the shipped lib/review-lane.sh and
+# gh-issue:issue-review-all (#70) against the shipped lib/review-lane.sh and
 # lib/review-all.sh, running the VENDORED dotfiles engine
 # (lib/vendor/shell-common/functions/gh_issue_review.sh, dEitY719/dotfiles#2381)
 # with `gh` and the reviewer CLIs stubbed. No network, no real AI CLI.
