@@ -152,6 +152,16 @@ lane() { # lane <ai>
     grep -qF '리뷰 기준: `feature@' "$POSTED"
 }
 
+@test "installed skill: vendor loads and reviews without dotfiles" {
+    unset DOTFILES_ROOT SHELL_COMMON
+    export CLAUDE_PLUGIN_ROOT="$REPO_ROOT"
+    cd "$REPO"
+    run bash "$REPO_ROOT/skills/issue-review-all/lib/review-all.sh" 7 --lanes codex
+    assert_success
+    assert_line 'issue-review #7: codex:ok'
+    [ -s "$POSTED" ]
+}
+
 @test "driver: a CLOSED issue is refused with exit 1 before any lane runs" {
     write_fixture "Body text" "" CLOSED
     cd "$REPO"

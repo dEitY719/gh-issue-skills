@@ -1,7 +1,7 @@
 #!/bin/sh
 # VENDORED — do not edit here.
 # SSOT: dEitY719/dotfiles shell-common/functions/agy_run.sh
-# Synced 2026-11-11T00:00Z by hand from dEitY719/dotfiles@d8e20ed1 (first copy, dEitY719/gh-issue-skills#70) — re-run dEitY719/harness-skills scripts/sync-shell-common-vendor.sh to update.
+# Synced 2026-11-12T02:40Z by dEitY719/harness-skills scripts/sync-shell-common-vendor.sh — re-run that script to update.
 # shellcheck shell=bash
 case $- in *i*) ;; *) [ -n "${DOTFILES_FORCE_INIT-}" ] || return 0 ;; esac
 # shell-common/functions/agy_run.sh
