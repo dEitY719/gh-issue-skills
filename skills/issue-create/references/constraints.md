@@ -36,3 +36,5 @@
   바꿔 다는 셈이다 — 무인 소비자에게 필요한 건 라벨이 아니라 실행 가능한 선택이다
   (PR dEitY719/dotfiles#1455 리뷰).
 - "should I create it?" 같은 확인 질문 금지.
+
+- 초안의 사실 주장은 항상 TARGET_REPO 기본 브랜치 기준으로 확인한다. 로컬 체크아웃(fork·미러·PR checkout)은 근거가 될 수 없다.

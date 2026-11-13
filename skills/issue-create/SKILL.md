@@ -64,6 +64,8 @@ Use the `references/templates/<prefix>.md` skeleton; title format per
 
 Apply `references/clarification.md` → "미결 게이트 (Step 3.1)". 초안에 미결이 남아 있으면 결정으로 전환하기 전까지 `gh issue create` 를 호출하지 않는다 — 이 저장소의 이슈는 `gh-flow:issue` / `gh-flow:autopilot` / `gh-issue:proceed` 의 무인 실행 입력이라, 미결이 남으면 그 지점에서 체인이 멈추거나 근거 없이 추측해 진행한다 (dEitY719/dotfiles#1446). 확정 결과는 본문 `## 확정 사항 (Decisions)` 에 결정+근거로 남긴다. `--no-ask` 는 묻는 대신 보수적 자율 결정 후 `(자율 판단)` 표기, `DISCUSSION_MODE=1` 은 게이트 전체 스킵 (RFC 는 미결이 본질). 미결이 없으면 no-op — 아무 출력도 내지 않는다.
 
+## Step 3.2: Ground-Truth Check
+Unless `DISCUSSION_MODE=1`, apply `references/ground-truth.md` to the draft before creation; unresolved contradictions block `gh issue create`.
 ## Step 3.5: Compute AI Metrics
 
 Read `references/metrics-baseline.md` and bind `TOKENS`, `HUMAN_H`, `ELAPSED` for Step 4
