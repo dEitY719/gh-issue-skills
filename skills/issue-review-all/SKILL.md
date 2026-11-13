@@ -7,7 +7,7 @@ description: >-
   "이슈 다중 리뷰", "구현 전에 이슈 리뷰 돌려". PRs go to
   gh-verify:review-all; never edits the issue.
 license: MIT
-allowed-tools: Bash, Read
+allowed-tools: Bash, Read, Grep
 compatibility:
   network: required
 metadata:
