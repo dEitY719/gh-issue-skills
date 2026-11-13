@@ -26,10 +26,13 @@ bash "$_RA" <args>
 ```
 
 Flat install (`npx skills add`, a Hermes tap — no plugin root): address the
-script by this skill's own directory, which the harness always knows:
+script by `<skill-dir>`, the absolute directory the harness loaded this
+skill's `SKILL.md` from (never the cwd). The test
+`flat install: the copied skill directory runs with no plugin root` in
+`tests/bats/gh_issue_review_all.bats` proves the driver needs nothing else:
 
 ```bash
-bash "<this skill's directory>/lib/review-all.sh" <args>
+bash "<skill-dir>/lib/review-all.sh" <args>
 ```
 
 The block lives here, not in `SKILL.md`, like every sibling skill's

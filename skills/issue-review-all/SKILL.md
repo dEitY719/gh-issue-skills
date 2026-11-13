@@ -36,12 +36,13 @@ once. The PR-side sibling is `gh-verify:review-all`.
 ## Step 1: Run the driver (one Bash call, timeout 600000)
 
 The skill is one executed script, `lib/review-all.sh`, which self-locates and
-does every step itself. Pass the user's arguments through unchanged. How to
-locate the script (plugin mode, flat install): `references/flow.md` →
-"Invocation". In a flat install it is simply:
+does every step itself. Pass the user's arguments through unchanged.
+`<skill-dir>` is the absolute directory this `SKILL.md` was loaded from (Claude
+Code prints it as the skill's base directory) — never the cwd. Unknown?
+Use the guarded plugin-mode block in `references/flow.md` → "Invocation".
 
 ```bash
-bash "<this skill's directory>/lib/review-all.sh" <args>
+bash "<skill-dir>/lib/review-all.sh" <args>
 ```
 
 What it does, in order (detail: `references/flow.md`):

@@ -162,6 +162,18 @@ lane() { # lane <ai>
     [ -s "$POSTED" ]
 }
 
+@test "flat install: the copied skill directory runs with no plugin root" {
+    # #79: a flat install (npx skills add, Hermes tap) ships only the skill
+    # directory and never sets CLAUDE_PLUGIN_ROOT.
+    unset DOTFILES_ROOT SHELL_COMMON CLAUDE_PLUGIN_ROOT
+    cp -R "$REPO_ROOT/skills/issue-review-all" "$TEST_TEMP_HOME/flat-skill"
+    cd "$REPO"
+    run bash "$TEST_TEMP_HOME/flat-skill/lib/review-all.sh" 7 --ai codex
+    assert_success
+    assert_line 'issue-review #7: codex:ok'
+    [ -s "$POSTED" ]
+}
+
 @test "driver: a CLOSED issue is refused with exit 1 before any lane runs" {
     write_fixture "Body text" "" CLOSED
     cd "$REPO"
