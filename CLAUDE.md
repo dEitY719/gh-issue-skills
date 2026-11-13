@@ -158,7 +158,7 @@ only when no shell ships, and then carries a drift test that greps the
   in `gh-pr-skills` that write cards, not something to renamespace.
 - **Progressive disclosure.** `SKILL.md` stays under 100 lines (CI enforces it)
   and names which `references/` file to read and when. Detail lives in
-  `references/`. `implement` and `issue-review-all` are exactly at the limit —
+  `references/`. `implement` is at the limit —
   anything added there has to come out of somewhere else.
 - **Description budget.** CI sums every skill description and fails past 5,440
   characters — Codex's context budget. The current total is 1,665. Keep new
