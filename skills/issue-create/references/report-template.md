@@ -29,3 +29,11 @@ Next: /gh-issue:discussion-convert 45   # when decision lands
 [FAIL] <stderr first line>
 Next: <recovery step — e.g. `gh auth login --hostname $TARGET_HOST`, fix `.gh-issue-defaults.yml`, enable Discussions in repo settings>
 ```
+
+Ground-truth 검증 경고는 verdict 앞에 출력한다:
+
+```
+[WARN] ground-truth: <path or claim> — 타깃 트리 미검증 (<reason>)
+[WARN] ground-truth: local checkout differs from TARGET_REPO or is a fork / PR checkout
+[WARN] draft-audit: non-target host <host> — 근거 확인
+```
