@@ -2,7 +2,7 @@
 # lib/review-all.sh — gh-issue:issue-review-all driver (#70): every reviewer CLI
 # reviews one GitHub issue in parallel, one issue comment each.
 #
-#   bash lib/review-all.sh <N|#N|issue-URL> [remote] [--lanes L] [-h]
+#   bash lib/review-all.sh <N|#N|issue-URL> [remote] [--ai L] [-h]
 #
 # Executed, never sourced; self-locating ($0), so it needs no CLAUDE_PLUGIN_ROOT
 # and never resolves anything from $PWD (dEitY719/harness-skills#22). Steps:
@@ -35,7 +35,7 @@ done <<EOF
 $parsed
 EOF
 if [ "$help" = 1 ]; then
-    if [ -r "$ROOT/references/help.md" ]; then cat "$ROOT/references/help.md"; else echo "Usage: issue-review-all <N|#N|issue-URL> [remote] [--lanes L] [-h]"; fi
+    if [ -r "$ROOT/references/help.md" ]; then cat "$ROOT/references/help.md"; else echo "Usage: issue-review-all <N|#N|issue-URL> [remote] [--ai L] [-h]"; fi
     exit 0
 fi
 

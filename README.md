@@ -26,7 +26,7 @@ no shared assets — it links out for the
 | `proceed` | `/gh-issue:proceed <N> [remote]` | Executes the 8-section protocol a *directive* issue embeds, unattended — strict schema validation, a safety gate per write step. Not a code implementer. |
 | `discussion-create` | `/gh-issue:discussion-create [category]` | Saves a pre-decision chat as an RFC-shaped Discussion (default `Ideas`). Refuses a decided to-do and routes it to `issue-create`. |
 | `discussion-convert` | `/gh-issue:discussion-convert <N>` | Promotes a decided `Ideas` Discussion into a backlinked Issue, then locks and closes it. Idempotent. |
-| `issue-review-all` | `/gh-issue:issue-review-all <N\|#N\|issue-URL> [remote] [--lanes L]` | Runs every reviewer CLI (claude, codex, opencode, agy, hermes) on one OPEN issue in parallel, in a throwaway tree, and posts one comment each. A failed lane is a skip. Never edits the issue. |
+| `issue-review-all` | `/gh-issue:issue-review-all <N\|#N\|issue-URL> [remote] [--ai L]` | Runs every reviewer CLI (claude, codex, opencode, agy, hermes) on one OPEN issue in parallel, in a throwaway tree, and posts one comment each. A failed lane is a skip. Never edits the issue. |
 
 `issue-create` and `discussion-create` are a pair split by *decidedness*: a converged
 to-do becomes an Issue, an open question becomes a Discussion.
@@ -124,7 +124,7 @@ detected; otherwise it runs the built-in path (pre-edit baseline, edits, test ru
 bounded 3-attempt failure loop, full report), as harnesses without a `Skill()`
 equivalent always do. Same finish line — the skill never requires the plugin.
 
-*long call* — `issue-review-all` is one shell call of up to ~10 minutes (540s per lane, run in parallel), and it needs the reviewer CLIs on `PATH`. A harness whose shell tool times out sooner kills the run mid-way: lanes that already posted keep their comments, but no report line is printed. Raise that harness's shell timeout or narrow `--lanes`. Unverified on the non-Claude harnesses.
+*long call* — `issue-review-all` is one shell call of up to ~10 minutes (540s per lane, run in parallel), and it needs the reviewer CLIs on `PATH`. A harness whose shell tool times out sooner kills the run mid-way: lanes that already posted keep their comments, but no report line is printed. Raise that harness's shell timeout or narrow `--ai`. Unverified on the non-Claude harnesses.
 
 *confirm in chat* — two steps need a real answer: `issue-create`'s clarification guard
 (conversation has not converged) and `discussion-create`'s category selection.

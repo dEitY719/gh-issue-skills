@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # lib/review-args.sh — argument normalizer for gh-issue:issue-review-all (#70).
 #
-#   bash lib/review-args.sh <N|#N|issue-URL> [remote] [--lanes L] [--force] [-h]
+#   bash lib/review-args.sh <N|#N|issue-URL> [remote] [--ai L] [--force] [-h]
 #
 # Executed, never sourced. Prints one `key=value` line per field on stdout:
 #
@@ -10,7 +10,8 @@
 #   remote=<name>  the git remote to bind; empty only for a URL whose repo no
 #                  local remote names (the caller then clones the repo)
 #   host=<host> repo=<owner/repo>   from the URL; empty for N / #N input
-#   lanes=<ai>[,<ai>...]            default claude,codex,opencode,agy,hermes
+#   lanes=<ai>[,<ai>...]            from --ai; default claude,codex,opencode,agy,hermes
+#                                   (the key keeps its internal name, #75)
 #
 # Exit 2 with the reason on stderr for every refusal: a PR URL (that is
 # gh-verify:review-all's job), any other URL shape, a remote that names a
@@ -64,14 +65,14 @@ while [ "$#" -gt 0 ]; do
         # --force here could only lie about re-running it.
         die "--force is not supported: the gh_issue_review engine has no bypass for its duplicate guard. To re-review, add a comment to the issue (the marker hash covers title, body and human comments) or delete the old review comment."
         ;;
-    --lanes)
-        { [ "$#" -ge 2 ] && [ -n "$2" ]; } || die "--lanes requires a value (e.g. --lanes claude,codex)"
+    --ai)
+        { [ "$#" -ge 2 ] && [ -n "$2" ]; } || die "--ai requires a value (e.g. --ai codex,claude)"
         lanes="$2"
         shift 2
         continue
         ;;
-    --lanes=*)
-        lanes="${1#--lanes=}"
+    --ai=*)
+        lanes="${1#--ai=}"
         ;;
     -*)
         die "Unknown flag: $1"
@@ -116,10 +117,10 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 
-[ -n "$issue" ] || die "Usage: issue-review-all <N|#N|issue-URL> [remote] [--lanes L] — run with -h for help."
+[ -n "$issue" ] || die "Usage: issue-review-all <N|#N|issue-URL> [remote] [--ai L] — run with -h for help."
 
 # Lanes: a subset of the five reviewer CLIs, no repeats.
-case ",$lanes," in *,,*) die "--lanes has an empty entry: '$lanes'" ;; esac
+case ",$lanes," in *,,*) die "--ai has an empty entry: '$lanes'" ;; esac
 seen=","
 IFS=, read -r -a _l <<<"$lanes"
 for a in "${_l[@]}"; do
