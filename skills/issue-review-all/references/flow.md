@@ -5,6 +5,37 @@ helper's header is its own contract, and each has a self-check:
 `lib/review-args.selfcheck.sh`, `lib/code-tree.selfcheck.sh` and
 `tests/bats/gh_issue_review_all.bats` (repo root).
 
+## Invocation
+
+`lib/review-all.sh` is executed, not sourced, and self-locates through `$0`;
+only the caller's one-time path lookup needs a root. There is no cwd fallback
+(dEitY719/harness-skills#24): the review runs inside a repo the caller does
+not control, so a defaulted splice could run that repo's own copy.
+
+Plugin mode (Claude Code sets `CLAUDE_PLUGIN_ROOT`), tier 1:
+
+```bash
+_RA="" # no cwd fallback (dEitY719/harness-skills#24)
+[ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RA="$CLAUDE_PLUGIN_ROOT/skills/issue-review-all/lib/review-all.sh" # tier 1
+if [ -z "$_RA" ] || [ ! -f "$_RA" ] || [ ! -r "$_RA" ]; then
+    printf '[FAIL] review-all.sh not found under CLAUDE_PLUGIN_ROOT (%s) — export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
+        "${CLAUDE_PLUGIN_ROOT:-unset}" >&2
+    exit 1
+fi
+bash "$_RA" <args>
+```
+
+Flat install (`npx skills add`, a Hermes tap — no plugin root): address the
+script by this skill's own directory, which the harness always knows:
+
+```bash
+bash "<this skill's directory>/lib/review-all.sh" <args>
+```
+
+The block lives here, not in `SKILL.md`, like every sibling skill's
+plugin-root block: catalogs that see the variable in `SKILL.md` judge the skill
+plugin-bound and hide it from flat installs (#79).
+
 ## Engine (dEitY719/dotfiles#2381)
 
 The review itself is the dotfiles engine `functions/gh_issue_review.sh`

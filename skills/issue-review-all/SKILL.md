@@ -36,17 +36,12 @@ once. The PR-side sibling is `gh-verify:review-all`.
 ## Step 1: Run the driver (one Bash call, timeout 600000)
 
 The skill is one executed script, `lib/review-all.sh`, which self-locates and
-does every step itself. Pass the user's arguments through unchanged:
+does every step itself. Pass the user's arguments through unchanged. How to
+locate the script (plugin mode, flat install): `references/flow.md` →
+"Invocation". In a flat install it is simply:
 
 ```bash
-_RA="" # no cwd fallback (dEitY719/harness-skills#24)
-[ -z "${CLAUDE_PLUGIN_ROOT:-}" ] || _RA="$CLAUDE_PLUGIN_ROOT/skills/issue-review-all/lib/review-all.sh" # tier 1
-if [ -z "$_RA" ] || [ ! -f "$_RA" ] || [ ! -r "$_RA" ]; then
-    printf '[FAIL] review-all.sh not found under CLAUDE_PLUGIN_ROOT (%s) — export CLAUDE_PLUGIN_ROOT=<plugin dir>.\n' \
-        "${CLAUDE_PLUGIN_ROOT:-unset}" >&2
-    exit 1
-fi
-bash "$_RA" <args>
+bash "<this skill's directory>/lib/review-all.sh" <args>
 ```
 
 What it does, in order (detail: `references/flow.md`):
