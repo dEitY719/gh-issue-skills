@@ -185,3 +185,11 @@ lane() { # lane <ai>
     assert_failure 2
     assert_output --partial "gh-verify:review-all"
 }
+
+@test "driver: the removed --lanes flag is refused with exit 2 before any lane runs (#75)" {
+    cd "$REPO"
+    run bash "$REPO_ROOT/lib/review-all.sh" 7 --lanes codex
+    assert_failure 2
+    assert_output --partial "Unknown flag: --lanes"
+    [ ! -e "$GH_LOG.cwd" ]
+}
