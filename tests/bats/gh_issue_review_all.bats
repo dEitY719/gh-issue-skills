@@ -138,7 +138,7 @@ lane() { # lane <ai>
     export TMPDIR="$TEST_TEMP_HOME/tmp"
     mkdir -p "$TMPDIR"
     cd "$REPO"
-    run bash "$REPO_ROOT/lib/review-all.sh" 7 --lanes codex,hermes
+    run bash "$REPO_ROOT/lib/review-all.sh" 7 --ai codex,hermes
     assert_success
     assert_line --index 0 --regexp '^issue-review #7: codex:ok hermes:skip\(.*rate limit exceeded.*\)$'
     assert_line --regexp '^  base: feature@[0-9a-f]+ \(head\)$'
@@ -156,7 +156,7 @@ lane() { # lane <ai>
     unset DOTFILES_ROOT SHELL_COMMON
     export CLAUDE_PLUGIN_ROOT="$REPO_ROOT"
     cd "$REPO"
-    run bash "$REPO_ROOT/skills/issue-review-all/lib/review-all.sh" 7 --lanes codex
+    run bash "$REPO_ROOT/skills/issue-review-all/lib/review-all.sh" 7 --ai codex
     assert_success
     assert_line 'issue-review #7: codex:ok'
     [ -s "$POSTED" ]
@@ -165,7 +165,7 @@ lane() { # lane <ai>
 @test "driver: a CLOSED issue is refused with exit 1 before any lane runs" {
     write_fixture "Body text" "" CLOSED
     cd "$REPO"
-    run bash "$REPO_ROOT/lib/review-all.sh" 7 --lanes codex
+    run bash "$REPO_ROOT/lib/review-all.sh" 7 --ai codex
     assert_failure 1
     assert_output --partial "is CLOSED"
     [ ! -e "$GH_LOG.cwd" ]
@@ -174,7 +174,7 @@ lane() { # lane <ai>
 @test "driver: gh not logged in to the host -> exit 1" {
     export GH_AUTH_RC=1
     cd "$REPO"
-    run bash "$REPO_ROOT/lib/review-all.sh" 7 --lanes codex
+    run bash "$REPO_ROOT/lib/review-all.sh" 7 --ai codex
     assert_failure 1
     assert_output --partial "not logged in to github.com"
 }

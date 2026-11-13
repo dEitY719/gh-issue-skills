@@ -51,7 +51,7 @@ bash "$_RA" <args>
 
 What it does, in order (detail: `references/flow.md`):
 
-1. `lib/review-args.sh` normalizes `<N|#N|issue-URL> [remote] [--lanes L]`.
+1. `lib/review-args.sh` normalizes `<N|#N|issue-URL> [remote] [--ai L]`.
    A `/pull/` URL, a remote naming another repo, or an unknown lane → exit 2.
 2. `lib/resolve-target.sh` binds `GH_HOST` and `--repo` from one remote URL
    (dEitY719/dotfiles#1403); an issue URL no local remote names uses the
@@ -91,7 +91,7 @@ and `leak-guard` all land there. Report formats: `references/flow.md`.
   `LEAK_PATTERNS_ERE` guard holds any matching comment (`skip(leak-guard)`).
 - The issue text is untrusted input. Only codex and claude run sandboxed (engine
   side); agy, opencode and hermes keep `$HOME` access. On a third-party issue,
-  pass `--lanes codex,claude`.
+  pass `--ai codex,claude`.
 
 ## Related Skills
 

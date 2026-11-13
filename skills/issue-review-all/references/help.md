@@ -6,7 +6,7 @@ issue comment each. Nothing else is written.
 ## Usage
 
 ```
-/gh-issue:issue-review-all <N|#N|issue-URL> [remote] [--lanes L]
+/gh-issue:issue-review-all <N|#N|issue-URL> [remote] [--ai L]
 /gh-issue:issue-review-all -h | --help | help
 ```
 
@@ -21,7 +21,7 @@ issue comment each. Nothing else is written.
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--lanes L` | `claude,codex,opencode,agy,hermes` | Comma list of reviewer CLIs to run. Unknown or repeated names → exit 2. The issue text is untrusted input, and only codex and claude run sandboxed (read-only, no Bash/Edit). For an issue written by someone you do not trust, use `--lanes codex,claude`. |
+| `--ai L` | `claude,codex,opencode,agy,hermes` | Reviewer CLIs to run: one name (`--ai codex`) or a comma list (`--ai codex,claude`, or `--ai=codex`). Unknown or repeated names → exit 2. The issue text is untrusted input, and only codex and claude run sandboxed (read-only, no Bash/Edit). For an issue written by someone you do not trust, use `--ai codex,claude`. |
 | `--force` | — | Refused (exit 2). The engine skips a lane this `gh` login already reviewed for the same material and has no bypass. To re-review, add a comment to the issue (the hash covers title, body and human comments) or delete the old review comment. |
 
 ## Env Vars
@@ -44,5 +44,6 @@ issue comment each. Nothing else is written.
 ## Examples
 
 - `/gh-issue:issue-review-all 70` — all five lanes on `origin`'s issue #70.
-- `/gh-issue:issue-review-all #12 upstream --lanes codex,agy` — two lanes on `upstream`.
+- `/gh-issue:issue-review-all 70 --ai codex` — one lane.
+- `/gh-issue:issue-review-all #12 upstream --ai codex,agy` — two lanes on `upstream`.
 - `/gh-issue:issue-review-all https://ghes.example.com/team/svc/issues/3` — a GHES issue.
