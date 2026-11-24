@@ -85,4 +85,5 @@ GH_HOST="$TARGET_HOST" gh issue view "$issue" --repo "$TARGET_REPO" --json body 
 bash "$ROOT/lib/split-review-items.sh" "$login" "$me" <"$run/comments.json" >"$run/items.tsv" || fail "Could not split the comments of #$issue." 1
 
 printf '%s\n' "host=$TARGET_HOST" "repo=$TARGET_REPO" "issue=$issue" "login=$login" "me=$me" "author=$author" \
-    "edit=$edit" "run=$run" "items=$(grep -c . "$run/items.tsv")" "open=$(awk -F'\t' '$3 == "open"' "$run/items.tsv" | grep -c .)"
+    "edit=$edit" "run=$run"
+awk -F'\t' 'NF { n++ } $3 == "open" { o++ } END { printf "items=%d\nopen=%d\n", n, o }' "$run/items.tsv"
