@@ -3,7 +3,10 @@
 # issue's comments into the items that each need exactly one reply.
 #
 #   gh api "repos/<repo>/issues/<N>/comments" --paginate --slurp \
-#       | jq 'add // []' | bash lib/split-review-items.sh <expected-login>
+#       | jq 'add // []' | bash lib/split-review-items.sh <expected-login> [reply-login]
+#
+# [reply-login] (default <expected-login>) is the account that posts the
+# replies; its markers and machine comments count alongside the reviewer's.
 #
 # Executed, never sourced. Input: the RAW comment array (REST shape — `id`,
 # `user.login`, `body`, `html_url`), never pre-extracted bodies: the author is
@@ -39,22 +42,28 @@
 set -u
 
 me=${1:-}
-[[ "$me" =~ ^[A-Za-z0-9-]+(\[bot\])?$ ]] || { printf 'split-review-items: bad expected login: %s\n' "${me:-<empty>}" >&2; exit 2; }
+rl=${2:-$me}
+for l in "$me" "$rl"; do
+    [[ "$l" =~ ^[A-Za-z0-9_.-]+(\[bot\])?$ ]] || { printf 'split-review-items: bad expected login: %s\n' "${l:-<empty>}" >&2; exit 2; }
+done
 
-jq -r --arg me "$me" '
+# Markers count only as whole lines: a reply quoting a comment ("> " on every
+# line) must not turn a quoted marker into a trusted review or reply.
+jq -r --arg me "$me" --arg rl "$rl" '
 def flat: gsub("[\t\r]"; " ") | gsub("\n"; " ") | .[0:300];
 def lines: split("\n") | map(sub("\r$"; ""));
 def tagged: capture("^\\s*(?:[-*+]\\s+|[0-9]+[.)]\\s+)?(?:\\*\\*)?\\[(?<sev>BLOCKER|FOLLOW-UP|PRAISE)\\]");
+def own: .user.login == $me or .user.login == $rl;
 if type != "array" then error("input is not a JSON array") else . end
 | . as $all
-| (reduce ($all[] | select(.user.login == $me) | (.body // "")
-          | [scan("<!-- issue-reply:([a-z0-9_-]+:[0-9a-z]+:[0-9]+):(ACCEPT-PARTIAL|ACCEPT|DECLINE|QUESTION|ACK) -->")][])
-     as $r ({}; .[$r[0]] = $r[1])) as $replied
+| (reduce ($all[] | select(own) | (.body // "") | lines[]
+          | capture("^<!-- issue-reply:(?<k>[a-z0-9_-]+:[0-9a-z]+:[0-9]+):(?<v>ACCEPT-PARTIAL|ACCEPT|DECLINE|QUESTION|ACK) -->\\s*$")?)
+     as $r ({}; .[$r.k] = $r.v)) as $replied
 | [ $all | to_entries[] | .key as $pos | .value
     | (.body // "") as $b
-    | ($b | capture("<!-- ai-issue-review:(?<ai>[a-z0-9_-]+):(?<hash>[0-9a-f]{12}) -->")? ) as $m
+    | ($b | lines | map(capture("^<!-- ai-issue-review:(?<ai>[a-z0-9_-]+):(?<hash>[0-9a-f]{12}) -->$")?) | first) as $m
     | select($m != null and .user.login == $me
-             and ($b | contains("<!-- /ai-issue-review:\($m.ai):\($m.hash) -->")))
+             and (($b | lines | index("<!-- /ai-issue-review:\($m.ai):\($m.hash) -->")) != null))
     | {pos: $pos, id: .id, ai: $m.ai, hash: $m.hash} ] as $reviews
 | (reduce $reviews[] as $r ({}; .[$r.ai] = $r.pos)) as $latest
 | $all | to_entries[] | .key as $pos | .value as $c
@@ -73,7 +82,7 @@ if type != "array" then error("input is not a JSON array") else . end
       end
     | .[] | [.key, .sev, ($replied[.key] // null | if . then "replied:\(.)" else "open" end),
              (if $cur then "1" else "0" end), ($c.id | tostring), $c.user.login, (.text | flat)]
-  elif $c.user.login == $me and ($b | contains("<!-- ")) then
+  elif ($c | own) and ($b | contains("<!-- ")) then
     empty
   else
     "human:\($c.id):0" as $k

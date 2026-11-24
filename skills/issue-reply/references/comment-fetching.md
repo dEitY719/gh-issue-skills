@@ -40,9 +40,14 @@ account is treated as a plain human comment: one `NOTE` item, and its
 `[BLOCKER]` lines never reach the label gate. Same rule as `gh-pr:reply`'s
 marker-authorship check (dEitY719/dotfiles#1639).
 
-Reply markers obey the same rule: only the expected login's
+Reply markers obey the same rule: only the expected login's (or the running
+`me` login's, when `GH_ISSUE_REPLY_TRUSTED_LOGIN` names another account)
 `<!-- issue-reply:… -->` counts as "already answered", otherwise anyone could
 silence a finding by posting a fake reply.
+
+Both markers count only as a whole line. A reply quotes the comment it
+answers with `> ` on every line, so a marker quoted from a forged comment
+never becomes a trusted review or reply.
 
 ## Own comments are not findings
 

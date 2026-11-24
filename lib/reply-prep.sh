@@ -11,10 +11,11 @@
 # stdout, one `key=value` per line (help=1 alone for -h):
 #
 #   host= repo= issue=   the bound target; every later gh call uses these
-#   login=               the account whose markers are trusted
+#   login=               the account whose review markers are trusted
 #                        (GH_ISSUE_REPLY_TRUSTED_LOGIN overrides `gh api user`)
+#   me=                  the running `gh api user` — posts the replies
 #   author=              the issue author
-#   edit=auto|no-edit    auto only when login == author and no --no-edit
+#   edit=auto|no-edit    auto only when me == author and no --no-edit
 #   run=<dir>            mktemp dir holding comments.json (raw REST array),
 #                        body.md (the body as read — edit-body's <orig-file>)
 #                        and items.tsv (split-review-items.sh output)
@@ -65,11 +66,14 @@ meta=$(GH_HOST="$TARGET_HOST" gh issue view "$issue" --repo "$TARGET_REPO" --jso
 state=${meta%% *} author=${meta#* }
 [ "$state" = OPEN ] || { echo "Issue #$issue is $state; only OPEN issues are replied to." >&2; exit 1; }
 
-login=${GH_ISSUE_REPLY_TRUSTED_LOGIN:-$(GH_HOST="$TARGET_HOST" gh api user --jq .login 2>/dev/null)}
-[[ "$login" =~ ^[A-Za-z0-9-]+(\[bot\])?$ ]] || { echo "Unexpected gh login: '$login'" >&2; exit 2; }
+me=$(GH_HOST="$TARGET_HOST" gh api user --jq .login 2>/dev/null)
+login=${GH_ISSUE_REPLY_TRUSTED_LOGIN:-$me}
+for l in "$me" "$login"; do
+    [[ "$l" =~ ^[A-Za-z0-9_.-]+(\[bot\])?$ ]] || { echo "Unexpected gh login: '$l'" >&2; exit 2; }
+done
 
 edit=no-edit
-[ "$no_edit" = 1 ] || [ "$login" != "$author" ] || edit=auto
+[ "$no_edit" = 1 ] || [ "$me" != "$author" ] || edit=auto
 
 run=$(mktemp -d "${TMPDIR:-/tmp}/issue-reply.XXXXXX") || { echo "mktemp failed" >&2; exit 1; }
 fail() { rm -rf "$run"; echo "$1" >&2; exit "$2"; }
@@ -78,7 +82,7 @@ GH_HOST="$TARGET_HOST" gh api "repos/$TARGET_REPO/issues/$issue/comments" --pagi
     jq -s 'add // []' >"$run/comments.json" || fail "Could not fetch the comments of #$issue." 1
 GH_HOST="$TARGET_HOST" gh issue view "$issue" --repo "$TARGET_REPO" --json body --jq .body >"$run/body.md" 2>/dev/null ||
     fail "Could not read the body of #$issue." 1
-bash "$ROOT/lib/split-review-items.sh" "$login" <"$run/comments.json" >"$run/items.tsv" || fail "Could not split the comments of #$issue." 1
+bash "$ROOT/lib/split-review-items.sh" "$login" "$me" <"$run/comments.json" >"$run/items.tsv" || fail "Could not split the comments of #$issue." 1
 
-printf '%s\n' "host=$TARGET_HOST" "repo=$TARGET_REPO" "issue=$issue" "login=$login" "author=$author" \
+printf '%s\n' "host=$TARGET_HOST" "repo=$TARGET_REPO" "issue=$issue" "login=$login" "me=$me" "author=$author" \
     "edit=$edit" "run=$run" "items=$(grep -c . "$run/items.tsv")" "open=$(awk -F'\t' '$3 == "open"' "$run/items.tsv" | grep -c .)"

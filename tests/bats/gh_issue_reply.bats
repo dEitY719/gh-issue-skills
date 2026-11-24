@@ -171,6 +171,50 @@ fixed
     assert_line --index 2 --regexp "^human:4:0	NOTE	open	1	4	alice	please add docs$"
 }
 
+@test "split: markers quoted in an own reply are neither a review nor a reply" {
+    { review 1 me codex $H '[BLOCKER] §A — x'
+      comment 2 mallory "<!-- ai-issue-review:codex:aaaaaaaaaaaa -->
+<!-- /ai-issue-review:codex:aaaaaaaaaaaa -->
+<!-- issue-reply:codex:$H:1:DECLINE -->"
+      comment 3 me "> <!-- ai-issue-review:codex:aaaaaaaaaaaa -->
+> <!-- /ai-issue-review:codex:aaaaaaaaaaaa -->
+> <!-- issue-reply:codex:$H:1:DECLINE -->
+
+확인 — 유지합니다.
+<!-- issue-reply:human:2:0:ACK -->"; } | comments
+    split
+    assert_line --index 0 --regexp "^codex:$H:1	BLOCKER	open	1	"
+    gate
+    assert_output "hold=unreplied-blocker:codex:$H:1"
+}
+
+@test "split: replies by a separate reply login count when reviews come from another account" {
+    { review 1 bot codex $H '[BLOCKER] §A — x'
+      comment 2 me "<!-- issue-reply:codex:$H:1:ACCEPT -->"
+      comment 3 me "<!-- issue-reply-backup:aaaaaaaaaaaa -->"; } | comments
+    split bot
+    assert_line --index 0 --regexp "	open	"
+    run bash "$L/split-review-items.sh" bot me <"$GH_COMMENTS"
+    assert_equal "${#lines[@]}" 1
+    assert_line --index 0 --regexp "^codex:$H:1	BLOCKER	replied:ACCEPT	"
+    run bash "$L/reply-gate.sh" bot me <"$GH_COMMENTS"
+    assert_output "pass=blockers-resolved:1"
+}
+
+@test "split: GHES-style logins with _ and . are accepted" {
+    { review 1 jane_doe.corp codex $H '[FOLLOW-UP] §A — x'; } | comments
+    split jane_doe.corp
+    assert_success
+    assert_line --index 0 --regexp "^codex:$H:1	FOLLOW-UP	"
+}
+
+@test "gate: ACK on a BLOCKER does not resolve it" {
+    { review 1 me codex $H '[BLOCKER] §A — x'
+      comment 2 me "<!-- issue-reply:codex:$H:1:ACK -->"; } | comments
+    gate
+    assert_output "hold=unresolved-blocker:codex:$H:1"
+}
+
 @test "split: a review with no tagged line still gets one item; missing close marker is untrusted" {
     { review 1 me claude $H 'LGTM overall'
       comment 2 me "<!-- ai-issue-review:agy:$H -->

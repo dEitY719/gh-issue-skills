@@ -27,7 +27,7 @@ the accepted ones, and reply to each finding individually.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `GH_ISSUE_REPLY_TRUSTED_LOGIN` | `gh api user` | The account whose `ai-issue-review` and `issue-reply` markers are trusted. Set it when the reviews were posted by a different account than the one replying. |
+| `GH_ISSUE_REPLY_TRUSTED_LOGIN` | `gh api user` | The account whose `ai-issue-review` markers are trusted. Set it when the reviews were posted by a different account than the one replying; `issue-reply` markers from the running `gh` login still count. |
 | `LEAK_PATTERNS_ERE` | (dotfiles pre-push rules) | Internal PC + github.com only: a reply or body edit matching it, or an empty value, is held (not posted). |
 | `DOTFILES_ROOT` | `$HOME/dotfiles` | Where `shell-common/lib/gh_host.sh` is looked up first; the vendored copy is used otherwise. |
 
