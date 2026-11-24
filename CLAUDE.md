@@ -19,8 +19,9 @@ before a branch exists, and the one skill that turns a card into edits:
 | `discussion-create` | a GitHub Discussion | Saves a pre-decision chat as an RFC-shaped Discussion. Refuses a decided to-do. |
 | `discussion-convert` | an Issue + a locked Discussion | Promotes a decided `Ideas` Discussion into a backlinked Issue, then locks and closes it. |
 | `issue-review-all` | one issue comment per reviewer CLI | Fans every reviewer CLI out over one OPEN issue in parallel, before it is built, via the dotfiles `gh_issue_review` engine (dEitY719/dotfiles#2381). |
+| `issue-reply` | one reply comment per finding, an edited body, a label | Judges every `issue-review-all` finding and human comment, fixes the issue body for the accepted ones (original backed up first), replies per item, sets `review-passed` / `review-blocked` (#86). |
 
-Five of the seven write to a live GitHub repo. That is why every safety contract
+Six of the eight write to a live GitHub repo. That is why every safety contract
 below is a hard rule rather than a preference.
 
 The skills were extracted from `dEitY719/dotfiles`
@@ -162,7 +163,7 @@ only when no shell ships, and then carries a drift test that greps the
   (`wc -l skills/*/SKILL.md`) — anything added there has to come out of
   somewhere else.
 - **Description budget.** CI sums every skill description and fails past 5,440
-  characters — Codex's context budget. The current total is 1,665. Keep new
+  characters — Codex's context budget. The current total is 1,893. Keep new
   descriptions tight anyway.
 
 ## Safety contracts
@@ -202,10 +203,16 @@ These are acceptance criteria carried over from dotfiles, not advice:
   target, HEAD never enters the review tree (the remote's default branch is used)
   and an unreadable setup-mode reader counts as internal. A failed lane is a
   `skip`, never a failed run.
+- **`issue-reply` never edits the body without preserving it first**, and only
+  when the running login is the issue author: the original is posted as an
+  `issue-reply-backup` comment, and a body that changed since it was read is
+  refused. Review and reply markers count only from the expected login, so a
+  forged `ai-issue-review` block is a plain comment and never holds or releases
+  the label. It never edits code, closes, assigns, or runs a reviewer.
 
 ## Harness portability
 
-These seven are `gh` CLI calls and file writes, so they port cleanly with one
+These eight are `gh` CLI calls and file writes, so they port cleanly with one
 exception (`issue-review-all` also needs the reviewer CLIs themselves on `PATH`; a
 missing one is a skipped lane): `implement` calls `superpowers:test-driven-development` through
 Claude Code's `Skill()` tool on its TDD path. That path is gated on the plugin
