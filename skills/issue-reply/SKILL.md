@@ -45,7 +45,7 @@ print stderr, stop; nothing was written. Keep its `key=value` lines (`host`,
 trust, markers: `references/comment-fetching.md`. `open=0` → Step 8, print
 `No unanswered review items — nothing to do.`, stop.
 
-## Step 5: Judge each open item
+## Step 5: Judge each open, current item
 
 ACCEPT / ACCEPT-PARTIAL / DECLINE / QUESTION per finding, `ACK` for PRAISE.
 Evidence: the body and the code at the review's `리뷰 기준: <branch>@<sha>`;

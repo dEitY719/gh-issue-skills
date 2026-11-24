@@ -104,7 +104,7 @@ edit-body)
 
     old=$(sha12 "$orig") newsha=$(sha12 "$new")
     # A fence longer than any backtick run in the body keeps it verbatim.
-    run=$(grep -o '`*' "$orig" | awk '{ if (length > m) m = length } END { print m + 0 }')
+    run=$(grep -o '`\+' "$orig" | awk '{ if (length > m) m = length } END { print m + 0 }')
     fence=$(printf '%*s' $((run < 3 ? 3 : run + 1)) '' | tr ' ' '`')
     {
         printf '<!-- issue-reply-backup:%s -->\n' "$old"

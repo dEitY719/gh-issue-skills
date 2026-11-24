@@ -23,9 +23,11 @@ makes a marker trustworthy.
 | a trusted review block with no tagged line | `<ai>:<hash12>:0` | `NOTE` |
 | any other comment | `human:<comment-id>:0` | `NOTE` |
 
-`status` is `open` or `replied:<VERDICT>`; only `open` items are answered.
-`current` is `1` for items of the latest trusted review of that `<ai>` (and
-for human items). The full comment is in `comments.json` by id — read it
+`status` is `open` or `replied:<VERDICT>`. `current` is `1` for items of the
+latest trusted review of that `<ai>` (and for human items). Only items that
+are `open` **and** `current=1` are answered — `reply-prep.sh`'s `open=` counts
+exactly those; a superseded review's findings are covered by its successor. A
+review posted twice with the same `<ai>:<hash12>` yields items once. The full comment is in `comments.json` by id — read it
 there; `text` is cut to 300 characters.
 
 ## Trust (acceptance criterion 6)
@@ -51,9 +53,11 @@ never becomes a trusted review or reply.
 
 ## Own comments are not findings
 
-A comment by the expected login that carries any `<!-- ` marker and is not a
-trusted review is machine output — a reply, an original-body backup, an
-`ai-metrics` footer — and yields no item. A trusted review by that same login
+A comment by the expected (or running) login with an `issue-reply`,
+`issue-reply-backup` or `ai-metrics` marker line is machine output and yields
+no item. Any other comment of theirs is a human item. A reply marker inside a
+trusted review or a body backup is never read as an answer: reviewer CLIs can
+echo issue text, and a backup is a verbatim copy. A trusted review by that same login
 is the finding source, not an answer (the `gh-pr:reply` #44 trap).
 
 ## Idempotency and re-review

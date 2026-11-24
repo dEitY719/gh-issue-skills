@@ -19,7 +19,8 @@
 #   run=<dir>            mktemp dir holding comments.json (raw REST array),
 #                        body.md (the body as read — edit-body's <orig-file>)
 #                        and items.tsv (split-review-items.sh output)
-#   items= open=         item count, and how many have no reply yet
+#   items= open=         item count, and how many current items (latest review
+#                        per reviewer, or a human comment) have no reply yet
 #
 # Exit 2 refusal (bad args, PR URL, remote naming another repo, bad login),
 # 1 pre-flight failure (not logged in, issue missing or not OPEN, fetch
@@ -66,7 +67,8 @@ meta=$(GH_HOST="$TARGET_HOST" gh issue view "$issue" --repo "$TARGET_REPO" --jso
 state=${meta%% *} author=${meta#* }
 [ "$state" = OPEN ] || { echo "Issue #$issue is $state; only OPEN issues are replied to." >&2; exit 1; }
 
-me=$(GH_HOST="$TARGET_HOST" gh api user --jq .login 2>/dev/null)
+me=$(GH_HOST="$TARGET_HOST" gh api user --jq .login 2>/dev/null) ||
+    { echo "Could not resolve the gh login on $TARGET_HOST." >&2; exit 1; }
 login=${GH_ISSUE_REPLY_TRUSTED_LOGIN:-$me}
 for l in "$me" "$login"; do
     [[ "$l" =~ ^[A-Za-z0-9_.-]+(\[bot\])?$ ]] || { echo "Unexpected gh login: '$l'" >&2; exit 2; }
@@ -86,4 +88,4 @@ bash "$ROOT/lib/split-review-items.sh" "$login" "$me" <"$run/comments.json" >"$r
 
 printf '%s\n' "host=$TARGET_HOST" "repo=$TARGET_REPO" "issue=$issue" "login=$login" "me=$me" "author=$author" \
     "edit=$edit" "run=$run"
-awk -F'\t' 'NF { n++ } $3 == "open" { o++ } END { printf "items=%d\nopen=%d\n", n, o }' "$run/items.tsv"
+awk -F'\t' 'NF { n++ } $3 == "open" && $4 == "1" { o++ } END { printf "items=%d\nopen=%d\n", n, o }' "$run/items.tsv"
