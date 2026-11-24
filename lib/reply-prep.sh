@@ -79,9 +79,12 @@ edit=no-edit
 
 run=$(mktemp -d "${TMPDIR:-/tmp}/issue-reply.XXXXXX") || { echo "mktemp failed" >&2; exit 1; }
 fail() { rm -rf "$run"; echo "$1" >&2; exit "$2"; }
-# --paginate prints one JSON array per page; jq -s joins them.
-GH_HOST="$TARGET_HOST" gh api "repos/$TARGET_REPO/issues/$issue/comments" --paginate 2>/dev/null |
-    jq -s 'add // []' >"$run/comments.json" || fail "Could not fetch the comments of #$issue." 1
+# --paginate prints one JSON array per page; jq -s joins them. Two steps, so a
+# failed fetch can never reach jq and read as "no comments".
+GH_HOST="$TARGET_HOST" gh api "repos/$TARGET_REPO/issues/$issue/comments" --paginate >"$run/pages.json" 2>/dev/null ||
+    fail "Could not fetch the comments of #$issue." 1
+jq -s 'if all(type == "array") then add // [] else error("not a comment page") end' "$run/pages.json" >"$run/comments.json" ||
+    fail "The comments of #$issue are not a JSON array." 1
 GH_HOST="$TARGET_HOST" gh issue view "$issue" --repo "$TARGET_REPO" --json body --jq .body >"$run/body.md" 2>/dev/null ||
     fail "Could not read the body of #$issue." 1
 bash "$ROOT/lib/split-review-items.sh" "$login" "$me" <"$run/comments.json" >"$run/items.tsv" || fail "Could not split the comments of #$issue." 1
