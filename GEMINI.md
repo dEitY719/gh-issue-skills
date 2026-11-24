@@ -1,9 +1,9 @@
 # gh-issue — skill index
 
-Seven skills for the GitHub issue and discussion lifecycle. Each lives in this
+Eight skills for the GitHub issue and discussion lifecycle. Each lives in this
 extension's `skills/` directory. They are explicitly invoked, never ambient:
 load the one that matches the request by reading its `SKILL.md`, then follow it.
-Do not load all seven.
+Do not load all eight.
 
 | Skill | Read | Use when |
 |-------|------|----------|
@@ -14,13 +14,14 @@ Do not load all seven.
 | `discussion-create` | `@./skills/discussion-create/SKILL.md` | Saving a pre-decision chat as an RFC-shaped Discussion. Refuses a decided to-do. |
 | `discussion-convert` | `@./skills/discussion-convert/SKILL.md` | Promoting a decided `Ideas` Discussion into a backlinked Issue, then locking and closing it. |
 | `issue-review-all` | `@./skills/issue-review-all/SKILL.md` | Having every reviewer CLI review one OPEN issue in parallel before it is built, one comment each. PRs go to `gh-verify:review-all`. |
+| `issue-reply` | `@./skills/issue-reply/SKILL.md` | Answering those issue reviews: one verdict and one reply per finding, accepted ones fixed in the issue body (original backed up first). PRs go to `gh-pr:reply`. |
 
 Each skill's `references/` directory holds the detail it loads on demand.
 `SKILL.md` says which file to read and when. Do not read `references/` up front.
 
 ## What each skill needs
 
-- **All seven** — an authenticated `gh` CLI. Every call carries `GH_HOST` **and**
+- **All eight** — an authenticated `gh` CLI. Every call carries `GH_HOST` **and**
   `--repo`: `--repo` alone names no server, and on a dual-host login (github.com
   plus a GHES instance) a bare call silently queries the wrong one and reports an
   OPEN issue as "not found" (dEitY719/dotfiles#1403).

@@ -1,0 +1,12 @@
+[
+  {"query": "이슈 86 에 codex 랑 claude 가 남긴 리뷰 지적들 하나하나 판정하고 답 달아줘", "should_trigger": true},
+  {"query": "issue-review-all 돌린 결과 BLOCKER 3개 나왔어. 이슈 본문에 반영하고 각 항목에 답글 남겨", "should_trigger": true},
+  {"query": "/gh-issue:issue-reply 86", "should_trigger": true, "note": "slash-literal: update if the skill is renamed"},
+  {"query": "go through the AI review comments on issue #42, fix the spec for the valid ones and answer each finding", "should_trigger": true},
+  {"query": "이슈 리뷰 코멘트 처리해 — 본문은 건드리지 말고 수정안만 답글로", "should_trigger": true},
+  {"query": "PR 123 리뷰 코멘트 확인하고 수정해줘", "should_trigger": false, "note": "PR side: gh-pr:reply"},
+  {"query": "이슈 86 다중 리뷰 돌려줘", "should_trigger": false, "note": "gh-issue:issue-review-all"},
+  {"query": "issue #16 구현해", "should_trigger": false, "note": "gh-issue:implement"},
+  {"query": "이 대화 이슈로 등록해줘", "should_trigger": false, "note": "gh-issue:issue-create"},
+  {"query": "이슈 #16 읽고 정리해줘", "should_trigger": false, "note": "gh-issue:read"}
+]
