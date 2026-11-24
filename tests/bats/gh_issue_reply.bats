@@ -42,7 +42,7 @@ case "$1 $2" in
     while [ "$#" -gt 0 ]; do [ "$1" = "--body-file" ] && cp "$2" "$GH_LOG.posted"; shift; done
     echo "https://github.com/o/r/issues/7#issuecomment-99" ;;
 "issue edit") ;;
-api\ repos/*) cat "$GH_COMMENTS" ;;
+api\ repos/*) [ "${GH_API_RC:-0}" -eq 0 ] || exit "$GH_API_RC"; cat "$GH_COMMENTS" ;;
 *) echo "unexpected gh call: $*" >&2; exit 9 ;;
 esac
 EOF
@@ -407,4 +407,14 @@ fixed
     assert_failure 3
     run grep -E 'issue (comment|edit)' "$GH_LOG"
     assert_failure
+}
+
+@test "prep: a failed comment fetch is exit 1, never an empty item list" {
+    cd "$REPO"
+    GH_API_RC=1 run bash "$L/reply-prep.sh" 7
+    assert_failure 1
+    assert_output --partial "Could not fetch the comments"
+    printf '{"message":"x"}' >"$GH_COMMENTS"
+    run bash "$L/reply-prep.sh" 7
+    assert_failure 1
 }
