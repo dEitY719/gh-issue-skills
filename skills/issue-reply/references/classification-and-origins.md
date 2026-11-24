@@ -34,5 +34,5 @@ markers, so the marker's `<VERDICT>` must be the real one:
 
 - A current `BLOCKER` replied `ACCEPT`, `ACCEPT-PARTIAL` or `DECLINE` is
   resolved — a DECLINE must carry its reason in the reply.
-- `QUESTION` on a BLOCKER keeps it unresolved → `review-blocked`.
+- `QUESTION` (or `ACK`) on a BLOCKER keeps it unresolved → `review-blocked`.
 - `FOLLOW-UP` and `PRAISE` never block.

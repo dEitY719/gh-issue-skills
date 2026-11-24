@@ -41,7 +41,7 @@ Parses `<N|#N|issue-URL> [remote] [--no-edit]`, binds `GH_HOST` + `--repo` from
 one remote URL, refuses a `/pull/` URL or foreign remote (exit 2) and a CLOSED
 issue (exit 1), fetches every comment and splits it into items. Non-zero →
 print stderr, stop; nothing was written. Keep its `key=value` lines (`host`,
-`repo`, `issue`, `login`, `edit`, `run`, `open`) for every later call. Items,
+`repo`, `issue`, `login`, `me`, `edit`, `run`, `open`) for every later call. Items,
 trust, markers: `references/comment-fetching.md`. `open=0` → Step 8, print
 `No unanswered review items — nothing to do.`, stop.
 
@@ -78,7 +78,7 @@ Retries once; still failing or exit 3 (leak guard) → unreplied, verdict `[FAIL
 
 ```bash
 GH_HOST=<host> gh api "repos/<repo>/issues/<issue>/comments" --paginate | jq -s 'add // []' |
-    bash "<skill-dir>/lib/reply-gate.sh" <login> --apply <host> <repo> <issue>
+    bash "<skill-dir>/lib/reply-gate.sh" <login> <me> --apply <host> <repo> <issue>
 ```
 
 `pass=*` → `review-passed`; `hold=un*` → `review-blocked`; no trusted review →
