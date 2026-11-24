@@ -21,7 +21,7 @@ before a branch exists, and the one skill that turns a card into edits:
 | `issue-review-all` | one issue comment per reviewer CLI | Fans every reviewer CLI out over one OPEN issue in parallel, before it is built, via the dotfiles `gh_issue_review` engine (dEitY719/dotfiles#2381). |
 | `issue-reply` | one reply comment per finding, an edited body, a label | Judges every `issue-review-all` finding and human comment, fixes the issue body for the accepted ones (original backed up first), replies per item, sets `review-passed` / `review-blocked` (#86). |
 
-Six of the eight write to a live GitHub repo. That is why every safety contract
+Seven of the eight write to a live GitHub repo. That is why every safety contract
 below is a hard rule rather than a preference.
 
 The skills were extracted from `dEitY719/dotfiles`

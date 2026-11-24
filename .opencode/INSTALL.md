@@ -37,7 +37,7 @@ in the installed copy.
 ## Notes
 
 - The plugin injects **no** per-session bootstrap context. These skills are
-  invoked explicitly against a named issue or discussion; six of the eight mutate
+  invoked explicitly against a named issue or discussion; seven of the eight mutate
   a live GitHub repo, so keeping them out of the preamble is deliberate.
 - `implement`'s TDD path calls `superpowers:test-driven-development` through
   Claude Code's `Skill()` tool, which OpenCode has no equivalent for. The skill

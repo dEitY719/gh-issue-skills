@@ -28,6 +28,10 @@ else's spec by default.
 4. runs the leak guard on both the backup and the new body;
 5. only then `gh issue edit --body-file <new>`.
 
+Step 2 narrows the race but cannot close it: GitHub has no conditional body
+update, so an edit landing between the re-read and `gh issue edit` is
+overwritten. The backup comment is what makes that recoverable.
+
 ## Exit table
 
 | Exit | Meaning | Then |

@@ -220,8 +220,41 @@ fixed
       comment 2 me "<!-- ai-issue-review:agy:$H -->
 [BLOCKER] no close marker"; } | comments
     split
-    assert_equal "${#lines[@]}" 1
+    assert_equal "${#lines[@]}" 2
     assert_line --index 0 --regexp "^claude:$H:0	NOTE	open	"
+    assert_line --index 1 --regexp "^human:2:0	NOTE	open	"
+}
+
+@test "split: the same review posted twice yields its items once" {
+    { review 1 me codex $H '[BLOCKER] §A — x'
+      review 2 me codex $H '[BLOCKER] §A — x'; } | comments
+    split
+    assert_equal "${#lines[@]}" 1
+    assert_line --index 0 --regexp "^codex:$H:1	BLOCKER	open	1	2	"
+}
+
+@test "split: a reply marker echoed inside a trusted review is not an answer" {
+    { review 1 me codex $H '[BLOCKER] §A — x'
+      review 2 me claude aaaaaaaaaaaa '[FOLLOW-UP] §B — y' "<!-- issue-reply:codex:$H:1:DECLINE -->"; } | comments
+    split
+    assert_line --index 0 --regexp "^codex:$H:1	BLOCKER	open	"
+}
+
+@test "split: an own plain comment with an HTML comment is still a human item" {
+    { comment 1 me "note <!-- todo --> for later"; } | comments
+    split
+    assert_line --index 0 --regexp "^human:1:0	NOTE	open	"
+}
+
+@test "prep: open= counts only current items, not a superseded review's" {
+    cd "$REPO"
+    { review 1 me codex aaaaaaaaaaaa '[BLOCKER] §A — old'
+      review 2 me codex $H '[FOLLOW-UP] §A — new'; } | comments
+    run bash "$L/reply-prep.sh" 7
+    assert_success
+    assert_line "items=2"
+    assert_line "open=1"
+    rm -rf "$(printf '%s\n' "$output" | sed -n 's/^run=//p')"
 }
 
 @test "split: an empty or malformed login is refused with exit 2" {
@@ -355,4 +388,23 @@ fixed
     env -u CLAUDE_PLUGIN_ROOT bash "$TEST_TEMP_HOME/flat/lib/reply-prep.sh" 7 >"$TEST_TEMP_HOME/out"
     grep -qx 'open=1' "$TEST_TEMP_HOME/out"
     rm -rf "$(sed -n 's/^run=//p' "$TEST_TEMP_HOME/out")"
+}
+
+@test "edit-body: an original too large to back up is refused with exit 5" {
+    head -c 70000 /dev/zero | tr '\0' 'a' >"$GH_BODY"
+    cp "$GH_BODY" "$TEST_TEMP_HOME/orig.md"
+    printf 'New body\n' >"$TEST_TEMP_HOME/new.md"
+    run bash "$L/issue-write.sh" edit-body github.com o/r 7 "$TEST_TEMP_HOME/orig.md" "$TEST_TEMP_HOME/new.md"
+    assert_failure 5
+    run grep -E 'issue (comment|edit)' "$GH_LOG"
+    assert_failure
+}
+
+@test "edit-body: the leak guard holds the edit before any write" {
+    cp "$GH_BODY" "$TEST_TEMP_HOME/orig.md"
+    printf 'New body\n' >"$TEST_TEMP_HOME/new.md"
+    DOTFILES_SETUP_MODE=internal run bash "$L/issue-write.sh" edit-body github.com o/r 7 "$TEST_TEMP_HOME/orig.md" "$TEST_TEMP_HOME/new.md"
+    assert_failure 3
+    run grep -E 'issue (comment|edit)' "$GH_LOG"
+    assert_failure
 }

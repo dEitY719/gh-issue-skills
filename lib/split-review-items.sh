@@ -31,9 +31,11 @@
 # forged one is just a human comment (severity NOTE), so its [BLOCKER] lines
 # never reach the gate. Reply markers `<!-- issue-reply:<key>:<VERDICT> -->`
 # count only from <expected-login> too — anyone else's would silently
-# suppress real items. Any other comment by <expected-login> carrying a
-# `<!-- ` marker (reply, original-body backup, ai-metrics footer) is machine
-# output and yields no item.
+# suppress real items; a reply marker echoed inside a review or a body
+# backup never counts. Any other own comment carrying an `issue-reply`,
+# `issue-reply-backup` or `ai-metrics` marker line is machine output and
+# yields no item. A review posted twice with the same <ai>:<hash12> yields
+# items once, from its last copy.
 #
 # Exit 2 on a missing or malformed login (fail closed: no login, no trust),
 # 1 when the input is not a JSON array.
@@ -54,9 +56,12 @@ def flat: gsub("[\t\r]"; " ") | gsub("\n"; " ") | .[0:300];
 def lines: split("\n") | map(sub("\r$"; ""));
 def tagged: capture("^\\s*(?:[-*+]\\s+|[0-9]+[.)]\\s+)?(?:\\*\\*)?\\[(?<sev>BLOCKER|FOLLOW-UP|PRAISE)\\]");
 def own: .user.login == $me or .user.login == $rl;
+# A reply comment is own output that is neither a review (reviewer CLIs can
+# echo issue text, markers included) nor a body backup (a verbatim copy).
+def reply_src: own and ((.body // "") | lines | any(startswith("<!-- ai-issue-review:") or startswith("<!-- issue-reply-backup:")) | not);
 if type != "array" then error("input is not a JSON array") else . end
 | . as $all
-| (reduce ($all[] | select(own) | (.body // "") | lines[]
+| (reduce ($all[] | select(reply_src) | (.body // "") | lines[]
           | capture("^<!-- issue-reply:(?<k>[a-z0-9_-]+:[0-9a-z]+:[0-9]+):(?<v>ACCEPT-PARTIAL|ACCEPT|DECLINE|QUESTION|ACK) -->\\s*$")?)
      as $r ({}; .[$r.k] = $r.v)) as $replied
 | [ $all | to_entries[] | .key as $pos | .value
@@ -66,10 +71,14 @@ if type != "array" then error("input is not a JSON array") else . end
              and (($b | lines | index("<!-- /ai-issue-review:\($m.ai):\($m.hash) -->")) != null))
     | {pos: $pos, id: .id, ai: $m.ai, hash: $m.hash} ] as $reviews
 | (reduce $reviews[] as $r ({}; .[$r.ai] = $r.pos)) as $latest
+# The same review posted twice (same ai + hash) shares keys: only its last copy yields items.
+| (reduce $reviews[] as $r ({}; .["\($r.ai):\($r.hash)"] = $r.pos)) as $lastcopy
 | $all | to_entries[] | .key as $pos | .value as $c
 | ($c.body // "") as $b
 | ($reviews | map(select(.pos == $pos)) | first) as $rv
-| if $rv != null then
+| if $rv != null and $lastcopy["\($rv.ai):\($rv.hash)"] != $pos then
+    empty
+  elif $rv != null then
     ($b | lines) as $ls
     | ($ls | index("<!-- ai-issue-review:\($rv.ai):\($rv.hash) -->")) as $s
     | ($ls | index("<!-- /ai-issue-review:\($rv.ai):\($rv.hash) -->")) as $e
@@ -82,7 +91,7 @@ if type != "array" then error("input is not a JSON array") else . end
       end
     | .[] | [.key, .sev, ($replied[.key] // null | if . then "replied:\(.)" else "open" end),
              (if $cur then "1" else "0" end), ($c.id | tostring), $c.user.login, (.text | flat)]
-  elif ($c | own) and ($b | contains("<!-- ")) then
+  elif ($c | own) and ($b | lines | any(test("^<!-- (issue-reply|issue-reply-backup|ai-metrics):"))) then
     empty
   else
     "human:\($c.id):0" as $k
